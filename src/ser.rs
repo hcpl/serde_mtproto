@@ -9,13 +9,10 @@ pub struct Serializer {
     output: Vec<u8>,
 }
 
-
-pub fn to_vec<T>(value: &T) -> error::Result<Vec<u8>>
-    where T: Serialize
-{
-    let mut serializer = Serializer { output: Vec::new() };
-    value.serialize(&mut serializer)?;
-    Ok(serializer.output)
+impl Serializer {
+    fn new() -> Serializer {
+        Serializer { output: Vec::new() }
+    }
 }
 
 
@@ -156,11 +153,11 @@ impl<'a> ser::Serializer for &'a mut Serializer {
     }
 
     fn serialize_unit(self) -> error::Result<()> {
-        Ok(())
+        unimplemented!()
     }
 
     fn serialize_unit_struct(self, _name: &'static str) -> error::Result<()> {
-        unimplemented!()
+        Ok(())
     }
 
     fn serialize_unit_variant(self,
@@ -168,7 +165,7 @@ impl<'a> ser::Serializer for &'a mut Serializer {
                               _variant_index: u32,
                               variant: &'static str)
                              -> error::Result<()> {
-        unimplemented!()
+        Ok(())
     }
 
     fn serialize_newtype_struct<T>(self, _name: &'static str, value: &T) -> error::Result<()>
@@ -185,7 +182,7 @@ impl<'a> ser::Serializer for &'a mut Serializer {
                                    -> error::Result<()>
         where T: ?Sized + Serialize
     {
-        unimplemented!()
+        value.serialize(self)
     }
 
     fn serialize_seq(self, _len: Option<usize>) -> error::Result<Self> {
@@ -214,7 +211,7 @@ impl<'a> ser::Serializer for &'a mut Serializer {
     }
 
     fn serialize_struct(self, _name: &'static str, len: usize) -> error::Result<Self> {
-        unimplemented!()
+        Ok(self)
     }
 
     fn serialize_struct_variant(self,
@@ -315,11 +312,11 @@ impl<'a> ser::SerializeStruct for &'a mut Serializer {
     fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
-        unimplemented!()
+        value.serialize(self)
     }
 
     fn end(self) -> error::Result<()> {
-        unimplemented!()
+        Ok(())
     }
 }
 
@@ -330,10 +327,19 @@ impl<'a> ser::SerializeStructVariant for &'a mut Serializer {
     fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
-        unimplemented!()
+        value.serialize(self)
     }
 
     fn end(self) -> error::Result<()> {
-        unimplemented!()
+        Ok(())
     }
+}
+
+
+pub fn to_vec<T>(value: &T) -> error::Result<Vec<u8>>
+    where T: Serialize
+{
+    let mut ser = Serializer { output: Vec::new() };
+    value.serialize(&mut ser)?;
+    Ok(ser.output)
 }
