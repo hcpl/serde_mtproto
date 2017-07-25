@@ -71,7 +71,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     impl_serialize!(f64, serialize_f64, WriteBytesExt::write_f64<LittleEndian>);
 
     fn serialize_char(self, value: char) -> error::Result<()> {
-        unimplemented!()
+        unreachable!("this method shouldn't be called")
     }
 
     fn serialize_str(self, value: &str) -> error::Result<()> {
@@ -156,7 +156,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     }
 
     fn serialize_unit(self) -> error::Result<()> {
-        unimplemented!()
+        unreachable!("this method shouldn't be called")
     }
 
     fn serialize_unit_struct(self, _name: &'static str) -> error::Result<()> {
@@ -189,15 +189,15 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     }
 
     fn serialize_seq(self, _len: Option<usize>) -> error::Result<Self> {
-        unimplemented!()
+        unreachable!("this method shouldn't be called")
     }
 
     fn serialize_tuple(self, len: usize) -> error::Result<Self> {
-        unimplemented!()
+        unreachable!("this method shouldn't be called")
     }
 
     fn serialize_tuple_struct(self, _name: &'static str, len: usize) -> error::Result<Self> {
-        unimplemented!()
+        unreachable!("this method shouldn't be called")
     }
 
     fn serialize_tuple_variant(self,
@@ -206,11 +206,11 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
                                variant: &'static str,
                                _len: usize)
                               -> error::Result<Self> {
-        unimplemented!()
+        unreachable!("this method shouldn't be called")
     }
 
     fn serialize_map(self, _len: Option<usize>) -> error::Result<Self> {
-        unimplemented!()
+        unreachable!("this method shouldn't be called")
     }
 
     fn serialize_struct(self, _name: &'static str, len: usize) -> error::Result<Self> {
@@ -236,11 +236,11 @@ impl<'a, W> ser::SerializeSeq for &'a mut Serializer<W>
     fn serialize_element<T>(&mut self, value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
-        unimplemented!()
+        unreachable!("this method shouldn't be called")
     }
 
     fn end(self) -> error::Result<()> {
-        unimplemented!()
+        unreachable!("this method shouldn't be called")
     }
 }
 
@@ -253,11 +253,11 @@ impl<'a, W> ser::SerializeTuple for &'a mut Serializer<W>
     fn serialize_element<T>(&mut self, value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
-        unimplemented!()
+        unreachable!("this method shouldn't be called")
     }
 
     fn end(self) -> error::Result<()> {
-        unimplemented!()
+        unreachable!("this method shouldn't be called")
     }
 }
 
@@ -270,11 +270,11 @@ impl<'a, W> ser::SerializeTupleStruct for &'a mut Serializer<W>
     fn serialize_field<T>(&mut self, value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
-        unimplemented!()
+        unreachable!("this method shouldn't be called")
     }
 
     fn end(self) -> error::Result<()> {
-        unimplemented!()
+        unreachable!("this method shouldn't be called")
     }
 }
 
@@ -287,11 +287,11 @@ impl<'a, W> ser::SerializeTupleVariant for &'a mut Serializer<W>
     fn serialize_field<T>(&mut self, value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
-        unimplemented!()
+        unreachable!("this method shouldn't be called")
     }
 
     fn end(self) -> error::Result<()> {
-        unimplemented!()
+        unreachable!("this method shouldn't be called")
     }
 }
 
@@ -304,17 +304,17 @@ impl<'a, W> ser::SerializeMap for &'a mut Serializer<W>
     fn serialize_key<T>(&mut self, key: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
-        unimplemented!()
+        unreachable!("this method shouldn't be called")
     }
 
     fn serialize_value<T>(&mut self, value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
-        unimplemented!()
+        unreachable!("this method shouldn't be called")
     }
 
     fn end(self) -> error::Result<()> {
-        unimplemented!()
+        unreachable!("this method shouldn't be called")
     }
 }
 
