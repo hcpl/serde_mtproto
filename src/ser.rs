@@ -77,6 +77,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     fn serialize_str(self, value: &str) -> error::Result<()> {
         // TODO: unicode length?
         let len = value.len();
+        let rem;
 
         if len <= 253 {
             // If L <= 253, the serialization contains one byte with the value of L,
@@ -86,6 +87,8 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
             // of int(L/4)+1 32-bit little-endian integers.
 
             self.writer.write_all(&[len as u8])?;
+
+            rem = (len + 1) % 4;
         } else {
             // If L >= 254, the serialization contains byte 254, followed by 3
             // bytes with the string length L in little-endian order, followed by L
@@ -93,6 +96,8 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
             self.writer.write_all(&[254])?;
             self.writer.write_uint::<LittleEndian>(len as u64, 3)?;
+
+            rem = len % 4;
         }
 
         // Write each character in the string
@@ -100,7 +105,6 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
         // [...] string followed by 0 to 3 characters containing 0,
         // such that the overall length of the value be divisible by 4 [...]
-        let rem = len % 4;
         if rem > 0 {
             for _ in 0..(4 - rem) {
                 self.writer.write_all(&[0])?;
@@ -112,6 +116,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
     fn serialize_bytes(self, value: &[u8]) -> error::Result<()> {
         let len = value.len();
+        let rem;
 
         if len <= 253 {
             // If L <= 253, the serialization contains one byte with the value of L,
@@ -121,6 +126,8 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
             // of int(L/4)+1 32-bit little-endian integers.
 
             self.writer.write_all(&[len as u8])?;
+
+            rem = (len + 1) % 4;
         } else {
             // If L >= 254, the serialization contains byte 254, followed by 3
             // bytes with the string length L in little-endian order, followed by L
@@ -128,6 +135,8 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
             self.writer.write_all(&[254])?;
             self.writer.write_uint::<LittleEndian>(len as u64, 3)?;
+
+            rem = len % 4;
         }
 
         // Write each character in the string
@@ -135,7 +144,6 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
         // [...] string followed by 0 to 3 characters containing 0,
         // such that the overall length of the value be divisible by 4 [...]
-        let rem = len % 4;
         if rem > 0 {
             for _ in 0..(4 - rem) {
                 self.writer.write_all(&[0])?;
