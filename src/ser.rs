@@ -70,7 +70,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     impl_serialize!(f32, serialize_f32, WriteBytesExt::write_f32<LittleEndian>);
     impl_serialize!(f64, serialize_f64, WriteBytesExt::write_f64<LittleEndian>);
 
-    fn serialize_char(self, value: char) -> error::Result<()> {
+    fn serialize_char(self, _value: char) -> error::Result<()> {
         unreachable!("this method shouldn't be called")
     }
 
@@ -101,7 +101,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
         }
 
         // Write each character in the string
-        self.writer.write_all(value.as_bytes());
+        self.writer.write_all(value.as_bytes())?;
 
         // [...] string followed by 0 to 3 characters containing 0,
         // such that the overall length of the value be divisible by 4 [...]
@@ -140,7 +140,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
         }
 
         // Write each character in the string
-        self.writer.write_all(value);
+        self.writer.write_all(value)?;
 
         // [...] string followed by 0 to 3 characters containing 0,
         // such that the overall length of the value be divisible by 4 [...]
@@ -174,7 +174,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     fn serialize_unit_variant(self,
                               _name: &'static str,
                               _variant_index: u32,
-                              variant: &'static str)
+                              _variant: &'static str)
                              -> error::Result<()> {
         Ok(())
     }
@@ -188,7 +188,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     fn serialize_newtype_variant<T>(self,
                                     _name: &'static str,
                                     _variant_index: u32,
-                                    variant: &'static str,
+                                    _variant: &'static str,
                                     value: &T)
                                    -> error::Result<()>
         where T: ?Sized + Serialize
@@ -200,18 +200,18 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
         unreachable!("this method shouldn't be called")
     }
 
-    fn serialize_tuple(self, len: usize) -> error::Result<Self> {
+    fn serialize_tuple(self, _len: usize) -> error::Result<Self> {
         Ok(self)
     }
 
-    fn serialize_tuple_struct(self, _name: &'static str, len: usize) -> error::Result<Self> {
+    fn serialize_tuple_struct(self, _name: &'static str, _len: usize) -> error::Result<Self> {
         unreachable!("this method shouldn't be called")
     }
 
     fn serialize_tuple_variant(self,
                                _name: &'static str,
                                _variant_index: u32,
-                               variant: &'static str,
+                               _variant: &'static str,
                                _len: usize)
                               -> error::Result<Self> {
         unreachable!("this method shouldn't be called")
@@ -221,14 +221,14 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
         unreachable!("this method shouldn't be called")
     }
 
-    fn serialize_struct(self, _name: &'static str, len: usize) -> error::Result<Self> {
+    fn serialize_struct(self, _name: &'static str, _len: usize) -> error::Result<Self> {
         Ok(self)
     }
 
     fn serialize_struct_variant(self,
                                 _name: &'static str,
                                 _variant_index: u32,
-                                variant: &'static str,
+                                _variant: &'static str,
                                 _len: usize)
                                -> error::Result<Self> {
         Ok(self)
@@ -241,7 +241,7 @@ impl<'a, W> ser::SerializeSeq for &'a mut Serializer<W>
     type Ok = ();
     type Error = error::Error;
 
-    fn serialize_element<T>(&mut self, value: &T) -> error::Result<()>
+    fn serialize_element<T>(&mut self, _value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
         unreachable!("this method shouldn't be called")
@@ -275,7 +275,7 @@ impl<'a, W> ser::SerializeTupleStruct for &'a mut Serializer<W>
     type Ok = ();
     type Error = error::Error;
 
-    fn serialize_field<T>(&mut self, value: &T) -> error::Result<()>
+    fn serialize_field<T>(&mut self, _value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
         unreachable!("this method shouldn't be called")
@@ -292,7 +292,7 @@ impl<'a, W> ser::SerializeTupleVariant for &'a mut Serializer<W>
     type Ok = ();
     type Error = error::Error;
 
-    fn serialize_field<T>(&mut self, value: &T) -> error::Result<()>
+    fn serialize_field<T>(&mut self, _value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
         unreachable!("this method shouldn't be called")
@@ -309,13 +309,13 @@ impl<'a, W> ser::SerializeMap for &'a mut Serializer<W>
     type Ok = ();
     type Error = error::Error;
 
-    fn serialize_key<T>(&mut self, key: &T) -> error::Result<()>
+    fn serialize_key<T>(&mut self, _key: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
         unreachable!("this method shouldn't be called")
     }
 
-    fn serialize_value<T>(&mut self, value: &T) -> error::Result<()>
+    fn serialize_value<T>(&mut self, _value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
         unreachable!("this method shouldn't be called")
@@ -332,7 +332,7 @@ impl<'a, W> ser::SerializeStruct for &'a mut Serializer<W>
     type Ok = ();
     type Error = error::Error;
 
-    fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> error::Result<()>
+    fn serialize_field<T>(&mut self, _key: &'static str, value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
         value.serialize(&mut **self)
@@ -349,7 +349,7 @@ impl<'a, W> ser::SerializeStructVariant for &'a mut Serializer<W>
     type Ok = ();
     type Error = error::Error;
 
-    fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> error::Result<()>
+    fn serialize_field<T>(&mut self, _key: &'static str, value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
         value.serialize(&mut **self)
