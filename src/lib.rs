@@ -3,9 +3,9 @@ extern crate byteorder;
 extern crate serde;
 
 
-mod error;
-mod ser;
-//mod de;
+pub mod error;
+pub mod ser;
+//pub mod de;
 
 pub use error::{Error, Result};
 pub use ser::{Serializer};

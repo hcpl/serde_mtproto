@@ -193,7 +193,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     }
 
     fn serialize_tuple(self, len: usize) -> error::Result<Self> {
-        unreachable!("this method shouldn't be called")
+        Ok(self)
     }
 
     fn serialize_tuple_struct(self, _name: &'static str, len: usize) -> error::Result<Self> {
@@ -253,11 +253,11 @@ impl<'a, W> ser::SerializeTuple for &'a mut Serializer<W>
     fn serialize_element<T>(&mut self, value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
-        unreachable!("this method shouldn't be called")
+        value.serialize(&mut **self)
     }
 
     fn end(self) -> error::Result<()> {
-        unreachable!("this method shouldn't be called")
+        Ok(())
     }
 }
 
