@@ -3,6 +3,8 @@ extern crate byteorder;
 #[macro_use] extern crate serde;
 
 
+mod common;
+
 pub mod error;
 pub mod ser;
 pub mod de;

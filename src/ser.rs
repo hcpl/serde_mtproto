@@ -3,6 +3,7 @@ use std::io;
 use byteorder::{WriteBytesExt, LittleEndian};
 use serde::ser::{self, Serialize};
 
+use common::{FALSE_ID, TRUE_ID};
 use error;
 
 
@@ -25,9 +26,6 @@ macro_rules! impl_serialize {
         }
     };
 }
-
-const TRUE_ID: i32 = -1720552011;
-const FALSE_ID: i32 = -1132882121;
 
 impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     where W: io::Write
