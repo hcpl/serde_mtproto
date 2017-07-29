@@ -187,14 +187,15 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_seq<V>(mut self, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        let value = visitor.visit_seq(Combinator::new(&mut self))?;
+        let value = visitor.visit_seq(Combinator::new_for_seq(&mut self))?;
         Ok(value)
     }
 
-    fn deserialize_tuple<V>(self, len: usize, visitor: V) -> error::Result<V::Value>
+    fn deserialize_tuple<V>(mut self, len: usize, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        unimplemented!()
+        let value = visitor.visit_seq(Combinator::new_for_tuple(&mut self, len))?;
+        Ok(value)
     }
 
     fn deserialize_tuple_struct<V>(self, name: &'static str, len: usize, visitor: V) -> error::Result<V::Value>
@@ -237,11 +238,25 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
 
 struct Combinator<'a, R: 'a + io::Read> {
     de: &'a mut Deserializer<R>,
+    next_index: usize,
+    count: Option<usize>,
 }
 
 impl<'a, R: io::Read> Combinator<'a, R> {
-    fn new(de: &'a mut Deserializer<R>) -> Combinator<'a, R> {
-        Combinator { de: de }
+    fn new_for_seq(de: &'a mut Deserializer<R>) -> Combinator<'a, R> {
+        Combinator {
+            de: de,
+            next_index: 0,
+            count: None,
+        }
+    }
+
+    fn new_for_tuple(de: &'a mut Deserializer<R>, count: usize) -> Combinator<'a, R> {
+        Combinator {
+            de: de,
+            next_index: 0,
+            count: Some(count),
+        }
     }
 }
 
@@ -253,6 +268,14 @@ impl<'de, 'a, R> SeqAccess<'de> for Combinator<'a, R>
     fn next_element_seed<T>(&mut self, seed: T) -> error::Result<Option<T::Value>>
         where T: DeserializeSeed<'de>
     {
+        if let Some(count) = self.count {
+            if self.next_index < count {
+                self.next_index += 1;
+            } else {
+                return Ok(None);
+            }
+        }
+
         seed.deserialize(&mut *self.de).map(Some)
     }
 }
