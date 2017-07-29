@@ -1,6 +1,6 @@
 use std::io;
 
-use serde::de::{self, Deserialize, SeqAccess, Visitor};
+use serde::de::{self, Deserialize, DeserializeOwned, DeserializeSeed, SeqAccess, Visitor};
 
 use error;
 
@@ -57,4 +57,24 @@ impl<'de, 'a, R> SeqAccess<'de> for Combinator<'a, R>
     {
         seed.deserialize(&mut *self.de).map(Some)
     }
+}
+
+
+pub fn from_slice<'a, T>(slice: &'a [u8]) -> error::Result<T>
+    where T: Deserialize<'a>
+{
+    let mut de = Deserializer::with_reader(slice);
+    let value = Deserialize::deserialize(&mut de)?;
+
+    Ok(value)
+}
+
+pub fn from_reader<R, T>(reader: R) -> error::Result<T>
+    where R: io::Read,
+          T: DeserializeOwned,
+{
+    let mut de = Deserializer::with_reader(reader);
+    let value = Deserialize::deserialize(&mut de)?;
+
+    Ok(value)
 }
