@@ -31,17 +31,23 @@ impl<R: io::Read> Deserializer<R> {
             unreachable!();
         }
 
-        Ok((len, rem))
+        Ok((len, if rem > 0 { 4 - rem } else { 0 }))
     }
 
     fn read_string(&mut self) -> error::Result<String> {
         let (len, rem) = self.get_str_info()?;
 
-        let mut s = String::with_capacity(len);
-        self.reader.read_to_string(&mut s)?;
+        // Safe version of
+        //     let mut s = String::with_capacity(len);
+        //     unsafe {
+        //         self.reader.read_exact(s.as_mut_vec())?;
+        //     }
+        let mut s_bytes = vec![0; len];
+        self.reader.read_exact(&mut s_bytes)?;
+        let s = String::from_utf8(s_bytes)?;
 
-        let mut padding = String::with_capacity(rem);
-        self.reader.read_to_string(&mut padding)?;
+        let mut padding = vec![0; rem];
+        self.reader.read_exact(&mut padding)?;
 
         Ok(s)
     }
@@ -49,11 +55,11 @@ impl<R: io::Read> Deserializer<R> {
     fn read_bytes(&mut self) -> error::Result<Vec<u8>> {
         let (len, rem) = self.get_str_info()?;
 
-        let mut b = Vec::with_capacity(len);
-        self.reader.read_exact(b.as_mut_slice())?;
+        let mut b = vec![0; len];
+        self.reader.read_exact(&mut b)?;
 
-        let mut padding = Vec::with_capacity(rem);
-        self.reader.read_exact(padding.as_mut_slice())?;
+        let mut padding = vec![0; rem];
+        self.reader.read_exact(&mut padding)?;
 
         Ok(b)
     }
