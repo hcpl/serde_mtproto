@@ -1,7 +1,7 @@
 use std::io;
 
 use byteorder::{ReadBytesExt, LittleEndian};
-use serde::de::{self, Deserialize, DeserializeOwned, DeserializeSeed, SeqAccess, Visitor};
+use serde::de::{self, Deserialize, DeserializeOwned, DeserializeSeed, EnumAccess, SeqAccess, VariantAccess, Visitor};
 
 use common::{FALSE_ID, TRUE_ID};
 use error;
@@ -10,11 +10,15 @@ use identifiable::{Identifiable, Wrapper};
 
 pub struct Deserializer<R: io::Read> {
     reader: R,
+    enum_variant_id: Option<u32>,
 }
 
 impl<R: io::Read> Deserializer<R> {
-    fn with_reader(reader: R) -> Deserializer<R> {
-        Deserializer { reader: reader }
+    fn new(reader: R, enum_variant_id: Option<u32>) -> Deserializer<R> {
+        Deserializer {
+            reader: reader,
+            enum_variant_id: enum_variant_id,
+        }
     }
 
     fn get_str_info(&mut self) -> error::Result<(usize, usize)> {
@@ -215,16 +219,18 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
         visitor.visit_seq(Combinator::with_count(&mut self, fields.len()))
     }
 
-    fn deserialize_enum<V>(self, name: &'static str, variants: &'static [&'static str], visitor: V) -> error::Result<V::Value>
+    fn deserialize_enum<V>(mut self, name: &'static str, variants: &'static [&'static str], visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        unimplemented!()
+        visitor.visit_enum(Combinator::without_count(&mut self))
     }
 
     fn deserialize_identifier<V>(self, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        unimplemented!()
+        let variant_id = self.enum_variant_id.unwrap();
+
+        visitor.visit_u32(variant_id)
     }
 
     fn deserialize_ignored_any<V>(self, visitor: V) -> error::Result<V::Value>
@@ -279,21 +285,64 @@ impl<'de, 'a, R> SeqAccess<'de> for Combinator<'a, R>
     }
 }
 
+impl<'de, 'a, R> EnumAccess<'de> for Combinator<'a, R>
+    where R: 'a + io::Read
+{
+    type Error = error::Error;
+    type Variant = Self;
 
-pub fn from_slice<'a, T>(slice: &'a [u8]) -> error::Result<T>
+    fn variant_seed<V>(self, seed: V) -> error::Result<(V::Value, Self::Variant)>
+        where V: DeserializeSeed<'de>
+    {
+        let value = seed.deserialize(&mut *self.de)?;
+
+        Ok((value, self))
+    }
+}
+
+impl<'de, 'a, R> VariantAccess<'de> for Combinator<'a, R>
+    where R: 'a + io::Read
+{
+    type Error = error::Error;
+
+    fn unit_variant(self) -> error::Result<()> {
+        Ok(())
+    }
+
+    fn newtype_variant_seed<T>(self, seed: T) -> error::Result<T::Value>
+        where T: DeserializeSeed<'de>
+    {
+        seed.deserialize(self.de)
+    }
+
+    fn tuple_variant<V>(self, len: usize, visitor: V) -> error::Result<V::Value>
+        where V: Visitor<'de>
+    {
+        de::Deserializer::deserialize_tuple_struct(self.de, "", len, visitor)
+    }
+
+    fn struct_variant<V>(self, fields: &'static [&'static str], visitor: V) -> error::Result<V::Value>
+        where V: Visitor<'de>
+    {
+        de::Deserializer::deserialize_struct(self.de, "", fields, visitor)
+    }
+}
+
+
+pub fn from_slice<'a, T>(slice: &'a [u8], enum_variant_id: Option<u32>) -> error::Result<T>
     where T: Deserialize<'a> + Identifiable
 {
-    let mut de = Deserializer::with_reader(slice);
+    let mut de = Deserializer::new(slice, enum_variant_id);
     let wrapper: Wrapper<T> = Deserialize::deserialize(&mut de)?;
 
     Ok(wrapper.take_data())
 }
 
-pub fn from_reader<R, T>(reader: R) -> error::Result<T>
+pub fn from_reader<R, T>(reader: R, enum_variant_id: Option<u32>) -> error::Result<T>
     where R: io::Read,
           T: DeserializeOwned + Identifiable,
 {
-    let mut de = Deserializer::with_reader(reader);
+    let mut de = Deserializer::new(reader, enum_variant_id);
     let wrapper: Wrapper<T> = Deserialize::deserialize(&mut de)?;
 
     Ok(wrapper.take_data())
