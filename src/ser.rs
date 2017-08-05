@@ -5,6 +5,7 @@ use serde::ser::{self, Serialize};
 
 use common::{FALSE_ID, TRUE_ID};
 use error;
+use identifiable::{Identifiable, Wrapper};
 
 
 pub struct Serializer<W: io::Write> {
@@ -360,18 +361,24 @@ impl<'a, W> ser::SerializeStructVariant for &'a mut Serializer<W>
 
 
 pub fn to_vec<T>(value: &T) -> error::Result<Vec<u8>>
-    where T: Serialize
+    where T: Serialize + Identifiable
 {
+    let wrapper = Wrapper::new(value);
     let mut ser = Serializer::with_writer(Vec::new());
-    value.serialize(&mut ser)?;
+
+    wrapper.serialize(&mut ser)?;
+
     Ok(ser.writer)
 }
 
 pub fn to_writer<W, T>(writer: W, value: &T) -> error::Result<()>
     where W: io::Write,
-          T: Serialize,
+          T: Serialize + Identifiable,
 {
+    let wrapper = Wrapper::new(value);
     let mut ser = Serializer::with_writer(writer);
-    value.serialize(&mut ser)?;
+
+    wrapper.serialize(&mut ser)?;
+
     Ok(())
 }

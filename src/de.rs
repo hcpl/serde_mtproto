@@ -5,6 +5,7 @@ use serde::de::{self, Deserialize, DeserializeOwned, DeserializeSeed, SeqAccess,
 
 use common::{FALSE_ID, TRUE_ID};
 use error;
+use identifiable::{Identifiable, Wrapper};
 
 
 pub struct Deserializer<R: io::Read> {
@@ -52,7 +53,7 @@ impl<R: io::Read> Deserializer<R> {
         Ok(s)
     }
 
-    fn read_bytes(&mut self) -> error::Result<Vec<u8>> {
+    fn read_byte_buf(&mut self) -> error::Result<Vec<u8>> {
         let (len, rem) = self.get_str_info()?;
 
         let mut b = vec![0; len];
@@ -149,14 +150,14 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_bytes<V>(self, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        let b = self.read_bytes()?;
+        let b = self.read_byte_buf()?;
         visitor.visit_bytes(&b)
     }
 
     fn deserialize_byte_buf<V>(self, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        let b = self.read_bytes()?;
+        let b = self.read_byte_buf()?;
         visitor.visit_byte_buf(b)
     }
 
@@ -187,15 +188,13 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_seq<V>(mut self, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        let value = visitor.visit_seq(Combinator::new_for_seq(&mut self))?;
-        Ok(value)
+        visitor.visit_seq(Combinator::without_count(&mut self))
     }
 
     fn deserialize_tuple<V>(mut self, len: usize, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        let value = visitor.visit_seq(Combinator::new_for_tuple(&mut self, len))?;
-        Ok(value)
+        visitor.visit_seq(Combinator::with_count(&mut self, len))
     }
 
     fn deserialize_tuple_struct<V>(self, name: &'static str, len: usize, visitor: V) -> error::Result<V::Value>
@@ -210,10 +209,10 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
         unimplemented!()
     }
 
-    fn deserialize_struct<V>(self, name: &'static str, fields: &'static [&'static str], visitor: V) -> error::Result<V::Value>
+    fn deserialize_struct<V>(mut self, name: &'static str, fields: &'static [&'static str], visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        unimplemented!()
+        visitor.visit_seq(Combinator::with_count(&mut self, fields.len()))
     }
 
     fn deserialize_enum<V>(self, name: &'static str, variants: &'static [&'static str], visitor: V) -> error::Result<V::Value>
@@ -243,7 +242,7 @@ struct Combinator<'a, R: 'a + io::Read> {
 }
 
 impl<'a, R: io::Read> Combinator<'a, R> {
-    fn new_for_seq(de: &'a mut Deserializer<R>) -> Combinator<'a, R> {
+    fn without_count(de: &'a mut Deserializer<R>) -> Combinator<'a, R> {
         Combinator {
             de: de,
             next_index: 0,
@@ -251,7 +250,7 @@ impl<'a, R: io::Read> Combinator<'a, R> {
         }
     }
 
-    fn new_for_tuple(de: &'a mut Deserializer<R>, count: usize) -> Combinator<'a, R> {
+    fn with_count(de: &'a mut Deserializer<R>, count: usize) -> Combinator<'a, R> {
         Combinator {
             de: de,
             next_index: 0,
@@ -282,20 +281,20 @@ impl<'de, 'a, R> SeqAccess<'de> for Combinator<'a, R>
 
 
 pub fn from_slice<'a, T>(slice: &'a [u8]) -> error::Result<T>
-    where T: Deserialize<'a>
+    where T: Deserialize<'a> + Identifiable
 {
     let mut de = Deserializer::with_reader(slice);
-    let value = Deserialize::deserialize(&mut de)?;
+    let wrapper: Wrapper<T> = Deserialize::deserialize(&mut de)?;
 
-    Ok(value)
+    Ok(wrapper.take_data())
 }
 
 pub fn from_reader<R, T>(reader: R) -> error::Result<T>
     where R: io::Read,
-          T: DeserializeOwned,
+          T: DeserializeOwned + Identifiable,
 {
     let mut de = Deserializer::with_reader(reader);
-    let value = Deserialize::deserialize(&mut de)?;
+    let wrapper: Wrapper<T> = Deserialize::deserialize(&mut de)?;
 
-    Ok(value)
+    Ok(wrapper.take_data())
 }
