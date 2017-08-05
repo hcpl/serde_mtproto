@@ -13,7 +13,7 @@ pub struct Serializer<W: io::Write> {
 }
 
 impl<W: io::Write> Serializer<W> {
-    fn with_writer(writer: W) -> Serializer<W> {
+    pub fn new(writer: W) -> Serializer<W> {
         Serializer { writer: writer }
     }
 }
@@ -364,7 +364,7 @@ pub fn to_vec<T>(value: &T) -> error::Result<Vec<u8>>
     where T: Serialize + Identifiable
 {
     let wrapper = Wrapper::new(value);
-    let mut ser = Serializer::with_writer(Vec::new());
+    let mut ser = Serializer::new(Vec::new());
 
     wrapper.serialize(&mut ser)?;
 
@@ -376,7 +376,7 @@ pub fn to_writer<W, T>(writer: W, value: &T) -> error::Result<()>
           T: Serialize + Identifiable,
 {
     let wrapper = Wrapper::new(value);
-    let mut ser = Serializer::with_writer(writer);
+    let mut ser = Serializer::new(writer);
 
     wrapper.serialize(&mut ser)?;
 

@@ -14,7 +14,7 @@ pub struct Deserializer<R: io::Read> {
 }
 
 impl<R: io::Read> Deserializer<R> {
-    fn new(reader: R, enum_variant_id: Option<u32>) -> Deserializer<R> {
+    pub fn new(reader: R, enum_variant_id: Option<u32>) -> Deserializer<R> {
         Deserializer {
             reader: reader,
             enum_variant_id: enum_variant_id,
