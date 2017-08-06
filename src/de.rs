@@ -11,11 +11,11 @@ use identifiable::{Identifiable, Wrapper};
 
 pub struct Deserializer<R: io::Read> {
     reader: R,
-    enum_variant_id: Option<u32>,
+    enum_variant_id: Option<&'static str>,
 }
 
 impl<R: io::Read> Deserializer<R> {
-    pub fn new(reader: R, enum_variant_id: Option<u32>) -> Deserializer<R> {
+    pub fn new(reader: R, enum_variant_id: Option<&'static str>) -> Deserializer<R> {
         Deserializer {
             reader: reader,
             enum_variant_id: enum_variant_id,
@@ -238,7 +238,7 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     {
         let variant_id = self.enum_variant_id.unwrap();
 
-        visitor.visit_u32(variant_id)
+        visitor.visit_str(variant_id)
     }
 
     fn deserialize_ignored_any<V>(self, visitor: V) -> error::Result<V::Value>
@@ -337,7 +337,7 @@ impl<'de, 'a, R> VariantAccess<'de> for Combinator<'a, R>
 }
 
 
-pub fn from_slice<'a, T>(slice: &'a [u8], enum_variant_id: Option<u32>) -> error::Result<T>
+pub fn from_slice<'a, T>(slice: &'a [u8], enum_variant_id: Option<&'static str>) -> error::Result<T>
     where T: Deserialize<'a> + Identifiable
 {
     let mut de = Deserializer::new(slice, enum_variant_id);
@@ -346,7 +346,7 @@ pub fn from_slice<'a, T>(slice: &'a [u8], enum_variant_id: Option<u32>) -> error
     Ok(wrapper.take_data())
 }
 
-pub fn from_reader<R, T>(reader: R, enum_variant_id: Option<u32>) -> error::Result<T>
+pub fn from_reader<R, T>(reader: R, enum_variant_id: Option<&'static str>) -> error::Result<T>
     where R: io::Read,
           T: DeserializeOwned + Identifiable,
 {

@@ -41,7 +41,7 @@ mod tests {
             0xdeadbeefi32
         }
 
-        fn get_enum_variant_id(&self) -> Option<u32> {
+        fn get_enum_variant_id(&self) -> Option<&'static str> {
             None
         }
     }
@@ -67,10 +67,10 @@ mod tests {
             }
         }
 
-        fn get_enum_variant_id(&self) -> Option<u32> {
+        fn get_enum_variant_id(&self) -> Option<&'static str> {
             let variant_id = match *self {
-                Cafebabe::Bar { .. } => 0,
-                Cafebabe::Baz { .. } => 1,
+                Cafebabe::Bar { .. } => "Bar",
+                Cafebabe::Baz { .. } => "Baz",
             };
 
             Some(variant_id)
@@ -162,14 +162,14 @@ mod tests {
 
     #[test]
     fn test_enum_variant_from_slice() {
-        let cafebabe_bar_deserialized: Cafebabe = from_slice(&*CAFEBABE_BAR_SERIALIZED, Some(0)).unwrap();
+        let cafebabe_bar_deserialized: Cafebabe = from_slice(&*CAFEBABE_BAR_SERIALIZED, Some("Bar")).unwrap();
 
         assert_eq!(cafebabe_bar_deserialized, *CAFEBABE_BAR);
     }
 
     #[test]
     fn test_enum_variant_from_reader() {
-        let cafebabe_bar_deserialized: Cafebabe = from_slice(CAFEBABE_BAR_SERIALIZED.as_slice(), Some(0)).unwrap();
+        let cafebabe_bar_deserialized: Cafebabe = from_slice(CAFEBABE_BAR_SERIALIZED.as_slice(), Some("Bar")).unwrap();
 
         assert_eq!(cafebabe_bar_deserialized, *CAFEBABE_BAR);
     }
@@ -192,14 +192,14 @@ mod tests {
 
     #[test]
     fn test_enum_variant_from_slice2() {
-        let cafebabe_baz_deserialized: Cafebabe = from_slice(&*CAFEBABE_BAZ_SERIALIZED, Some(1)).unwrap();
+        let cafebabe_baz_deserialized: Cafebabe = from_slice(&*CAFEBABE_BAZ_SERIALIZED, Some("Baz")).unwrap();
 
         assert_eq!(cafebabe_baz_deserialized, *CAFEBABE_BAZ);
     }
 
     #[test]
     fn test_enum_variant_from_reader2() {
-        let cafebabe_baz_deserialized: Cafebabe = from_slice(CAFEBABE_BAZ_SERIALIZED.as_slice(), Some(1)).unwrap();
+        let cafebabe_baz_deserialized: Cafebabe = from_slice(CAFEBABE_BAZ_SERIALIZED.as_slice(), Some("Baz")).unwrap();
 
         assert_eq!(cafebabe_baz_deserialized, *CAFEBABE_BAZ);
     }
