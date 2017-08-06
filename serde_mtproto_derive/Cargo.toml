@@ -2,7 +2,7 @@
 name = "serde_mtproto_derive"
 version = "0.1.0"
 description = "Procedural macro helper for serde_mtproto"
-authors = ["hcpl <hcpl.prog@gmail.com>"]
+authors = ["Nguyen Duc My <hcpl.prog@gmail.com>"]
 license = "MIT/Apache-2.0"
 homepage = "https://github.com/hcpl/serde_mtproto"
 documentation = "https://docs.rs/serde_mtproto_derive"
