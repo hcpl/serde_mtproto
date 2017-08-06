@@ -19,7 +19,7 @@ struct Foo {
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable)]
-enum Cafebabe {
+enum Cafebabe<T> {
     #[id = "0x0badf00d"]
     Bar {
         byte_id: i8,
@@ -29,6 +29,7 @@ enum Cafebabe {
     Baz {
         id: u64,
         name: String,
+        payload: T,
     },
 }
 
@@ -45,7 +46,7 @@ lazy_static! {
         57, 0, 0, 0, 0, 0, 0, 0,    // 57 as little-endian 64-bit int
     ];
 
-    static ref CAFEBABE_BAR: Cafebabe = Cafebabe::Bar {
+    static ref CAFEBABE_BAR: Cafebabe<u32> = Cafebabe::Bar {
         byte_id: -20,
         position: (350, 142857),
     };
@@ -57,15 +58,17 @@ lazy_static! {
         9, 46, 2, 0, 0, 0, 0, 0,    // 142857 as little-endian 64-bit int
     ];
 
-    static ref CAFEBABE_BAZ: Cafebabe = Cafebabe::Baz {
+    static ref CAFEBABE_BAZ: Cafebabe<bool> = Cafebabe::Baz {
         id: u64::max_value(),
         name: "beef".to_owned(),
+        payload: false,
     };
 
     static ref CAFEBABE_BAZ_SERIALIZED: Vec<u8> = vec![
         0xad, 0xaa, 0xaa, 0xba,                    // id of Cafebabe::Baz in little-endian
         255, 255, 255, 255, 255, 255, 255, 255,    // u64::max_value() == 2 ** 64 - 1
         4, 98, 101, 101, 102, 0, 0, 0,             // string "beef" of length 4 and 3 bytes of padding
+        55, 151, 121, 188,                         // id of false in little-endian
     ];
 }
 
@@ -117,14 +120,14 @@ fn test_enum_variant_to_writer_identifiable() {
 
 #[test]
 fn test_enum_variant_from_bytes_identifiable() {
-    let cafebabe_bar_deserialized: Cafebabe = from_bytes_identifiable(&*CAFEBABE_BAR_SERIALIZED, Some("Bar")).unwrap();
+    let cafebabe_bar_deserialized: Cafebabe<u32> = from_bytes_identifiable(&*CAFEBABE_BAR_SERIALIZED, Some("Bar")).unwrap();
 
     assert_eq!(cafebabe_bar_deserialized, *CAFEBABE_BAR);
 }
 
 #[test]
 fn test_enum_variant_from_reader_identifiable() {
-    let cafebabe_bar_deserialized: Cafebabe = from_reader_identifiable(CAFEBABE_BAR_SERIALIZED.as_slice(), Some("Bar")).unwrap();
+    let cafebabe_bar_deserialized: Cafebabe<u32> = from_reader_identifiable(CAFEBABE_BAR_SERIALIZED.as_slice(), Some("Bar")).unwrap();
 
     assert_eq!(cafebabe_bar_deserialized, *CAFEBABE_BAR);
 }
@@ -147,14 +150,14 @@ fn test_enum_variant_to_writer_identifiable2() {
 
 #[test]
 fn test_enum_variant_from_bytes_identifiable2() {
-    let cafebabe_baz_deserialized: Cafebabe = from_bytes_identifiable(&*CAFEBABE_BAZ_SERIALIZED, Some("Baz")).unwrap();
+    let cafebabe_baz_deserialized: Cafebabe<bool> = from_bytes_identifiable(&*CAFEBABE_BAZ_SERIALIZED, Some("Baz")).unwrap();
 
     assert_eq!(cafebabe_baz_deserialized, *CAFEBABE_BAZ);
 }
 
 #[test]
 fn test_enum_variant_from_reader_identifiable2() {
-    let cafebabe_baz_deserialized: Cafebabe = from_reader_identifiable(CAFEBABE_BAZ_SERIALIZED.as_slice(), Some("Baz")).unwrap();
+    let cafebabe_baz_deserialized: Cafebabe<bool> = from_reader_identifiable(CAFEBABE_BAZ_SERIALIZED.as_slice(), Some("Baz")).unwrap();
 
     assert_eq!(cafebabe_baz_deserialized, *CAFEBABE_BAZ);
 }

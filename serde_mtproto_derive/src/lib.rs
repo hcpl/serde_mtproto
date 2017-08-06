@@ -25,6 +25,8 @@ pub fn serialize(input: TokenStream) -> TokenStream {
 
 fn impl_mt_proto_identifiable(ast: &DeriveInput) -> quote::Tokens {
     let item_name = &ast.ident;
+    let (item_impl_generics, item_ty_generics, item_where_clause) = ast.generics.split_for_impl();
+
     let dummy_const = Ident::new(format!("_IMPL_MT_PROTO_IDENTIFIABLE_FOR_{}", item_name));
 
     let get_id_body = match ast.body {
@@ -89,7 +91,9 @@ fn impl_mt_proto_identifiable(ast: &DeriveInput) -> quote::Tokens {
         const #dummy_const: () = {
             extern crate serde_mtproto as _serde_mtproto;
 
-            impl _serde_mtproto::Identifiable for #item_name {
+            impl #item_impl_generics _serde_mtproto::Identifiable for #item_name #item_ty_generics
+                #item_where_clause
+            {
                 fn get_id(&self) -> i32 {
                     #get_id_body
                 }
