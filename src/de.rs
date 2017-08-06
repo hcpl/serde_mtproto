@@ -337,7 +337,7 @@ impl<'de, 'a, R> VariantAccess<'de> for Combinator<'a, R>
 }
 
 
-pub fn from_slice<'a, T>(slice: &'a [u8], enum_variant_id: Option<&'static str>) -> error::Result<T>
+pub fn from_bytes<'a, T>(slice: &'a [u8], enum_variant_id: Option<&'static str>) -> error::Result<T>
     where T: Deserialize<'a> + Identifiable
 {
     let mut de = Deserializer::new(slice, enum_variant_id);

@@ -14,7 +14,7 @@ pub mod identifiable;
 pub mod ser;
 pub mod de;
 
-pub use error::{Error, Result};
+pub use error::{Error, ErrorKind, Result, ResultExt};
 pub use identifiable::Identifiable;
-pub use ser::{Serializer, to_vec, to_writer};
-pub use de::{Deserializer, from_slice, from_reader};
+pub use ser::{Serializer, to_bytes, to_writer};
+pub use de::{Deserializer, from_bytes, from_reader};

@@ -8,7 +8,7 @@ extern crate serde_mtproto as serde_mtproto_other_name;    // Tests `serde_mtpro
 extern crate serde_mtproto_derive;
 
 
-use serde_mtproto_other_name::{to_vec, to_writer, from_slice, from_reader};
+use serde_mtproto_other_name::{to_bytes, to_writer, from_bytes, from_reader};
 
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable)]
@@ -71,8 +71,8 @@ lazy_static! {
 
 
 #[test]
-fn test_struct_to_vec() {
-    let vec = to_vec(&*FOO).unwrap();
+fn test_struct_to_bytes() {
+    let vec = to_bytes(&*FOO).unwrap();
 
     assert_eq!(vec, *FOO_SERIALIZED);
 }
@@ -86,8 +86,8 @@ fn test_struct_to_writer() {
 }
 
 #[test]
-fn test_struct_from_slice() {
-    let foo_deserialized: Foo = from_slice(&*FOO_SERIALIZED, None).unwrap();
+fn test_struct_from_bytes() {
+    let foo_deserialized: Foo = from_bytes(&*FOO_SERIALIZED, None).unwrap();
 
     assert_eq!(foo_deserialized, *FOO);
 }
@@ -101,8 +101,8 @@ fn test_struct_from_reader() {
 
 
 #[test]
-fn test_enum_variant_to_vec() {
-    let vec = to_vec(&*CAFEBABE_BAR).unwrap();
+fn test_enum_variant_to_bytes() {
+    let vec = to_bytes(&*CAFEBABE_BAR).unwrap();
 
     assert_eq!(vec, *CAFEBABE_BAR_SERIALIZED);
 }
@@ -116,23 +116,23 @@ fn test_enum_variant_to_writer() {
 }
 
 #[test]
-fn test_enum_variant_from_slice() {
-    let cafebabe_bar_deserialized: Cafebabe = from_slice(&*CAFEBABE_BAR_SERIALIZED, Some("Bar")).unwrap();
+fn test_enum_variant_from_bytes() {
+    let cafebabe_bar_deserialized: Cafebabe = from_bytes(&*CAFEBABE_BAR_SERIALIZED, Some("Bar")).unwrap();
 
     assert_eq!(cafebabe_bar_deserialized, *CAFEBABE_BAR);
 }
 
 #[test]
 fn test_enum_variant_from_reader() {
-    let cafebabe_bar_deserialized: Cafebabe = from_slice(CAFEBABE_BAR_SERIALIZED.as_slice(), Some("Bar")).unwrap();
+    let cafebabe_bar_deserialized: Cafebabe = from_reader(CAFEBABE_BAR_SERIALIZED.as_slice(), Some("Bar")).unwrap();
 
     assert_eq!(cafebabe_bar_deserialized, *CAFEBABE_BAR);
 }
 
 
 #[test]
-fn test_enum_variant_to_vec2() {
-    let vec = to_vec(&*CAFEBABE_BAZ).unwrap();
+fn test_enum_variant_to_bytes2() {
+    let vec = to_bytes(&*CAFEBABE_BAZ).unwrap();
 
     assert_eq!(vec, *CAFEBABE_BAZ_SERIALIZED);
 }
@@ -146,15 +146,15 @@ fn test_enum_variant_to_writer2() {
 }
 
 #[test]
-fn test_enum_variant_from_slice2() {
-    let cafebabe_baz_deserialized: Cafebabe = from_slice(&*CAFEBABE_BAZ_SERIALIZED, Some("Baz")).unwrap();
+fn test_enum_variant_from_bytes2() {
+    let cafebabe_baz_deserialized: Cafebabe = from_bytes(&*CAFEBABE_BAZ_SERIALIZED, Some("Baz")).unwrap();
 
     assert_eq!(cafebabe_baz_deserialized, *CAFEBABE_BAZ);
 }
 
 #[test]
 fn test_enum_variant_from_reader2() {
-    let cafebabe_baz_deserialized: Cafebabe = from_slice(CAFEBABE_BAZ_SERIALIZED.as_slice(), Some("Baz")).unwrap();
+    let cafebabe_baz_deserialized: Cafebabe = from_reader(CAFEBABE_BAZ_SERIALIZED.as_slice(), Some("Baz")).unwrap();
 
     assert_eq!(cafebabe_baz_deserialized, *CAFEBABE_BAZ);
 }

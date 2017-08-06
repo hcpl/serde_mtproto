@@ -361,7 +361,7 @@ impl<'a, W> ser::SerializeStructVariant for &'a mut Serializer<W>
 }
 
 
-pub fn to_vec<T>(value: &T) -> error::Result<Vec<u8>>
+pub fn to_bytes<T>(value: &T) -> error::Result<Vec<u8>>
     where T: Serialize + Identifiable
 {
     let wrapper = Wrapper::new(value);
