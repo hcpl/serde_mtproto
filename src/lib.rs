@@ -1,6 +1,7 @@
 extern crate byteorder;
 #[macro_use]
 extern crate error_chain;
+extern crate num_traits;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
@@ -96,7 +97,7 @@ mod tests {
 
         static ref CAFEBABE_BAR_SERIALIZED: Vec<u8> = vec![
             0x0d, 0xf0, 0xad, 0x0b,     // id of Cafebabe::Bar in little-endian
-            236,                        // -20 in 1 byte
+            236, 255, 255, 255,         // -20 as 32-bit int (MTProto doesn't support less than 32-bit)
             94, 1, 0, 0, 0, 0, 0, 0,    // 350 as little-endian 64-bit int
             9, 46, 2, 0, 0, 0, 0, 0,    // 142857 as little-endian 64-bit int
         ];

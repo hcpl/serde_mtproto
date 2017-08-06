@@ -8,6 +8,10 @@ error_chain! {
         Io(::std::io::Error);
         FromUtf8(::std::string::FromUtf8Error);
     }
+
+    errors {
+        IntegerOverflowingCast
+    }
 }
 
 impl ser::Error for Error {

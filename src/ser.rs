@@ -19,7 +19,15 @@ impl<W: io::Write> Serializer<W> {
 }
 
 
-macro_rules! impl_serialize {
+macro_rules! impl_serialize_small_int {
+    ($small_type:ty, $small_method:ident, $big_type:ty, $big_method:ident) => {
+        fn $small_method(self, value: $small_type) -> error::Result<()> {
+            self.$big_method(value as $big_type)
+        }
+    }
+}
+
+macro_rules! impl_serialize_big_int {
     ($type:ty, $method:ident, $write:path) => {
         fn $method(self, value: $type) -> error::Result<()> {
             $write(&mut self.writer, value)?;
@@ -48,26 +56,19 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
         Ok(())
     }
 
-    fn serialize_i8(self, value: i8) -> error::Result<()> {
-        self.writer.write_all(&[value as u8])?;
-        Ok(())
-    }
+    impl_serialize_small_int!(i8,  serialize_i8,  i32, serialize_i32);
+    impl_serialize_small_int!(i16, serialize_i16, i32, serialize_i32);
+    impl_serialize_small_int!(u8,  serialize_u8,  u32, serialize_u32);
+    impl_serialize_small_int!(u16, serialize_u16, u32, serialize_u32);
 
-    fn serialize_u8(self, value: u8) -> error::Result<()> {
-        self.writer.write_all(&[value])?;
-        Ok(())
-    }
+    impl_serialize_big_int!(i32, serialize_i32, WriteBytesExt::write_i32<LittleEndian>);
+    impl_serialize_big_int!(i64, serialize_i64, WriteBytesExt::write_i64<LittleEndian>);
 
-    impl_serialize!(i16, serialize_i16, WriteBytesExt::write_i16<LittleEndian>);
-    impl_serialize!(i32, serialize_i32, WriteBytesExt::write_i32<LittleEndian>);
-    impl_serialize!(i64, serialize_i64, WriteBytesExt::write_i64<LittleEndian>);
+    impl_serialize_big_int!(u32, serialize_u32, WriteBytesExt::write_u32<LittleEndian>);
+    impl_serialize_big_int!(u64, serialize_u64, WriteBytesExt::write_u64<LittleEndian>);
 
-    impl_serialize!(u16, serialize_u16, WriteBytesExt::write_u16<LittleEndian>);
-    impl_serialize!(u32, serialize_u32, WriteBytesExt::write_u32<LittleEndian>);
-    impl_serialize!(u64, serialize_u64, WriteBytesExt::write_u64<LittleEndian>);
-
-    impl_serialize!(f32, serialize_f32, WriteBytesExt::write_f32<LittleEndian>);
-    impl_serialize!(f64, serialize_f64, WriteBytesExt::write_f64<LittleEndian>);
+    impl_serialize_big_int!(f32, serialize_f32, WriteBytesExt::write_f32<LittleEndian>);
+    impl_serialize_big_int!(f64, serialize_f64, WriteBytesExt::write_f64<LittleEndian>);
 
     fn serialize_char(self, _value: char) -> error::Result<()> {
         unreachable!("this method shouldn't be called")

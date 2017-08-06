@@ -11,6 +11,7 @@ repository = "https://github.com/hcpl/serde_mtproto"
 [dependencies]
 byteorder = "1.1.0"
 error-chain = "0.10.0"
+num-traits = "0.1.40"
 serde = "1.0.11"
 serde_derive = "1.0.11"
 

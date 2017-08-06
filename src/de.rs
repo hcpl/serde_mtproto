@@ -1,6 +1,7 @@
 use std::io;
 
 use byteorder::{ReadBytesExt, LittleEndian};
+use num_traits::ToPrimitive;
 use serde::de::{self, Deserialize, DeserializeOwned, DeserializeSeed, EnumAccess, SeqAccess, VariantAccess, Visitor};
 
 use common::{FALSE_ID, TRUE_ID};
@@ -71,17 +72,23 @@ impl<R: io::Read> Deserializer<R> {
 }
 
 
-macro_rules! impl_deserialize {
-    ($deserialize:ident, $read:ident, $visit:ident) => {
-        fn $deserialize<V>(self, visitor: V) -> error::Result<V::Value>
+macro_rules! impl_deserialize_small_int {
+    ($small_deserialize:ident, $small_visit:ident, $cast_to_small:ident,
+     $big_read:ident::<$big_endianness:ident>
+    ) => {
+        fn $small_deserialize<V>(self, visitor: V) -> error::Result<V::Value>
             where V: Visitor<'de>
         {
-            let value = self.reader.$read()?;
+            let value = self.reader.$big_read::<$big_endianness>()?;
+            let casted = value.$cast_to_small()
+                .ok_or(error::Error::from(error::ErrorKind::IntegerOverflowingCast))?;
 
-            visitor.$visit(value)
+            visitor.$small_visit(casted)
         }
     };
+}
 
+macro_rules! impl_deserialize_big_int {
     ($deserialize:ident, $read:ident::<$endianness:ident>, $visit:ident) => {
         fn $deserialize<V>(self, visitor: V) -> error::Result<V::Value>
             where V: Visitor<'de>
@@ -118,18 +125,19 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
         visitor.visit_bool(value)
     }
 
-    impl_deserialize!(deserialize_i8, read_i8, visit_i8);
-    impl_deserialize!(deserialize_i16, read_i16::<LittleEndian>, visit_i16);
-    impl_deserialize!(deserialize_i32, read_i32::<LittleEndian>, visit_i32);
-    impl_deserialize!(deserialize_i64, read_i64::<LittleEndian>, visit_i64);
+    impl_deserialize_small_int!(deserialize_i8,  visit_i8,  to_i8,  read_i32::<LittleEndian>);
+    impl_deserialize_small_int!(deserialize_i16, visit_i16, to_i16, read_i32::<LittleEndian>);
+    impl_deserialize_small_int!(deserialize_u8,  visit_u8,  to_u8,  read_u32::<LittleEndian>);
+    impl_deserialize_small_int!(deserialize_u16, visit_u16, to_u16, read_u32::<LittleEndian>);
 
-    impl_deserialize!(deserialize_u8, read_u8, visit_u8);
-    impl_deserialize!(deserialize_u16, read_u16::<LittleEndian>, visit_u16);
-    impl_deserialize!(deserialize_u32, read_u32::<LittleEndian>, visit_u32);
-    impl_deserialize!(deserialize_u64, read_u64::<LittleEndian>, visit_u64);
+    impl_deserialize_big_int!(deserialize_i32, read_i32::<LittleEndian>, visit_i32);
+    impl_deserialize_big_int!(deserialize_i64, read_i64::<LittleEndian>, visit_i64);
 
-    impl_deserialize!(deserialize_f32, read_f32::<LittleEndian>, visit_f32);
-    impl_deserialize!(deserialize_f64, read_f64::<LittleEndian>, visit_f64);
+    impl_deserialize_big_int!(deserialize_u32, read_u32::<LittleEndian>, visit_u32);
+    impl_deserialize_big_int!(deserialize_u64, read_u64::<LittleEndian>, visit_u64);
+
+    impl_deserialize_big_int!(deserialize_f32, read_f32::<LittleEndian>, visit_f32);
+    impl_deserialize_big_int!(deserialize_f64, read_f64::<LittleEndian>, visit_f64);
 
     fn deserialize_char<V>(self, _visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
