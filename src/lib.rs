@@ -26,9 +26,7 @@ extern crate lazy_static;
 
 #[cfg(test)]
 mod tests {
-    use std::io;
-
-    use ::{Identifiable, Serializer, to_vec, to_writer, from_slice, from_reader};
+    use ::{Identifiable, to_vec, to_writer, from_slice, from_reader};
 
 
     #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -37,6 +35,7 @@ mod tests {
         size: usize,
     }
 
+    #[allow(overflowing_literals)]
     impl Identifiable for Foo {
         fn get_id(&self) -> i32 {
             0xdeadbeefi32
@@ -59,6 +58,7 @@ mod tests {
         },
     }
 
+    #[allow(overflowing_literals)]
     impl Identifiable for Cafebabe {
         fn get_id(&self) -> i32 {
             match *self {
@@ -104,13 +104,13 @@ mod tests {
 
         static ref CAFEBABE_BAZ: Cafebabe = Cafebabe::Baz {
             id: u64::max_value(),
-            name: "baz".to_owned(),
+            name: "beef".to_owned(),
         };
 
         static ref CAFEBABE_BAZ_SERIALIZED: Vec<u8> = vec![
             0xad, 0xaa, 0xaa, 0xba,                    // id of Cafebabe::Baz in little-endian
             255, 255, 255, 255, 255, 255, 255, 255,    // u64::max_value() == 2 ** 64 - 1
-            3, 98, 97, 122,                            // string "bar" of length 3
+            4, 98, 101, 101, 102, 0, 0, 0,             // string "beef" of length 4 and 3 bytes of padding
         ];
     }
 
@@ -205,6 +205,7 @@ mod tests {
     }
 
 
+    /// MTProto-serialized data must be aligned by 4 bytes.
     #[test]
     fn test_serialization_alignment() {
         assert!(FOO_SERIALIZED.len() % 4 == 0);
