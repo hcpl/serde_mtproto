@@ -16,5 +16,5 @@ pub mod de;
 
 pub use error::{Error, ErrorKind, Result, ResultExt};
 pub use identifiable::Identifiable;
-pub use ser::{Serializer, to_bytes, to_writer};
-pub use de::{Deserializer, from_bytes, from_reader};
+pub use ser::{Serializer, to_bytes, to_bytes_identifiable, to_writer, to_writer_identifiable};
+pub use de::{Deserializer, from_bytes, from_bytes_identifiable, from_reader, from_reader_identifiable};

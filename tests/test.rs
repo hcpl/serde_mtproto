@@ -8,7 +8,7 @@ extern crate serde_mtproto as serde_mtproto_other_name;    // Tests `serde_mtpro
 extern crate serde_mtproto_derive;
 
 
-use serde_mtproto_other_name::{to_bytes, to_writer, from_bytes, from_reader};
+use serde_mtproto_other_name::{to_bytes_identifiable, to_writer_identifiable, from_bytes_identifiable, from_reader_identifiable};
 
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable)]
@@ -71,90 +71,90 @@ lazy_static! {
 
 
 #[test]
-fn test_struct_to_bytes() {
-    let vec = to_bytes(&*FOO).unwrap();
+fn test_struct_to_bytes_identifiable() {
+    let vec = to_bytes_identifiable(&*FOO).unwrap();
 
     assert_eq!(vec, *FOO_SERIALIZED);
 }
 
 #[test]
-fn test_struct_to_writer() {
+fn test_struct_to_writer_identifiable() {
     let mut vec = Vec::new();
-    to_writer(&mut vec, &*FOO).unwrap();
+    to_writer_identifiable(&mut vec, &*FOO).unwrap();
 
     assert_eq!(vec, *FOO_SERIALIZED);
 }
 
 #[test]
-fn test_struct_from_bytes() {
-    let foo_deserialized: Foo = from_bytes(&*FOO_SERIALIZED, None).unwrap();
+fn test_struct_from_bytes_identifiable() {
+    let foo_deserialized: Foo = from_bytes_identifiable(&*FOO_SERIALIZED, None).unwrap();
 
     assert_eq!(foo_deserialized, *FOO);
 }
 
 #[test]
-fn test_struct_from_reader() {
-    let foo_deserialized: Foo = from_reader(FOO_SERIALIZED.as_slice(), None).unwrap();
+fn test_struct_from_reader_identifiable() {
+    let foo_deserialized: Foo = from_reader_identifiable(FOO_SERIALIZED.as_slice(), None).unwrap();
 
     assert_eq!(foo_deserialized, *FOO);
 }
 
 
 #[test]
-fn test_enum_variant_to_bytes() {
-    let vec = to_bytes(&*CAFEBABE_BAR).unwrap();
+fn test_enum_variant_to_bytes_identifiable() {
+    let vec = to_bytes_identifiable(&*CAFEBABE_BAR).unwrap();
 
     assert_eq!(vec, *CAFEBABE_BAR_SERIALIZED);
 }
 
 #[test]
-fn test_enum_variant_to_writer() {
+fn test_enum_variant_to_writer_identifiable() {
     let mut vec = Vec::new();
-    to_writer(&mut vec, &*CAFEBABE_BAR).unwrap();
+    to_writer_identifiable(&mut vec, &*CAFEBABE_BAR).unwrap();
 
     assert_eq!(vec, *CAFEBABE_BAR_SERIALIZED);
 }
 
 #[test]
-fn test_enum_variant_from_bytes() {
-    let cafebabe_bar_deserialized: Cafebabe = from_bytes(&*CAFEBABE_BAR_SERIALIZED, Some("Bar")).unwrap();
+fn test_enum_variant_from_bytes_identifiable() {
+    let cafebabe_bar_deserialized: Cafebabe = from_bytes_identifiable(&*CAFEBABE_BAR_SERIALIZED, Some("Bar")).unwrap();
 
     assert_eq!(cafebabe_bar_deserialized, *CAFEBABE_BAR);
 }
 
 #[test]
-fn test_enum_variant_from_reader() {
-    let cafebabe_bar_deserialized: Cafebabe = from_reader(CAFEBABE_BAR_SERIALIZED.as_slice(), Some("Bar")).unwrap();
+fn test_enum_variant_from_reader_identifiable() {
+    let cafebabe_bar_deserialized: Cafebabe = from_reader_identifiable(CAFEBABE_BAR_SERIALIZED.as_slice(), Some("Bar")).unwrap();
 
     assert_eq!(cafebabe_bar_deserialized, *CAFEBABE_BAR);
 }
 
 
 #[test]
-fn test_enum_variant_to_bytes2() {
-    let vec = to_bytes(&*CAFEBABE_BAZ).unwrap();
+fn test_enum_variant_to_bytes_identifiable2() {
+    let vec = to_bytes_identifiable(&*CAFEBABE_BAZ).unwrap();
 
     assert_eq!(vec, *CAFEBABE_BAZ_SERIALIZED);
 }
 
 #[test]
-fn test_enum_variant_to_writer2() {
+fn test_enum_variant_to_writer_identifiable2() {
     let mut vec = Vec::new();
-    to_writer(&mut vec, &*CAFEBABE_BAZ).unwrap();
+    to_writer_identifiable(&mut vec, &*CAFEBABE_BAZ).unwrap();
 
     assert_eq!(vec, *CAFEBABE_BAZ_SERIALIZED);
 }
 
 #[test]
-fn test_enum_variant_from_bytes2() {
-    let cafebabe_baz_deserialized: Cafebabe = from_bytes(&*CAFEBABE_BAZ_SERIALIZED, Some("Baz")).unwrap();
+fn test_enum_variant_from_bytes_identifiable2() {
+    let cafebabe_baz_deserialized: Cafebabe = from_bytes_identifiable(&*CAFEBABE_BAZ_SERIALIZED, Some("Baz")).unwrap();
 
     assert_eq!(cafebabe_baz_deserialized, *CAFEBABE_BAZ);
 }
 
 #[test]
-fn test_enum_variant_from_reader2() {
-    let cafebabe_baz_deserialized: Cafebabe = from_reader(CAFEBABE_BAZ_SERIALIZED.as_slice(), Some("Baz")).unwrap();
+fn test_enum_variant_from_reader_identifiable2() {
+    let cafebabe_baz_deserialized: Cafebabe = from_reader_identifiable(CAFEBABE_BAZ_SERIALIZED.as_slice(), Some("Baz")).unwrap();
 
     assert_eq!(cafebabe_baz_deserialized, *CAFEBABE_BAZ);
 }

@@ -362,24 +362,35 @@ impl<'a, W> ser::SerializeStructVariant for &'a mut Serializer<W>
 
 
 pub fn to_bytes<T>(value: &T) -> error::Result<Vec<u8>>
-    where T: Serialize + Identifiable
+    where T: Serialize
 {
-    let wrapper = Wrapper::new(value);
     let mut ser = Serializer::new(Vec::new());
-
-    wrapper.serialize(&mut ser)?;
+    value.serialize(&mut ser)?;
 
     Ok(ser.writer)
 }
 
+pub fn to_bytes_identifiable<T>(value: &T) -> error::Result<Vec<u8>>
+    where T: Serialize + Identifiable
+{
+    let wrapper = Wrapper::new(value);
+    to_bytes(&wrapper)
+}
+
 pub fn to_writer<W, T>(writer: W, value: &T) -> error::Result<()>
+    where W: io::Write,
+          T: Serialize,
+{
+    let mut ser = Serializer::new(writer);
+    value.serialize(&mut ser)?;
+
+    Ok(())
+}
+
+pub fn to_writer_identifiable<W, T>(writer: W, value: &T) -> error::Result<()>
     where W: io::Write,
           T: Serialize + Identifiable,
 {
     let wrapper = Wrapper::new(value);
-    let mut ser = Serializer::new(writer);
-
-    wrapper.serialize(&mut ser)?;
-
-    Ok(())
+    to_writer(writer, &wrapper)
 }
