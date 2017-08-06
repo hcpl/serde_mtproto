@@ -173,13 +173,13 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
         visitor.visit_byte_buf(b)
     }
 
-    fn deserialize_option<V>(self, visitor: V) -> error::Result<V::Value>
+    fn deserialize_option<V>(self, _visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
         unimplemented!()
     }
 
-    fn deserialize_unit<V>(self, visitor: V) -> error::Result<V::Value>
+    fn deserialize_unit<V>(self, _visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
         unreachable!("this method shouldn't be called")
@@ -209,25 +209,25 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
         visitor.visit_seq(Combinator::with_count(&mut self, len))
     }
 
-    fn deserialize_tuple_struct<V>(self, name: &'static str, len: usize, visitor: V) -> error::Result<V::Value>
+    fn deserialize_tuple_struct<V>(self, _name: &'static str, _len: usize, _visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
         unimplemented!()
     }
 
-    fn deserialize_map<V>(self, visitor: V) -> error::Result<V::Value>
+    fn deserialize_map<V>(self, _visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
         unimplemented!()
     }
 
-    fn deserialize_struct<V>(mut self, name: &'static str, fields: &'static [&'static str], visitor: V) -> error::Result<V::Value>
+    fn deserialize_struct<V>(mut self, _name: &'static str, fields: &'static [&'static str], visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
         visitor.visit_seq(Combinator::with_count(&mut self, fields.len()))
     }
 
-    fn deserialize_enum<V>(mut self, name: &'static str, variants: &'static [&'static str], visitor: V) -> error::Result<V::Value>
+    fn deserialize_enum<V>(mut self, _name: &'static str, _variants: &'static [&'static str], visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
         visitor.visit_enum(Combinator::without_count(&mut self))
@@ -241,7 +241,7 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
         visitor.visit_str(variant_id)
     }
 
-    fn deserialize_ignored_any<V>(self, visitor: V) -> error::Result<V::Value>
+    fn deserialize_ignored_any<V>(self, _visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
         unimplemented!()
