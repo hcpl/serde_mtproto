@@ -22,8 +22,11 @@ pub enum SerErrorKind {
     ExcessElements(usize),
     IntegerOverflowingCast,
     SeqWithUnknownLengthUnsupported,
-    UnsupportedSerdeType(String),
+    UnsupportedSerdeType(SerSerdeType),
 }
+
+#[derive(Debug)]
+pub enum SerSerdeType { Char, None, Some, Unit, Map }
 
 impl From<SerErrorKind> for Error {
     fn from(kind: SerErrorKind) -> Error {
@@ -31,14 +34,18 @@ impl From<SerErrorKind> for Error {
     }
 }
 
+
 #[derive(Debug)]
 pub enum DeErrorKind {
     Msg(String),
     ExpectedBool,
     IntegerOverflowingCast,
     InvalidStrFirstByte255,
-    UnsupportedSerdeType(String),
+    UnsupportedSerdeType(DeSerdeType),
 }
+
+#[derive(Debug)]
+pub enum DeSerdeType { Any, Char, Option, Unit, Map, IgnoredAny }
 
 impl From<DeErrorKind> for Error {
     fn from(kind: DeErrorKind) -> Error {

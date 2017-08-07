@@ -5,7 +5,7 @@ use num_traits::ToPrimitive;
 use serde::de::{self, Deserialize, DeserializeOwned, DeserializeSeed, Visitor};
 
 use common::{FALSE_ID, TRUE_ID};
-use error::{self, DeErrorKind};
+use error::{self, DeErrorKind, DeSerdeType};
 use identifiable::{Identifiable, Wrapper};
 
 
@@ -108,7 +108,7 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_any<V>(self, _visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        bail!(DeErrorKind::UnsupportedSerdeType(format!("any")));
+        bail!(DeErrorKind::UnsupportedSerdeType(DeSerdeType::Any));
     }
 
     fn deserialize_bool<V>(self, visitor: V) -> error::Result<V::Value>
@@ -141,7 +141,7 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_char<V>(self, _visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        bail!(DeErrorKind::UnsupportedSerdeType(format!("char")));
+        bail!(DeErrorKind::UnsupportedSerdeType(DeSerdeType::Char));
     }
 
     fn deserialize_str<V>(self, visitor: V) -> error::Result<V::Value>
@@ -175,13 +175,13 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_option<V>(self, _visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        bail!(DeErrorKind::UnsupportedSerdeType(format!("option")));
+        bail!(DeErrorKind::UnsupportedSerdeType(DeSerdeType::Option));
     }
 
     fn deserialize_unit<V>(self, _visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        bail!(DeErrorKind::UnsupportedSerdeType(format!("unit")));
+        bail!(DeErrorKind::UnsupportedSerdeType(DeSerdeType::Unit));
     }
 
     fn deserialize_unit_struct<V>(self, _name: &'static str, visitor: V) -> error::Result<V::Value>
@@ -223,7 +223,7 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_map<V>(self, _visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        bail!(DeErrorKind::UnsupportedSerdeType(format!("map")));
+        bail!(DeErrorKind::UnsupportedSerdeType(DeSerdeType::Map));
     }
 
     fn deserialize_struct<V>(self, _name: &'static str, fields: &'static [&'static str], visitor: V) -> error::Result<V::Value>
@@ -251,7 +251,7 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_ignored_any<V>(self, _visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        bail!(DeErrorKind::UnsupportedSerdeType(format!("ignored_any")));
+        bail!(DeErrorKind::UnsupportedSerdeType(DeSerdeType::IgnoredAny));
     }
 }
 

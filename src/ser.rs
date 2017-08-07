@@ -5,7 +5,7 @@ use num_traits::ToPrimitive;
 use serde::ser::{self, Serialize};
 
 use common::{FALSE_ID, TRUE_ID};
-use error::{self, SerErrorKind};
+use error::{self, SerErrorKind, SerSerdeType};
 use identifiable::{Identifiable, Wrapper};
 
 
@@ -71,7 +71,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     impl_serialize_big_int!(f64, serialize_f64, WriteBytesExt::write_f64<LittleEndian>);
 
     fn serialize_char(self, _value: char) -> error::Result<()> {
-        bail!(SerErrorKind::UnsupportedSerdeType(format!("char")));
+        bail!(SerErrorKind::UnsupportedSerdeType(SerSerdeType::Char));
     }
 
     fn serialize_str(self, value: &str) -> error::Result<()> {
@@ -154,17 +154,17 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     }
 
     fn serialize_none(self) -> error::Result<()> {
-        bail!(SerErrorKind::UnsupportedSerdeType(format!("none")));
+        bail!(SerErrorKind::UnsupportedSerdeType(SerSerdeType::None));
     }
 
     fn serialize_some<T>(self, _value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
-        bail!(SerErrorKind::UnsupportedSerdeType(format!("some")));
+        bail!(SerErrorKind::UnsupportedSerdeType(SerSerdeType::Some));
     }
 
     fn serialize_unit(self) -> error::Result<()> {
-        bail!(SerErrorKind::UnsupportedSerdeType(format!("unit")));
+        bail!(SerErrorKind::UnsupportedSerdeType(SerSerdeType::Unit));
     }
 
     fn serialize_unit_struct(self, _name: &'static str) -> error::Result<()> {
@@ -225,7 +225,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     }
 
     fn serialize_map(self, _len: Option<usize>) -> error::Result<Self::SerializeMap> {
-        bail!(SerErrorKind::UnsupportedSerdeType(format!("map")));
+        bail!(SerErrorKind::UnsupportedSerdeType(SerSerdeType::Map));
     }
 
     fn serialize_struct(self, _name: &'static str, len: usize) -> error::Result<Self::SerializeStruct> {
