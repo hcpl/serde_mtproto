@@ -34,7 +34,7 @@ impl<R: io::Read> Deserializer<R> {
             len = self.reader.read_uint::<LittleEndian>(3)? as usize;
             rem = len % 4;
         } else { // 255
-            unreachable!();
+            bail!(DeErrorKind::InvalidStrFirstByte255);
         }
 
         Ok((len, if rem > 0 { 4 - rem } else { 0 }))
@@ -108,7 +108,7 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_any<V>(self, _visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        Err("Non self-described format".into())
+        bail!(DeErrorKind::UnsupportedSerdeType(format!("any")));
     }
 
     fn deserialize_bool<V>(self, visitor: V) -> error::Result<V::Value>
@@ -119,7 +119,7 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
         let value = match id_value {
             TRUE_ID => true,
             FALSE_ID => false,
-            _ => return Err("Expected a bool".into())
+            _ => bail!(DeErrorKind::ExpectedBool),
         };
 
         visitor.visit_bool(value)
@@ -141,7 +141,7 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_char<V>(self, _visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        unreachable!("this method shouldn't be called")
+        bail!(DeErrorKind::UnsupportedSerdeType(format!("char")));
     }
 
     fn deserialize_str<V>(self, visitor: V) -> error::Result<V::Value>
@@ -175,13 +175,13 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_option<V>(self, _visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        unimplemented!()
+        bail!(DeErrorKind::UnsupportedSerdeType(format!("option")));
     }
 
     fn deserialize_unit<V>(self, _visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        unreachable!("this method shouldn't be called")
+        bail!(DeErrorKind::UnsupportedSerdeType(format!("unit")));
     }
 
     fn deserialize_unit_struct<V>(self, _name: &'static str, visitor: V) -> error::Result<V::Value>
@@ -212,16 +212,18 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
         visitor.visit_seq(SeqAccess::new(&mut self, len_u32))
     }
 
-    fn deserialize_tuple_struct<V>(self, _name: &'static str, _len: usize, _visitor: V) -> error::Result<V::Value>
+    fn deserialize_tuple_struct<V>(self, _name: &'static str, len: usize, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        unimplemented!()
+        let len_u32 = len.to_u32().ok_or(DeErrorKind::IntegerOverflowingCast)?;
+
+        visitor.visit_seq(SeqAccess::new(&mut self, len_u32))
     }
 
     fn deserialize_map<V>(self, _visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        unimplemented!()
+        bail!(DeErrorKind::UnsupportedSerdeType(format!("map")));
     }
 
     fn deserialize_struct<V>(mut self, _name: &'static str, fields: &'static [&'static str], visitor: V) -> error::Result<V::Value>
@@ -249,7 +251,7 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_ignored_any<V>(self, _visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        unimplemented!()
+        bail!(DeErrorKind::UnsupportedSerdeType(format!("ignored_any")));
     }
 }
 

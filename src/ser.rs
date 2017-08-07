@@ -71,7 +71,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     impl_serialize_big_int!(f64, serialize_f64, WriteBytesExt::write_f64<LittleEndian>);
 
     fn serialize_char(self, _value: char) -> error::Result<()> {
-        unreachable!("this method shouldn't be called")
+        bail!(SerErrorKind::UnsupportedSerdeType(format!("char")));
     }
 
     fn serialize_str(self, value: &str) -> error::Result<()> {
@@ -154,17 +154,17 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     }
 
     fn serialize_none(self) -> error::Result<()> {
-        Ok(())
+        bail!(SerErrorKind::UnsupportedSerdeType(format!("none")));
     }
 
     fn serialize_some<T>(self, value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
-        value.serialize(self)
+        bail!(SerErrorKind::UnsupportedSerdeType(format!("some")));
     }
 
     fn serialize_unit(self) -> error::Result<()> {
-        unreachable!("this method shouldn't be called")
+        bail!(SerErrorKind::UnsupportedSerdeType(format!("unit")));
     }
 
     fn serialize_unit_struct(self, _name: &'static str) -> error::Result<()> {
@@ -225,7 +225,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     }
 
     fn serialize_map(self, _len: Option<usize>) -> error::Result<Self> {
-        unreachable!("this method shouldn't be called")
+        bail!(SerErrorKind::UnsupportedSerdeType(format!("map")));
     }
 
     fn serialize_struct(self, _name: &'static str, _len: usize) -> error::Result<Self> {
