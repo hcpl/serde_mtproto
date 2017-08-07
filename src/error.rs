@@ -10,18 +10,44 @@ error_chain! {
     }
 
     errors {
-        IntegerOverflowingCast
+        Ser(kind: SerErrorKind)
+        De(kind: DeErrorKind)
     }
 }
 
+
+#[derive(Debug)]
+pub enum SerErrorKind {
+    Msg(String),
+}
+
+impl From<SerErrorKind> for Error {
+    fn from(kind: SerErrorKind) -> Error {
+        ErrorKind::Ser(kind).into()
+    }
+}
+
+#[derive(Debug)]
+pub enum DeErrorKind {
+    Msg(String),
+    IntegerOverflowingCast,
+}
+
+impl From<DeErrorKind> for Error {
+    fn from(kind: DeErrorKind) -> Error {
+        ErrorKind::De(kind).into()
+    }
+}
+
+
 impl ser::Error for Error {
     fn custom<T: fmt::Display>(msg: T) -> Error {
-        ErrorKind::Msg(msg.to_string()).into()
+        SerErrorKind::Msg(msg.to_string()).into()
     }
 }
 
 impl de::Error for Error {
     fn custom<T: fmt::Display>(msg: T) -> Error {
-        ErrorKind::Msg(msg.to_string()).into()
+        DeErrorKind::Msg(msg.to_string()).into()
     }
 }

@@ -81,7 +81,7 @@ macro_rules! impl_deserialize_small_int {
         {
             let value = self.reader.$big_read::<$big_endianness>()?;
             let casted = value.$cast_to_small()
-                .ok_or(error::Error::from(error::ErrorKind::IntegerOverflowingCast))?;
+                .ok_or(error::Error::from(error::DeErrorKind::IntegerOverflowingCast))?;
 
             visitor.$small_visit(casted)
         }
