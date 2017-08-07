@@ -2,7 +2,7 @@ use std::io;
 
 use byteorder::{ReadBytesExt, LittleEndian};
 use num_traits::ToPrimitive;
-use serde::de::{self, Deserialize, DeserializeOwned, DeserializeSeed, EnumAccess, SeqAccess, VariantAccess, Visitor};
+use serde::de::{self, Deserialize, DeserializeOwned, DeserializeSeed, Visitor};
 
 use common::{FALSE_ID, TRUE_ID};
 use error;
@@ -199,13 +199,13 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_seq<V>(mut self, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        visitor.visit_seq(Combinator::without_count(&mut self))
+        visitor.visit_seq(SeqAccess::without_count(&mut self))
     }
 
     fn deserialize_tuple<V>(mut self, len: usize, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        visitor.visit_seq(Combinator::with_count(&mut self, len))
+        visitor.visit_seq(SeqAccess::with_count(&mut self, len))
     }
 
     fn deserialize_tuple_struct<V>(self, _name: &'static str, _len: usize, _visitor: V) -> error::Result<V::Value>
@@ -223,13 +223,13 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_struct<V>(mut self, _name: &'static str, fields: &'static [&'static str], visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        visitor.visit_seq(Combinator::with_count(&mut self, fields.len()))
+        visitor.visit_seq(SeqAccess::with_count(&mut self, fields.len()))
     }
 
     fn deserialize_enum<V>(mut self, _name: &'static str, _variants: &'static [&'static str], visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        visitor.visit_enum(Combinator::without_count(&mut self))
+        visitor.visit_enum(EnumVariantAccess::new(&mut self))
     }
 
     fn deserialize_identifier<V>(self, visitor: V) -> error::Result<V::Value>
@@ -248,23 +248,23 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
 }
 
 
-struct Combinator<'a, R: 'a + io::Read> {
+struct SeqAccess<'a, R: 'a + io::Read> {
     de: &'a mut Deserializer<R>,
     next_index: usize,
     count: Option<usize>,
 }
 
-impl<'a, R: io::Read> Combinator<'a, R> {
-    fn without_count(de: &'a mut Deserializer<R>) -> Combinator<'a, R> {
-        Combinator {
+impl<'a, R: io::Read> SeqAccess<'a, R> {
+    fn without_count(de: &'a mut Deserializer<R>) -> SeqAccess<'a, R> {
+        SeqAccess {
             de: de,
             next_index: 0,
             count: None,
         }
     }
 
-    fn with_count(de: &'a mut Deserializer<R>, count: usize) -> Combinator<'a, R> {
-        Combinator {
+    fn with_count(de: &'a mut Deserializer<R>, count: usize) -> SeqAccess<'a, R> {
+        SeqAccess {
             de: de,
             next_index: 0,
             count: Some(count),
@@ -272,7 +272,7 @@ impl<'a, R: io::Read> Combinator<'a, R> {
     }
 }
 
-impl<'de, 'a, R> SeqAccess<'de> for Combinator<'a, R>
+impl<'de, 'a, R> de::SeqAccess<'de> for SeqAccess<'a, R>
     where R: 'a + io::Read
 {
     type Error = error::Error;
@@ -292,7 +292,18 @@ impl<'de, 'a, R> SeqAccess<'de> for Combinator<'a, R>
     }
 }
 
-impl<'de, 'a, R> EnumAccess<'de> for Combinator<'a, R>
+
+struct EnumVariantAccess<'a, R: 'a + io::Read> {
+    de: &'a mut Deserializer<R>,
+}
+
+impl<'a, R: io::Read> EnumVariantAccess<'a, R> {
+    fn new(de: &'a mut Deserializer<R>) -> EnumVariantAccess<'a, R> {
+        EnumVariantAccess { de: de }
+    }
+}
+
+impl<'de, 'a, R> de::EnumAccess<'de> for EnumVariantAccess<'a, R>
     where R: 'a + io::Read
 {
     type Error = error::Error;
@@ -307,7 +318,7 @@ impl<'de, 'a, R> EnumAccess<'de> for Combinator<'a, R>
     }
 }
 
-impl<'de, 'a, R> VariantAccess<'de> for Combinator<'a, R>
+impl<'de, 'a, R> de::VariantAccess<'de> for EnumVariantAccess<'a, R>
     where R: 'a + io::Read
 {
     type Error = error::Error;
