@@ -212,7 +212,7 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
         visitor.visit_seq(SeqAccess::new(&mut self, len_u32))
     }
 
-    fn deserialize_tuple_struct<V>(self, _name: &'static str, len: usize, visitor: V) -> error::Result<V::Value>
+    fn deserialize_tuple_struct<V>(mut self, _name: &'static str, len: usize, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
         let len_u32 = len.to_u32().ok_or(DeErrorKind::IntegerOverflowingCast)?;
