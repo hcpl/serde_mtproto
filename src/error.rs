@@ -19,6 +19,8 @@ error_chain! {
 #[derive(Debug)]
 pub enum SerErrorKind {
     Msg(String),
+    ExcessElements(usize),
+    SeqWithUnknownLengthUnsupported,
 }
 
 impl From<SerErrorKind> for Error {

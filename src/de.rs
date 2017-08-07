@@ -5,7 +5,7 @@ use num_traits::ToPrimitive;
 use serde::de::{self, Deserialize, DeserializeOwned, DeserializeSeed, Visitor};
 
 use common::{FALSE_ID, TRUE_ID};
-use error;
+use error::{self, DeErrorKind};
 use identifiable::{Identifiable, Wrapper};
 
 
@@ -81,7 +81,7 @@ macro_rules! impl_deserialize_small_int {
         {
             let value = self.reader.$big_read::<$big_endianness>()?;
             let casted = value.$cast_to_small()
-                .ok_or(error::Error::from(error::DeErrorKind::IntegerOverflowingCast))?;
+                .ok_or(error::Error::from(DeErrorKind::IntegerOverflowingCast))?;
 
             visitor.$small_visit(casted)
         }
@@ -199,13 +199,15 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_seq<V>(mut self, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        visitor.visit_seq(SeqAccess::without_count(&mut self))
+        let len = self.reader.read_u32::<LittleEndian>()?;
+
+        visitor.visit_seq(SeqAccess::new(&mut self, len))
     }
 
     fn deserialize_tuple<V>(mut self, len: usize, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        visitor.visit_seq(SeqAccess::with_count(&mut self, len))
+        visitor.visit_seq(SeqAccess::new(&mut self, len as u32))
     }
 
     fn deserialize_tuple_struct<V>(self, _name: &'static str, _len: usize, _visitor: V) -> error::Result<V::Value>
@@ -223,7 +225,7 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_struct<V>(mut self, _name: &'static str, fields: &'static [&'static str], visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        visitor.visit_seq(SeqAccess::with_count(&mut self, fields.len()))
+        visitor.visit_seq(SeqAccess::new(&mut self, fields.len() as u32))
     }
 
     fn deserialize_enum<V>(mut self, _name: &'static str, _variants: &'static [&'static str], visitor: V) -> error::Result<V::Value>
@@ -250,24 +252,16 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
 
 struct SeqAccess<'a, R: 'a + io::Read> {
     de: &'a mut Deserializer<R>,
-    next_index: usize,
-    count: Option<usize>,
+    next_index: u32,
+    count: u32,
 }
 
 impl<'a, R: io::Read> SeqAccess<'a, R> {
-    fn without_count(de: &'a mut Deserializer<R>) -> SeqAccess<'a, R> {
+    fn new(de: &'a mut Deserializer<R>, count: u32) -> SeqAccess<'a, R> {
         SeqAccess {
             de: de,
             next_index: 0,
-            count: None,
-        }
-    }
-
-    fn with_count(de: &'a mut Deserializer<R>, count: usize) -> SeqAccess<'a, R> {
-        SeqAccess {
-            de: de,
-            next_index: 0,
-            count: Some(count),
+            count: count,
         }
     }
 }
@@ -280,12 +274,10 @@ impl<'de, 'a, R> de::SeqAccess<'de> for SeqAccess<'a, R>
     fn next_element_seed<T>(&mut self, seed: T) -> error::Result<Option<T::Value>>
         where T: DeserializeSeed<'de>
     {
-        if let Some(count) = self.count {
-            if self.next_index < count {
-                self.next_index += 1;
-            } else {
-                return Ok(None);
-            }
+        if self.next_index < self.count {
+            self.next_index += 1;
+        } else {
+            return Ok(None);
         }
 
         seed.deserialize(&mut *self.de).map(Some)

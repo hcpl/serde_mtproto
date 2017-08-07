@@ -4,7 +4,7 @@ use byteorder::{WriteBytesExt, LittleEndian};
 use serde::ser::{self, Serialize};
 
 use common::{FALSE_ID, TRUE_ID};
-use error;
+use error::{self, SerErrorKind};
 use identifiable::{Identifiable, Wrapper};
 
 
@@ -42,10 +42,10 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     type Ok = ();
     type Error = error::Error;
 
-    type SerializeSeq = Self;
-    type SerializeTuple = Self;
-    type SerializeTupleStruct = Self;
-    type SerializeTupleVariant = Self;
+    type SerializeSeq = SerializeFixedLengthSeq<'a, W>;
+    type SerializeTuple = SerializeFixedLengthSeq<'a, W>;
+    type SerializeTupleStruct = SerializeFixedLengthSeq<'a, W>;
+    type SerializeTupleVariant = SerializeFixedLengthSeq<'a, W>;
     type SerializeMap = Self;
     type SerializeStruct = Self;
     type SerializeStructVariant = Self;
@@ -195,25 +195,32 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
         value.serialize(self)
     }
 
-    fn serialize_seq(self, _len: Option<usize>) -> error::Result<Self> {
-        unreachable!("this method shouldn't be called")
+    fn serialize_seq(self, len: Option<usize>) -> error::Result<Self::SerializeSeq> {
+        if let Some(len) = len {
+            SerializeFixedLengthSeq::with_serialize_len(self, len)
+        } else {
+            bail!(SerErrorKind::SeqWithUnknownLengthUnsupported);
+        }
     }
 
-    fn serialize_tuple(self, _len: usize) -> error::Result<Self> {
-        Ok(self)
+    fn serialize_tuple(self, len: usize) -> error::Result<Self::SerializeTuple> {
+        Ok(SerializeFixedLengthSeq::new(self, len))
     }
 
-    fn serialize_tuple_struct(self, _name: &'static str, _len: usize) -> error::Result<Self> {
-        unreachable!("this method shouldn't be called")
+    fn serialize_tuple_struct(self,
+                              _name: &'static str,
+                              len: usize)
+                             -> error::Result<Self::SerializeTupleStruct> {
+        Ok(SerializeFixedLengthSeq::new(self, len))
     }
 
     fn serialize_tuple_variant(self,
                                _name: &'static str,
                                _variant_index: u32,
                                _variant: &'static str,
-                               _len: usize)
-                              -> error::Result<Self> {
-        unreachable!("this method shouldn't be called")
+                               len: usize)
+                              -> error::Result<Self::SerializeTupleVariant> {
+        Ok(SerializeFixedLengthSeq::new(self, len))
     }
 
     fn serialize_map(self, _len: Option<usize>) -> error::Result<Self> {
@@ -234,25 +241,43 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     }
 }
 
-impl<'a, W> ser::SerializeSeq for &'a mut Serializer<W>
-    where W: io::Write
-{
-    type Ok = ();
-    type Error = error::Error;
 
-    fn serialize_element<T>(&mut self, _value: &T) -> error::Result<()>
-        where T: ?Sized + Serialize
-    {
-        unreachable!("this method shouldn't be called")
+pub struct SerializeFixedLengthSeq<'a, W: 'a + io::Write> {
+    ser: &'a mut Serializer<W>,
+    len: usize,
+    next_index: usize,
+}
+
+impl<'a, W: io::Write> SerializeFixedLengthSeq<'a, W> {
+    fn new(ser: &'a mut Serializer<W>, len: usize) -> SerializeFixedLengthSeq<'a, W> {
+        SerializeFixedLengthSeq {
+            ser: ser,
+            len: len,
+            next_index: 0,
+        }
     }
 
-    fn end(self) -> error::Result<()> {
-        unreachable!("this method shouldn't be called")
+    fn with_serialize_len(ser: &'a mut Serializer<W>, len: usize) -> error::Result<SerializeFixedLengthSeq<'a, W>> {
+        ser::Serializer::serialize_u32(&mut *ser, len as u32)?;
+
+        Ok(SerializeFixedLengthSeq::new(ser, len))
+    }
+
+    fn impl_serialize_seq_value<T>(&mut self, value: &T) -> error::Result<()>
+        where T: ?Sized + Serialize
+    {
+        if self.next_index < self.len {
+            self.next_index += 1;
+        } else {
+            bail!(SerErrorKind::ExcessElements(self.len));
+        }
+
+        value.serialize(&mut *self.ser)
     }
 }
 
-impl<'a, W> ser::SerializeTuple for &'a mut Serializer<W>
-    where W: io::Write
+impl<'a, W> ser::SerializeSeq for SerializeFixedLengthSeq<'a, W>
+    where W: 'a + io::Write
 {
     type Ok = ();
     type Error = error::Error;
@@ -260,7 +285,7 @@ impl<'a, W> ser::SerializeTuple for &'a mut Serializer<W>
     fn serialize_element<T>(&mut self, value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
-        value.serialize(&mut **self)
+        self.impl_serialize_seq_value(value)
     }
 
     fn end(self) -> error::Result<()> {
@@ -268,37 +293,54 @@ impl<'a, W> ser::SerializeTuple for &'a mut Serializer<W>
     }
 }
 
-impl<'a, W> ser::SerializeTupleStruct for &'a mut Serializer<W>
-    where W: io::Write
+impl<'a, W> ser::SerializeTuple for SerializeFixedLengthSeq<'a, W>
+    where W: 'a + io::Write
 {
     type Ok = ();
     type Error = error::Error;
 
-    fn serialize_field<T>(&mut self, _value: &T) -> error::Result<()>
+    fn serialize_element<T>(&mut self, value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
-        unreachable!("this method shouldn't be called")
+        self.impl_serialize_seq_value(value)
     }
 
     fn end(self) -> error::Result<()> {
-        unreachable!("this method shouldn't be called")
+        Ok(())
     }
 }
 
-impl<'a, W> ser::SerializeTupleVariant for &'a mut Serializer<W>
+impl<'a, W> ser::SerializeTupleStruct for SerializeFixedLengthSeq<'a, W>
     where W: io::Write
 {
     type Ok = ();
     type Error = error::Error;
 
-    fn serialize_field<T>(&mut self, _value: &T) -> error::Result<()>
+    fn serialize_field<T>(&mut self, value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
-        unreachable!("this method shouldn't be called")
+        self.impl_serialize_seq_value(value)
     }
 
     fn end(self) -> error::Result<()> {
-        unreachable!("this method shouldn't be called")
+        Ok(())
+    }
+}
+
+impl<'a, W> ser::SerializeTupleVariant for SerializeFixedLengthSeq<'a, W>
+    where W: io::Write
+{
+    type Ok = ();
+    type Error = error::Error;
+
+    fn serialize_field<T>(&mut self, value: &T) -> error::Result<()>
+        where T: ?Sized + Serialize
+    {
+        self.impl_serialize_seq_value(value)
+    }
+
+    fn end(self) -> error::Result<()> {
+        Ok(())
     }
 }
 

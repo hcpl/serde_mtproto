@@ -70,16 +70,19 @@ lazy_static! {
         9, 46, 2, 0, 0, 0, 0, 0,    // 142857 as little-endian 64-bit int
     ];
 
-    static ref CAFEBABE_BAZ: Cafebabe<bool> = Cafebabe::Baz {
+    static ref CAFEBABE_BAZ: Cafebabe<Vec<bool>> = Cafebabe::Baz {
         id: u64::max_value(),
         name: "beef".to_owned(),
-        payload: false,
+        payload: vec![false, true, false],
     };
 
     static ref CAFEBABE_BAZ_SERIALIZED: Vec<u8> = vec![
         0xad, 0xaa, 0xaa, 0xba,                    // id of Cafebabe::Baz in little-endian
         255, 255, 255, 255, 255, 255, 255, 255,    // u64::max_value() == 2 ** 64 - 1
         4, 98, 101, 101, 102, 0, 0, 0,             // string "beef" of length 4 and 3 bytes of padding
+        3, 0, 0, 0,                                // vec has 3 elements, len as 32-bit int
+        55, 151, 121, 188,                         // id of false in little-endian
+        181, 117, 114, 153,                        // id of true in little-endian
         55, 151, 121, 188,                         // id of false in little-endian
     ];
 
@@ -198,14 +201,14 @@ fn test_enum_variant_to_writer_identifiable2() {
 
 #[test]
 fn test_enum_variant_from_bytes_identifiable2() {
-    let cafebabe_baz_deserialized: Cafebabe<bool> = from_bytes_identifiable(&*CAFEBABE_BAZ_SERIALIZED, Some("Baz")).unwrap();
+    let cafebabe_baz_deserialized: Cafebabe<Vec<bool>> = from_bytes_identifiable(&*CAFEBABE_BAZ_SERIALIZED, Some("Baz")).unwrap();
 
     assert_eq!(cafebabe_baz_deserialized, *CAFEBABE_BAZ);
 }
 
 #[test]
 fn test_enum_variant_from_reader_identifiable2() {
-    let cafebabe_baz_deserialized: Cafebabe<bool> = from_reader_identifiable(CAFEBABE_BAZ_SERIALIZED.as_slice(), Some("Baz")).unwrap();
+    let cafebabe_baz_deserialized: Cafebabe<Vec<bool>> = from_reader_identifiable(CAFEBABE_BAZ_SERIALIZED.as_slice(), Some("Baz")).unwrap();
 
     assert_eq!(cafebabe_baz_deserialized, *CAFEBABE_BAZ);
 }
