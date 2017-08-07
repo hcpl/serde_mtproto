@@ -207,7 +207,9 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_tuple<V>(mut self, len: usize, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        visitor.visit_seq(SeqAccess::new(&mut self, len as u32))
+        let len_u32 = len.to_u32().ok_or(DeErrorKind::IntegerOverflowingCast)?;
+
+        visitor.visit_seq(SeqAccess::new(&mut self, len_u32))
     }
 
     fn deserialize_tuple_struct<V>(self, _name: &'static str, _len: usize, _visitor: V) -> error::Result<V::Value>
@@ -225,7 +227,9 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_struct<V>(mut self, _name: &'static str, fields: &'static [&'static str], visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        visitor.visit_seq(SeqAccess::new(&mut self, fields.len() as u32))
+        let len_u32 = fields.len().to_u32().ok_or(DeErrorKind::IntegerOverflowingCast)?;
+
+        visitor.visit_seq(SeqAccess::new(&mut self, len_u32))
     }
 
     fn deserialize_enum<V>(mut self, _name: &'static str, _variants: &'static [&'static str], visitor: V) -> error::Result<V::Value>

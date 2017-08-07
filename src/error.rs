@@ -20,6 +20,7 @@ error_chain! {
 pub enum SerErrorKind {
     Msg(String),
     ExcessElements(usize),
+    IntegerOverflowingCast,
     SeqWithUnknownLengthUnsupported,
 }
 

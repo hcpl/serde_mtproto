@@ -1,6 +1,7 @@
 use std::io;
 
 use byteorder::{WriteBytesExt, LittleEndian};
+use num_traits::ToPrimitive;
 use serde::ser::{self, Serialize};
 
 use common::{FALSE_ID, TRUE_ID};
@@ -258,7 +259,8 @@ impl<'a, W: io::Write> SerializeFixedLengthSeq<'a, W> {
     }
 
     fn with_serialize_len(ser: &'a mut Serializer<W>, len: usize) -> error::Result<SerializeFixedLengthSeq<'a, W>> {
-        ser::Serializer::serialize_u32(&mut *ser, len as u32)?;
+        let len_u32 = len.to_u32().ok_or(SerErrorKind::IntegerOverflowingCast)?;
+        ser::Serializer::serialize_u32(&mut *ser, len_u32)?;
 
         Ok(SerializeFixedLengthSeq::new(ser, len))
     }
