@@ -126,5 +126,7 @@ fn get_id_from_attrs(attrs: &[Attribute]) -> i32 {
         }
     }
 
-    unreachable!()
+    panic!("#[derive(MtProtoIdentifiable)] requires an #[id = \"0x...\"] attribute:\n    \
+            - on top of struct for structs;\n    \
+            - or on top of each enum variant for enums");
 }
