@@ -196,28 +196,28 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
         visitor.visit_newtype_struct(self)
     }
 
-    fn deserialize_seq<V>(mut self, visitor: V) -> error::Result<V::Value>
+    fn deserialize_seq<V>(self, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
         let len = self.reader.read_u32::<LittleEndian>()?;
 
-        visitor.visit_seq(SeqAccess::new(&mut self, len))
+        visitor.visit_seq(SeqAccess::new(self, len))
     }
 
-    fn deserialize_tuple<V>(mut self, len: usize, visitor: V) -> error::Result<V::Value>
+    fn deserialize_tuple<V>(self, len: usize, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
         let len_u32 = len.to_u32().ok_or(DeErrorKind::IntegerOverflowingCast)?;
 
-        visitor.visit_seq(SeqAccess::new(&mut self, len_u32))
+        visitor.visit_seq(SeqAccess::new(self, len_u32))
     }
 
-    fn deserialize_tuple_struct<V>(mut self, _name: &'static str, len: usize, visitor: V) -> error::Result<V::Value>
+    fn deserialize_tuple_struct<V>(self, _name: &'static str, len: usize, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
         let len_u32 = len.to_u32().ok_or(DeErrorKind::IntegerOverflowingCast)?;
 
-        visitor.visit_seq(SeqAccess::new(&mut self, len_u32))
+        visitor.visit_seq(SeqAccess::new(self, len_u32))
     }
 
     fn deserialize_map<V>(self, _visitor: V) -> error::Result<V::Value>
@@ -226,18 +226,18 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
         bail!(DeErrorKind::UnsupportedSerdeType(format!("map")));
     }
 
-    fn deserialize_struct<V>(mut self, _name: &'static str, fields: &'static [&'static str], visitor: V) -> error::Result<V::Value>
+    fn deserialize_struct<V>(self, _name: &'static str, fields: &'static [&'static str], visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
         let len_u32 = fields.len().to_u32().ok_or(DeErrorKind::IntegerOverflowingCast)?;
 
-        visitor.visit_seq(SeqAccess::new(&mut self, len_u32))
+        visitor.visit_seq(SeqAccess::new(self, len_u32))
     }
 
-    fn deserialize_enum<V>(mut self, _name: &'static str, _variants: &'static [&'static str], visitor: V) -> error::Result<V::Value>
+    fn deserialize_enum<V>(self, _name: &'static str, _variants: &'static [&'static str], visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        visitor.visit_enum(EnumVariantAccess::new(&mut self))
+        visitor.visit_enum(EnumVariantAccess::new(self))
     }
 
     fn deserialize_identifier<V>(self, visitor: V) -> error::Result<V::Value>
