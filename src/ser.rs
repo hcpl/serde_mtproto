@@ -58,12 +58,11 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
     impl_serialize_small_int!(i8,  serialize_i8,  i32, serialize_i32);
     impl_serialize_small_int!(i16, serialize_i16, i32, serialize_i32);
-    impl_serialize_small_int!(u8,  serialize_u8,  u32, serialize_u32);
-    impl_serialize_small_int!(u16, serialize_u16, u32, serialize_u32);
-
     impl_serialize_big_int!(i32, serialize_i32, WriteBytesExt::write_i32<LittleEndian>);
     impl_serialize_big_int!(i64, serialize_i64, WriteBytesExt::write_i64<LittleEndian>);
 
+    impl_serialize_small_int!(u8,  serialize_u8,  u32, serialize_u32);
+    impl_serialize_small_int!(u16, serialize_u16, u32, serialize_u32);
     impl_serialize_big_int!(u32, serialize_u32, WriteBytesExt::write_u32<LittleEndian>);
     impl_serialize_big_int!(u64, serialize_u64, WriteBytesExt::write_u64<LittleEndian>);
 

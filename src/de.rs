@@ -127,12 +127,11 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
 
     impl_deserialize_small_int!(deserialize_i8,  visit_i8,  to_i8,  read_i32::<LittleEndian>);
     impl_deserialize_small_int!(deserialize_i16, visit_i16, to_i16, read_i32::<LittleEndian>);
-    impl_deserialize_small_int!(deserialize_u8,  visit_u8,  to_u8,  read_u32::<LittleEndian>);
-    impl_deserialize_small_int!(deserialize_u16, visit_u16, to_u16, read_u32::<LittleEndian>);
-
     impl_deserialize_big_int!(deserialize_i32, read_i32::<LittleEndian>, visit_i32);
     impl_deserialize_big_int!(deserialize_i64, read_i64::<LittleEndian>, visit_i64);
 
+    impl_deserialize_small_int!(deserialize_u8,  visit_u8,  to_u8,  read_u32::<LittleEndian>);
+    impl_deserialize_small_int!(deserialize_u16, visit_u16, to_u16, read_u32::<LittleEndian>);
     impl_deserialize_big_int!(deserialize_u32, read_u32::<LittleEndian>, visit_u32);
     impl_deserialize_big_int!(deserialize_u64, read_u64::<LittleEndian>, visit_u64);
 
