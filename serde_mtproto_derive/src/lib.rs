@@ -9,7 +9,7 @@ use syn::{Attribute, Body, DeriveInput, Ident, Lit, MetaItem, StrStyle};
 
 
 #[proc_macro_derive(MtProtoIdentifiable, attributes(id))]
-pub fn serialize(input: TokenStream) -> TokenStream {
+pub fn mt_proto_identifiable(input: TokenStream) -> TokenStream {
     // Construct a string representation of the type definition
     let s = input.to_string();
 
