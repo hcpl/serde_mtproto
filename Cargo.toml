@@ -1,6 +1,6 @@
 [package]
 name = "serde_mtproto"
-version = "0.1.1"
+version = "0.2.0"
 description = "MTProto [de]serialization for Rust"
 authors = ["Nguyen Duc My <hcpl.prog@gmail.com>"]
 license = "MIT/Apache-2.0"
@@ -20,4 +20,4 @@ serde_derive = "1.0.11"
 lazy_static = "0.2.8"
 serde = "1.0.11"
 serde_derive = "1.0.11"
-serde_mtproto_derive = { path = "serde_mtproto_derive", version = "0.1.1" }
+serde_mtproto_derive = { path = "serde_mtproto_derive", version = "0.2.0" }
