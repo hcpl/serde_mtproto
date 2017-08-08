@@ -47,7 +47,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     type SerializeTuple = SerializeFixedLengthSeq<'a, W>;
     type SerializeTupleStruct = SerializeFixedLengthSeq<'a, W>;
     type SerializeTupleVariant = SerializeFixedLengthSeq<'a, W>;
-    type SerializeMap = ser::Impossible<(), error::Error>;
+    type SerializeMap = SerializeMap<'a, W>;
     type SerializeStruct = SerializeFixedLengthSeq<'a, W>;
     type SerializeStructVariant = SerializeFixedLengthSeq<'a, W>;
 
@@ -224,8 +224,12 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
         Ok(SerializeFixedLengthSeq::new(self, len))
     }
 
-    fn serialize_map(self, _len: Option<usize>) -> error::Result<Self::SerializeMap> {
-        bail!(SerErrorKind::UnsupportedSerdeType(SerSerdeType::Map));
+    fn serialize_map(self, len: Option<usize>) -> error::Result<Self::SerializeMap> {
+        if let Some(len) = len {
+            SerializeMap::with_serialize_len(self, len)
+        } else {
+            bail!(SerErrorKind::MapWithUnknownLengthUnsupported);
+        }
     }
 
     fn serialize_struct(self, _name: &'static str, len: usize) -> error::Result<Self::SerializeStruct> {
@@ -373,6 +377,55 @@ impl<'a, W> ser::SerializeStructVariant for SerializeFixedLengthSeq<'a, W>
         where T: ?Sized + Serialize
     {
         self.impl_serialize_seq_value(value)
+    }
+
+    fn end(self) -> error::Result<()> {
+        Ok(())
+    }
+}
+
+
+pub struct SerializeMap<'a, W: 'a + io::Write> {
+    ser: &'a mut Serializer<W>,
+    len: usize,
+    next_index: usize,
+}
+
+impl<'a, W: io::Write> SerializeMap<'a, W> {
+    fn with_serialize_len(ser: &'a mut Serializer<W>, len: usize) -> error::Result<SerializeMap<'a, W>> {
+        let len_u32 = len.to_u32().ok_or(SerErrorKind::IntegerOverflowingCast)?;
+        ser::Serializer::serialize_u32(&mut *ser, len_u32)?;
+
+        Ok(SerializeMap {
+            ser: ser,
+            len: len,
+            next_index: 0,
+        })
+    }
+}
+
+impl<'a, W> ser::SerializeMap for SerializeMap<'a, W>
+    where W: io::Write
+{
+    type Ok = ();
+    type Error = error::Error;
+
+    fn serialize_key<T>(&mut self, key: &T) -> error::Result<()>
+        where T: ?Sized + Serialize
+    {
+        if self.next_index < self.len {
+            self.next_index += 1;
+        } else {
+            bail!(SerErrorKind::ExcessElements(self.len));
+        }
+
+        key.serialize(&mut *self.ser)
+    }
+
+    fn serialize_value<T>(&mut self, value: &T) -> error::Result<()>
+        where T: ?Sized + Serialize
+    {
+        value.serialize(&mut *self.ser)
     }
 
     fn end(self) -> error::Result<()> {

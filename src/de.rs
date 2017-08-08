@@ -220,10 +220,12 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
         visitor.visit_seq(SeqAccess::new(self, len_u32))
     }
 
-    fn deserialize_map<V>(self, _visitor: V) -> error::Result<V::Value>
+    fn deserialize_map<V>(self, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        bail!(DeErrorKind::UnsupportedSerdeType(DeSerdeType::Map));
+        let len = self.reader.read_u32::<LittleEndian>()?;
+
+        visitor.visit_map(MapAccess::new(self, len))
     }
 
     fn deserialize_struct<V>(self, _name: &'static str, fields: &'static [&'static str], visitor: V) -> error::Result<V::Value>
@@ -290,6 +292,46 @@ impl<'de, 'a, R> de::SeqAccess<'de> for SeqAccess<'a, R>
     }
 }
 
+
+struct MapAccess<'a, R: 'a + io::Read> {
+    de: &'a mut Deserializer<R>,
+    next_index: u32,
+    count: u32,
+}
+
+impl<'a, R: io::Read> MapAccess<'a, R> {
+    fn new(de: &'a mut Deserializer<R>, count: u32) -> MapAccess<'a, R> {
+        MapAccess {
+            de: de,
+            next_index: 0,
+            count: count,
+        }
+    }
+}
+
+impl<'de, 'a, R> de::MapAccess<'de> for MapAccess<'a, R>
+    where R: 'a + io::Read
+{
+    type Error = error::Error;
+
+    fn next_key_seed<K>(&mut self, seed: K) -> error::Result<Option<K::Value>>
+        where K: DeserializeSeed<'de>
+    {
+        if self.next_index < self.count {
+            self.next_index += 1;
+        } else {
+            return Ok(None);
+        }
+
+        seed.deserialize(&mut *self.de).map(Some)
+    }
+
+    fn next_value_seed<V>(&mut self, seed: V) -> error::Result<V::Value>
+        where V: DeserializeSeed<'de>
+    {
+        seed.deserialize(&mut *self.de)
+    }
+}
 
 struct EnumVariantAccess<'a, R: 'a + io::Read> {
     de: &'a mut Deserializer<R>,

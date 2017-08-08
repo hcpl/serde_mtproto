@@ -1,5 +1,7 @@
 #[macro_use]
 extern crate lazy_static;
+#[macro_use]
+extern crate maplit;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
@@ -7,6 +9,8 @@ extern crate serde_mtproto as serde_mtproto_other_name;    // Tests `serde_mtpro
 #[macro_use]
 extern crate serde_mtproto_derive;
 
+
+use std::collections::BTreeMap;
 
 use serde_mtproto_other_name::{to_bytes_identifiable, to_writer_identifiable, from_bytes_identifiable, from_reader_identifiable};
 
@@ -34,6 +38,7 @@ enum Cafebabe<T> {
         id: u64,
         name: String,
         payload: T,
+        mapping: BTreeMap<String, i64>,    // not HashMap, because we need deterministic ordering
     },
     #[id = "0x0d00d1e0"]
     Blob,
@@ -74,16 +79,33 @@ lazy_static! {
         id: u64::max_value(),
         name: "beef".to_owned(),
         payload: vec![false, true, false],
+        mapping: btreemap!{
+            "QWERTY".to_owned()    => -1048576,
+            "something".to_owned() => 0,
+            "OtHeR".to_owned()     => 0x7fff_ffff_ffff_ffff,
+            "".to_owned()          => -1,
+        },
     };
 
     static ref CAFEBABE_BAZ_SERIALIZED: Vec<u8> = vec![
         0xad, 0xaa, 0xaa, 0xba,                    // id of Cafebabe::Baz in little-endian
         255, 255, 255, 255, 255, 255, 255, 255,    // u64::max_value() == 2 ** 64 - 1
         4, 98, 101, 101, 102, 0, 0, 0,             // string "beef" of length 4 and 3 bytes of padding
+
         3, 0, 0, 0,                                // vec has 3 elements, len as 32-bit int
         55, 151, 121, 188,                         // id of false in little-endian
         181, 117, 114, 153,                        // id of true in little-endian
         55, 151, 121, 188,                         // id of false in little-endian
+
+        4, 0, 0, 0,                                // hashmap has 4 elements, len as 32-bit int
+        0, 0, 0, 0,                                // ""
+        255, 255, 255, 255, 255, 255, 255, 255,    // -1 as little-endian 64-bit int
+        5, 79, 116, 72, 101, 82, 0, 0,             // "OtHeR"
+        255, 255, 255, 255, 255, 255, 255, 127,    // 0x7fff_ffff_ffff_ffff as little-endian 64-bit int
+        6, 81, 87, 69, 82, 84, 89, 0,              // "QWERTY"
+        0, 0, 240, 255, 255, 255, 255, 255,        // -1048576 as little-endian 64-bit int
+        9, 115, 111, 109, 101, 116, 104, 105, 110, 103, 0, 0,    // "something"
+        0, 0, 0, 0, 0, 0, 0, 0,                    // 0 as little-endian 64-bit int
     ];
 
     static ref CAFEBABE_BLOB: Cafebabe<()> = Cafebabe::Blob;
