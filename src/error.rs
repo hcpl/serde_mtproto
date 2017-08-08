@@ -12,6 +12,7 @@ error_chain! {
     errors {
         Ser(kind: SerErrorKind)
         De(kind: DeErrorKind)
+        IntegerCast
     }
 }
 
@@ -19,8 +20,7 @@ error_chain! {
 #[derive(Debug)]
 pub enum SerErrorKind {
     Msg(String),
-    ExcessElements(usize),
-    IntegerOverflowingCast,
+    ExcessElements(u32),
     SeqWithUnknownLengthUnsupported,
     MapWithUnknownLengthUnsupported,
     UnsupportedSerdeType(SerSerdeType),
@@ -40,7 +40,6 @@ impl From<SerErrorKind> for Error {
 pub enum DeErrorKind {
     Msg(String),
     ExpectedBool,
-    IntegerOverflowingCast,
     InvalidStrFirstByte255,
     UnsupportedSerdeType(DeSerdeType),
 }

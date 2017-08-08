@@ -1,10 +1,9 @@
 use std::io;
 
 use byteorder::{ReadBytesExt, LittleEndian};
-use num_traits::ToPrimitive;
 use serde::de::{self, Deserialize, DeserializeOwned, DeserializeSeed, Visitor};
 
-use common::{FALSE_ID, TRUE_ID};
+use common::{FALSE_ID, TRUE_ID, safe_cast};
 use error::{self, DeErrorKind, DeSerdeType};
 use identifiable::{Identifiable, Wrapper};
 
@@ -80,8 +79,7 @@ macro_rules! impl_deserialize_small_int {
             where V: Visitor<'de>
         {
             let value = self.reader.$big_read::<$big_endianness>()?;
-            let casted = value.$cast_to_small()
-                .ok_or(error::Error::from(DeErrorKind::IntegerOverflowingCast))?;
+            let casted = safe_cast(value)?;
 
             visitor.$small_visit(casted)
         }
@@ -207,17 +205,13 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_tuple<V>(self, len: usize, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        let len_u32 = len.to_u32().ok_or(DeErrorKind::IntegerOverflowingCast)?;
-
-        visitor.visit_seq(SeqAccess::new(self, len_u32))
+        visitor.visit_seq(SeqAccess::new(self, safe_cast(len)?))
     }
 
     fn deserialize_tuple_struct<V>(self, _name: &'static str, len: usize, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        let len_u32 = len.to_u32().ok_or(DeErrorKind::IntegerOverflowingCast)?;
-
-        visitor.visit_seq(SeqAccess::new(self, len_u32))
+        visitor.visit_seq(SeqAccess::new(self, safe_cast(len)?))
     }
 
     fn deserialize_map<V>(self, visitor: V) -> error::Result<V::Value>
@@ -231,9 +225,7 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_struct<V>(self, _name: &'static str, fields: &'static [&'static str], visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        let len_u32 = fields.len().to_u32().ok_or(DeErrorKind::IntegerOverflowingCast)?;
-
-        visitor.visit_seq(SeqAccess::new(self, len_u32))
+        visitor.visit_seq(SeqAccess::new(self, safe_cast(fields.len())?))
     }
 
     fn deserialize_enum<V>(self, _name: &'static str, _variants: &'static [&'static str], visitor: V) -> error::Result<V::Value>
@@ -260,16 +252,16 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
 
 struct SeqAccess<'a, R: 'a + io::Read> {
     de: &'a mut Deserializer<R>,
+    len: u32,
     next_index: u32,
-    count: u32,
 }
 
 impl<'a, R: io::Read> SeqAccess<'a, R> {
-    fn new(de: &'a mut Deserializer<R>, count: u32) -> SeqAccess<'a, R> {
+    fn new(de: &'a mut Deserializer<R>, len: u32) -> SeqAccess<'a, R> {
         SeqAccess {
             de: de,
             next_index: 0,
-            count: count,
+            len: len,
         }
     }
 }
@@ -282,7 +274,7 @@ impl<'de, 'a, R> de::SeqAccess<'de> for SeqAccess<'a, R>
     fn next_element_seed<T>(&mut self, seed: T) -> error::Result<Option<T::Value>>
         where T: DeserializeSeed<'de>
     {
-        if self.next_index < self.count {
+        if self.next_index < self.len {
             self.next_index += 1;
         } else {
             return Ok(None);
@@ -295,16 +287,16 @@ impl<'de, 'a, R> de::SeqAccess<'de> for SeqAccess<'a, R>
 
 struct MapAccess<'a, R: 'a + io::Read> {
     de: &'a mut Deserializer<R>,
+    len: u32,
     next_index: u32,
-    count: u32,
 }
 
 impl<'a, R: io::Read> MapAccess<'a, R> {
-    fn new(de: &'a mut Deserializer<R>, count: u32) -> MapAccess<'a, R> {
+    fn new(de: &'a mut Deserializer<R>, len: u32) -> MapAccess<'a, R> {
         MapAccess {
             de: de,
             next_index: 0,
-            count: count,
+            len: len,
         }
     }
 }
@@ -317,7 +309,7 @@ impl<'de, 'a, R> de::MapAccess<'de> for MapAccess<'a, R>
     fn next_key_seed<K>(&mut self, seed: K) -> error::Result<Option<K::Value>>
         where K: DeserializeSeed<'de>
     {
-        if self.next_index < self.count {
+        if self.next_index < self.len {
             self.next_index += 1;
         } else {
             return Ok(None);

@@ -1,10 +1,9 @@
 use std::io;
 
 use byteorder::{WriteBytesExt, LittleEndian};
-use num_traits::ToPrimitive;
 use serde::ser::{self, Serialize};
 
-use common::{FALSE_ID, TRUE_ID};
+use common::{FALSE_ID, TRUE_ID, safe_cast};
 use error::{self, SerErrorKind, SerSerdeType};
 use identifiable::{Identifiable, Wrapper};
 
@@ -23,7 +22,7 @@ impl<W: io::Write> Serializer<W> {
 macro_rules! impl_serialize_small_int {
     ($small_type:ty, $small_method:ident, $big_type:ty, $big_method:ident) => {
         fn $small_method(self, value: $small_type) -> error::Result<()> {
-            self.$big_method(value as $big_type)
+            self.$big_method(value as $big_type)    // safe to cast from small to big
         }
     }
 }
@@ -86,7 +85,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
             // whereupon all of this is interpreted as a sequence
             // of int(L/4)+1 32-bit little-endian integers.
 
-            self.writer.write_all(&[len as u8])?;
+            self.writer.write_u8(len as u8)?;
 
             rem = (len + 1) % 4;
         } else {
@@ -94,7 +93,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
             // bytes with the string length L in little-endian order, followed by L
             // bytes of the string, further followed by 0 to 3 null padding bytes.
 
-            self.writer.write_all(&[254])?;
+            self.writer.write_u8(254)?;
             self.writer.write_uint::<LittleEndian>(len as u64, 3)?;
 
             rem = len % 4;
@@ -105,11 +104,8 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
         // [...] string followed by 0 to 3 characters containing 0,
         // such that the overall length of the value be divisible by 4 [...]
-        if rem > 0 {
-            for _ in 0..(4 - rem) {
-                self.writer.write_all(&[0])?;
-            }
-        }
+        let padding = (4 - rem) % 4;
+        self.writer.write_uint::<LittleEndian>(0, padding)?;
 
         Ok(())
     }
@@ -125,7 +121,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
             // whereupon all of this is interpreted as a sequence
             // of int(L/4)+1 32-bit little-endian integers.
 
-            self.writer.write_all(&[len as u8])?;
+            self.writer.write_u8(len as u8)?;
 
             rem = (len + 1) % 4;
         } else {
@@ -133,7 +129,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
             // bytes with the string length L in little-endian order, followed by L
             // bytes of the string, further followed by 0 to 3 null padding bytes.
 
-            self.writer.write_all(&[254])?;
+            self.writer.write_u8(254)?;
             self.writer.write_uint::<LittleEndian>(len as u64, 3)?;
 
             rem = len % 4;
@@ -144,11 +140,8 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
         // [...] string followed by 0 to 3 characters containing 0,
         // such that the overall length of the value be divisible by 4 [...]
-        if rem > 0 {
-            for _ in 0..(4 - rem) {
-                self.writer.write_all(&[0])?;
-            }
-        }
+        let padding = (4 - rem) % 4;
+        self.writer.write_uint::<LittleEndian>(0, padding)?;
 
         Ok(())
     }
@@ -198,21 +191,21 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
     fn serialize_seq(self, len: Option<usize>) -> error::Result<Self::SerializeSeq> {
         if let Some(len) = len {
-            SerializeFixedLengthSeq::with_serialize_len(self, len)
+            SerializeFixedLengthSeq::with_serialize_len(self, safe_cast(len)?)
         } else {
             bail!(SerErrorKind::SeqWithUnknownLengthUnsupported);
         }
     }
 
     fn serialize_tuple(self, len: usize) -> error::Result<Self::SerializeTuple> {
-        Ok(SerializeFixedLengthSeq::new(self, len))
+        Ok(SerializeFixedLengthSeq::new(self, safe_cast(len)?))
     }
 
     fn serialize_tuple_struct(self,
                               _name: &'static str,
                               len: usize)
                              -> error::Result<Self::SerializeTupleStruct> {
-        Ok(SerializeFixedLengthSeq::new(self, len))
+        Ok(SerializeFixedLengthSeq::new(self, safe_cast(len)?))
     }
 
     fn serialize_tuple_variant(self,
@@ -221,19 +214,19 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
                                _variant: &'static str,
                                len: usize)
                               -> error::Result<Self::SerializeTupleVariant> {
-        Ok(SerializeFixedLengthSeq::new(self, len))
+        Ok(SerializeFixedLengthSeq::new(self, safe_cast(len)?))
     }
 
     fn serialize_map(self, len: Option<usize>) -> error::Result<Self::SerializeMap> {
         if let Some(len) = len {
-            SerializeMap::with_serialize_len(self, len)
+            SerializeMap::with_serialize_len(self, safe_cast(len)?)
         } else {
             bail!(SerErrorKind::MapWithUnknownLengthUnsupported);
         }
     }
 
     fn serialize_struct(self, _name: &'static str, len: usize) -> error::Result<Self::SerializeStruct> {
-        Ok(SerializeFixedLengthSeq::new(self, len))
+        Ok(SerializeFixedLengthSeq::new(self, safe_cast(len)?))
     }
 
     fn serialize_struct_variant(self,
@@ -242,19 +235,19 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
                                 _variant: &'static str,
                                 len: usize)
                                -> error::Result<Self::SerializeStructVariant> {
-        Ok(SerializeFixedLengthSeq::new(self, len))
+        Ok(SerializeFixedLengthSeq::new(self, safe_cast(len)?))
     }
 }
 
 
 pub struct SerializeFixedLengthSeq<'a, W: 'a + io::Write> {
     ser: &'a mut Serializer<W>,
-    len: usize,
-    next_index: usize,
+    len: u32,
+    next_index: u32,
 }
 
 impl<'a, W: io::Write> SerializeFixedLengthSeq<'a, W> {
-    fn new(ser: &'a mut Serializer<W>, len: usize) -> SerializeFixedLengthSeq<'a, W> {
+    fn new(ser: &'a mut Serializer<W>, len: u32) -> SerializeFixedLengthSeq<'a, W> {
         SerializeFixedLengthSeq {
             ser: ser,
             len: len,
@@ -262,9 +255,8 @@ impl<'a, W: io::Write> SerializeFixedLengthSeq<'a, W> {
         }
     }
 
-    fn with_serialize_len(ser: &'a mut Serializer<W>, len: usize) -> error::Result<SerializeFixedLengthSeq<'a, W>> {
-        let len_u32 = len.to_u32().ok_or(SerErrorKind::IntegerOverflowingCast)?;
-        ser::Serializer::serialize_u32(&mut *ser, len_u32)?;
+    fn with_serialize_len(ser: &'a mut Serializer<W>, len: u32) -> error::Result<SerializeFixedLengthSeq<'a, W>> {
+        ser::Serializer::serialize_u32(&mut *ser, len)?;
 
         Ok(SerializeFixedLengthSeq::new(ser, len))
     }
@@ -387,14 +379,13 @@ impl<'a, W> ser::SerializeStructVariant for SerializeFixedLengthSeq<'a, W>
 
 pub struct SerializeMap<'a, W: 'a + io::Write> {
     ser: &'a mut Serializer<W>,
-    len: usize,
-    next_index: usize,
+    len: u32,
+    next_index: u32,
 }
 
 impl<'a, W: io::Write> SerializeMap<'a, W> {
-    fn with_serialize_len(ser: &'a mut Serializer<W>, len: usize) -> error::Result<SerializeMap<'a, W>> {
-        let len_u32 = len.to_u32().ok_or(SerErrorKind::IntegerOverflowingCast)?;
-        ser::Serializer::serialize_u32(&mut *ser, len_u32)?;
+    fn with_serialize_len(ser: &'a mut Serializer<W>, len: u32) -> error::Result<SerializeMap<'a, W>> {
+        ser::Serializer::serialize_u32(&mut *ser, len)?;
 
         Ok(SerializeMap {
             ser: ser,
