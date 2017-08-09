@@ -1,4 +1,9 @@
-# Serde MTProto
+# Serde MTProto &emsp; [![Travis Build Status]][travis] [![Latest Version]][crates.io]
+
+[Travis Build Status]: https://api.travis-ci.org/hcpl/serde\_mtproto.svg?branch=master
+[travis]: https://travis-ci.org/hcpl/serde\_mtproto
+[Latest Version]: https://img.shields.io/crates/v/serde\_mtproto.svg
+[crates.io]: https://crates.io/crates/serde\_mtproto
 
 [MTProto](https://core.telegram.org/mtproto) [de]serialization for Rust which
 utilizes [Serde](https://serde.rs) framework.
@@ -7,6 +12,14 @@ utilizes [Serde](https://serde.rs) framework.
 [dependencies]
 serde_mtproto = "0.3"
 ```
+
+You may be looking for:
+
+- [MTProto API documentation](https://docs.serde.rs/serde_mtproto/)
+- [Serde API documentation](https://docs.serde.rs/serde/)
+- [Detailed documentation about Serde](https://serde.rs/)
+- [Setting up `#[derive(Serialize, Deserialize)]`](https://serde.rs/codegen.html)
+
 
 ## License
 

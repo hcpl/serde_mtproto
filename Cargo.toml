@@ -9,6 +9,9 @@ documentation = "https://docs.rs/serde_mtproto"
 repository = "https://github.com/hcpl/serde_mtproto"
 keywords = ["serde", "serialization", "telegram"]
 
+[badges]
+travis-ci = { repository = "serde-rs/serde" }
+
 [dependencies]
 byteorder = "1.1.0"
 error-chain = "0.10.0"
