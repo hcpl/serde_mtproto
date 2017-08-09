@@ -32,13 +32,15 @@ enum Cafebabe<T> {
     Bar {
         byte_id: i8,
         position: (u64, u64),
+        data: Boxed<T>,
     },
     #[id = "0xbaaaaaad"]
     Baz {
         id: u64,
         name: String,
         payload: T,
-        mapping: BTreeMap<String, i64>,    // not HashMap, because we need deterministic ordering
+        // not HashMap, because we need deterministic ordering for testing purposes
+        mapping: BTreeMap<String, i64>,
     },
     #[id = "0x0d00d1e0"]
     Blob,
@@ -73,6 +75,7 @@ lazy_static! {
     static ref CAFEBABE_BAR: Cafebabe<u32> = Cafebabe::Bar {
         byte_id: -20,
         position: (350, 142857),
+        data: Boxed::new(4096),
     };
 
     static ref CAFEBABE_BAR_SERIALIZED_BOXED: Vec<u8> = vec![
@@ -80,6 +83,8 @@ lazy_static! {
         236, 255, 255, 255,         // -20 as 32-bit int (MTProto doesn't support less than 32-bit)
         94, 1, 0, 0, 0, 0, 0, 0,    // 350 as little-endian 64-bit int
         9, 46, 2, 0, 0, 0, 0, 0,    // 142857 as little-endian 64-bit int
+        218, 155, 80, 168,          // id of int built-in MTProto type
+        0, 16, 0, 0,                // 4096 as little-endian 32-bit int
     ];
 
     static ref CAFEBABE_BAZ: Cafebabe<Vec<bool>> = Cafebabe::Baz {

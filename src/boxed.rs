@@ -1,7 +1,7 @@
 use identifiable::Identifiable;
 
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Boxed<T> {
     id: i32,
     inner: T,

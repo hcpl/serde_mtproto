@@ -7,7 +7,7 @@ extern crate serde;
 extern crate serde_derive;
 
 
-mod common;
+mod utils;
 
 pub mod boxed;
 pub mod error;

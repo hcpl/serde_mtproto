@@ -3,8 +3,9 @@ use std::io;
 use byteorder::{ReadBytesExt, LittleEndian};
 use serde::de::{self, Deserialize, DeserializeOwned, DeserializeSeed, Visitor};
 
-use common::{FALSE_ID, TRUE_ID, safe_cast};
 use error::{self, DeErrorKind, DeSerdeType};
+use identifiable::{BOOL_FALSE_ID, BOOL_TRUE_ID};
+use utils::safe_cast;
 
 
 pub struct Deserializer<R: io::Read> {
@@ -117,12 +118,12 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
         let id_value = self.reader.read_i32::<LittleEndian>()?;
 
         let value = match id_value {
-            TRUE_ID => true,
-            FALSE_ID => false,
+            BOOL_FALSE_ID => false,
+            BOOL_TRUE_ID => true,
             _ => {
                 return Err(de::Error::invalid_value(
                     de::Unexpected::Signed(id_value as i64),
-                    &format!("either {} for false or {} for true", FALSE_ID, TRUE_ID).as_str()));
+                    &format!("either {} for false or {} for true", BOOL_FALSE_ID, BOOL_TRUE_ID).as_str()));
             }
         };
 

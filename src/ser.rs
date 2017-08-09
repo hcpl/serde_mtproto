@@ -3,8 +3,9 @@ use std::io;
 use byteorder::{WriteBytesExt, LittleEndian};
 use serde::ser::{self, Serialize};
 
-use common::{FALSE_ID, TRUE_ID, safe_cast};
 use error::{self, SerErrorKind, SerSerdeType};
+use identifiable::Identifiable;
+use utils::safe_cast;
 
 
 pub struct Serializer<W: io::Write> {
@@ -51,7 +52,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
 
     fn serialize_bool(self, value: bool) -> error::Result<()> {
-        self.writer.write_i32::<LittleEndian>(if value { TRUE_ID } else { FALSE_ID })?;
+        self.writer.write_i32::<LittleEndian>(value.get_id())?;
         Ok(())
     }
 
