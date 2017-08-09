@@ -12,7 +12,7 @@ extern crate serde_mtproto_derive;
 
 use std::collections::BTreeMap;
 
-use serde_mtproto_other_name::{to_bytes_identifiable, to_writer_identifiable, from_bytes_identifiable, from_reader_identifiable};
+use serde_mtproto_other_name::{Boxed, to_bytes, to_writer, from_bytes, from_reader};
 
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable)]
@@ -51,7 +51,12 @@ lazy_static! {
         size: 57,
     };
 
-    static ref FOO_SERIALIZED: Vec<u8> = vec![
+    static ref FOO_SERIALIZED_BARE: Vec<u8> = vec![
+        181, 117, 114, 153,         // id of true in little-endian
+        57, 0, 0, 0, 0, 0, 0, 0,    // 57 as little-endian 64-bit int
+    ];
+
+    static ref FOO_SERIALIZED_BOXED: Vec<u8> = vec![
         0xef, 0xbe, 0xad, 0xde,     // id of Foo in little-endian
         181, 117, 114, 153,         // id of true in little-endian
         57, 0, 0, 0, 0, 0, 0, 0,    // 57 as little-endian 64-bit int
@@ -59,7 +64,9 @@ lazy_static! {
 
     static ref NOTHING: Nothing = Nothing;
 
-    static ref NOTHING_SERIALIZED: Vec<u8> = vec![
+    static ref NOTHING_SERIALIZED_BARE: Vec<u8> = vec![];
+
+    static ref NOTHING_SERIALIZED_BOXED: Vec<u8> = vec![
         0xe0, 0xa5, 0x5e, 0xd1,    // id of Nothing in little-endian
     ];
 
@@ -68,7 +75,7 @@ lazy_static! {
         position: (350, 142857),
     };
 
-    static ref CAFEBABE_BAR_SERIALIZED: Vec<u8> = vec![
+    static ref CAFEBABE_BAR_SERIALIZED_BOXED: Vec<u8> = vec![
         0x0d, 0xf0, 0xad, 0x0b,     // id of Cafebabe::Bar in little-endian
         236, 255, 255, 255,         // -20 as 32-bit int (MTProto doesn't support less than 32-bit)
         94, 1, 0, 0, 0, 0, 0, 0,    // 350 as little-endian 64-bit int
@@ -87,7 +94,7 @@ lazy_static! {
         },
     };
 
-    static ref CAFEBABE_BAZ_SERIALIZED: Vec<u8> = vec![
+    static ref CAFEBABE_BAZ_SERIALIZED_BOXED: Vec<u8> = vec![
         0xad, 0xaa, 0xaa, 0xba,                    // id of Cafebabe::Baz in little-endian
         255, 255, 255, 255, 255, 255, 255, 255,    // u64::max_value() == 2 ** 64 - 1
         4, 98, 101, 101, 102, 0, 0, 0,             // string "beef" of length 4 and 3 bytes of padding
@@ -110,166 +117,230 @@ lazy_static! {
 
     static ref CAFEBABE_BLOB: Cafebabe<()> = Cafebabe::Blob;
 
-    static ref CAFEBABE_BLOB_SERIALIZED: Vec<u8> = vec![
+    static ref CAFEBABE_BLOB_SERIALIZED_BOXED: Vec<u8> = vec![
         0xe0, 0xd1, 0x00, 0x0d,    // id of Cafebabe::Blob in little-endian
     ];
 }
 
 
 #[test]
-fn test_struct_to_bytes_identifiable() {
-    let vec = to_bytes_identifiable(&*FOO).unwrap();
+fn test_struct_to_bytes_bare() {
+    let vec = to_bytes(&*FOO).unwrap();
 
-    assert_eq!(vec, *FOO_SERIALIZED);
+    assert_eq!(vec, *FOO_SERIALIZED_BARE);
 }
 
 #[test]
-fn test_struct_to_writer_identifiable() {
+fn test_struct_to_writer_bare() {
     let mut vec = Vec::new();
-    to_writer_identifiable(&mut vec, &*FOO).unwrap();
+    to_writer(&mut vec, &*FOO).unwrap();
 
-    assert_eq!(vec, *FOO_SERIALIZED);
+    assert_eq!(vec, *FOO_SERIALIZED_BARE);
 }
 
 #[test]
-fn test_struct_from_bytes_identifiable() {
-    let foo_deserialized: Foo = from_bytes_identifiable(&*FOO_SERIALIZED, None).unwrap();
+fn test_struct_from_bytes_bare() {
+    let foo_deserialized: Foo = from_bytes(&*FOO_SERIALIZED_BARE, None).unwrap();
 
     assert_eq!(foo_deserialized, *FOO);
 }
 
 #[test]
-fn test_struct_from_reader_identifiable() {
-    let foo_deserialized: Foo = from_reader_identifiable(FOO_SERIALIZED.as_slice(), None).unwrap();
+fn test_struct_from_reader_bare() {
+    let foo_deserialized: Foo = from_reader(FOO_SERIALIZED_BARE.as_slice(), None).unwrap();
 
     assert_eq!(foo_deserialized, *FOO);
 }
 
 
 #[test]
-fn test_unit_struct_to_bytes_identifiable() {
-    let vec = to_bytes_identifiable(&*NOTHING).unwrap();
+fn test_struct_to_bytes_boxed() {
+    let vec = to_bytes(&Boxed::new(&*FOO)).unwrap();
 
-    assert_eq!(vec, *NOTHING_SERIALIZED);
+    assert_eq!(vec, *FOO_SERIALIZED_BOXED);
 }
 
 #[test]
-fn test_unit_struct_to_writer_identifiable() {
+fn test_struct_to_writer_boxed() {
     let mut vec = Vec::new();
-    to_writer_identifiable(&mut vec, &*NOTHING).unwrap();
+    to_writer(&mut vec, &Boxed::new(&*FOO)).unwrap();
 
-    assert_eq!(vec, *NOTHING_SERIALIZED);
+    assert_eq!(vec, *FOO_SERIALIZED_BOXED);
 }
 
 #[test]
-fn test_unit_struct_from_bytes_identifiable() {
-    let nothing_deserialized: Nothing = from_bytes_identifiable(&*NOTHING_SERIALIZED, None).unwrap();
+fn test_struct_from_bytes_boxed() {
+    let foo_deserialized_boxed: Boxed<Foo> = from_bytes(&*FOO_SERIALIZED_BOXED, None).unwrap();
 
-    assert_eq!(nothing_deserialized, *NOTHING);
+    assert_eq!(foo_deserialized_boxed.into_inner(), *FOO);
 }
 
 #[test]
-fn test_unit_struct_from_reader_identifiable() {
-    let nothing_deserialized: Nothing = from_reader_identifiable(NOTHING_SERIALIZED.as_slice(), None).unwrap();
+fn test_struct_from_reader_boxed() {
+    let foo_deserialized_boxed: Boxed<Foo> = from_reader(FOO_SERIALIZED_BOXED.as_slice(), None).unwrap();
 
-    assert_eq!(nothing_deserialized, *NOTHING);
+    assert_eq!(foo_deserialized_boxed.into_inner(), *FOO);
 }
 
 
 #[test]
-fn test_enum_variant_to_bytes_identifiable() {
-    let vec = to_bytes_identifiable(&*CAFEBABE_BAR).unwrap();
+fn test_unit_struct_to_bytes_bare() {
+    let vec = to_bytes(&*NOTHING).unwrap();
 
-    assert_eq!(vec, *CAFEBABE_BAR_SERIALIZED);
+    assert_eq!(vec, *NOTHING_SERIALIZED_BARE);
 }
 
 #[test]
-fn test_enum_variant_to_writer_identifiable() {
+fn test_unit_struct_to_writer_bare() {
     let mut vec = Vec::new();
-    to_writer_identifiable(&mut vec, &*CAFEBABE_BAR).unwrap();
+    to_writer(&mut vec, &*NOTHING).unwrap();
 
-    assert_eq!(vec, *CAFEBABE_BAR_SERIALIZED);
+    assert_eq!(vec, *NOTHING_SERIALIZED_BARE);
 }
 
 #[test]
-fn test_enum_variant_from_bytes_identifiable() {
-    let cafebabe_bar_deserialized: Cafebabe<u32> = from_bytes_identifiable(&*CAFEBABE_BAR_SERIALIZED, Some("Bar")).unwrap();
+fn test_unit_struct_from_bytes_bare() {
+    let nothing_deserialized_bare: Nothing = from_bytes(&*NOTHING_SERIALIZED_BARE, None).unwrap();
 
-    assert_eq!(cafebabe_bar_deserialized, *CAFEBABE_BAR);
+    assert_eq!(nothing_deserialized_bare, *NOTHING);
 }
 
 #[test]
-fn test_enum_variant_from_reader_identifiable() {
-    let cafebabe_bar_deserialized: Cafebabe<u32> = from_reader_identifiable(CAFEBABE_BAR_SERIALIZED.as_slice(), Some("Bar")).unwrap();
+fn test_unit_struct_from_reader_bare() {
+    let nothing_deserialized_bare: Nothing = from_reader(NOTHING_SERIALIZED_BARE.as_slice(), None).unwrap();
 
-    assert_eq!(cafebabe_bar_deserialized, *CAFEBABE_BAR);
+    assert_eq!(nothing_deserialized_bare, *NOTHING);
 }
 
 
 #[test]
-fn test_enum_variant_to_bytes_identifiable2() {
-    let vec = to_bytes_identifiable(&*CAFEBABE_BAZ).unwrap();
+fn test_unit_struct_to_bytes_boxed() {
+    let vec = to_bytes(&Boxed::new(&*NOTHING)).unwrap();
 
-    assert_eq!(vec, *CAFEBABE_BAZ_SERIALIZED);
+    assert_eq!(vec, *NOTHING_SERIALIZED_BOXED);
 }
 
 #[test]
-fn test_enum_variant_to_writer_identifiable2() {
+fn test_unit_struct_to_writer_boxed() {
     let mut vec = Vec::new();
-    to_writer_identifiable(&mut vec, &*CAFEBABE_BAZ).unwrap();
+    to_writer(&mut vec, &Boxed::new(&*NOTHING)).unwrap();
 
-    assert_eq!(vec, *CAFEBABE_BAZ_SERIALIZED);
+    assert_eq!(vec, *NOTHING_SERIALIZED_BOXED);
 }
 
 #[test]
-fn test_enum_variant_from_bytes_identifiable2() {
-    let cafebabe_baz_deserialized: Cafebabe<Vec<bool>> = from_bytes_identifiable(&*CAFEBABE_BAZ_SERIALIZED, Some("Baz")).unwrap();
+fn test_unit_struct_from_bytes_boxed() {
+    let nothing_deserialized_boxed: Boxed<Nothing> = from_bytes(&*NOTHING_SERIALIZED_BOXED, None).unwrap();
 
-    assert_eq!(cafebabe_baz_deserialized, *CAFEBABE_BAZ);
+    assert_eq!(nothing_deserialized_boxed.into_inner(), *NOTHING);
 }
 
 #[test]
-fn test_enum_variant_from_reader_identifiable2() {
-    let cafebabe_baz_deserialized: Cafebabe<Vec<bool>> = from_reader_identifiable(CAFEBABE_BAZ_SERIALIZED.as_slice(), Some("Baz")).unwrap();
+fn test_unit_struct_from_reader_boxed() {
+    let nothing_deserialized_boxed: Boxed<Nothing> = from_reader(NOTHING_SERIALIZED_BOXED.as_slice(), None).unwrap();
 
-    assert_eq!(cafebabe_baz_deserialized, *CAFEBABE_BAZ);
+    assert_eq!(nothing_deserialized_boxed.into_inner(), *NOTHING);
 }
 
 
 #[test]
-fn test_unit_enum_variant_to_bytes_identifiable() {
-    let vec = to_bytes_identifiable(&*CAFEBABE_BLOB).unwrap();
+fn test_enum_variant_to_bytes_boxed() {
+    let vec = to_bytes(&Boxed::new(&*CAFEBABE_BAR)).unwrap();
 
-    assert_eq!(vec, *CAFEBABE_BLOB_SERIALIZED);
+    assert_eq!(vec, *CAFEBABE_BAR_SERIALIZED_BOXED);
 }
 
 #[test]
-fn test_unit_enum_variant_to_writer_identifiable() {
+fn test_enum_variant_to_writer_boxed() {
     let mut vec = Vec::new();
-    to_writer_identifiable(&mut vec, &*CAFEBABE_BLOB).unwrap();
+    to_writer(&mut vec, &Boxed::new(&*CAFEBABE_BAR)).unwrap();
 
-    assert_eq!(vec, *CAFEBABE_BLOB_SERIALIZED);
+    assert_eq!(vec, *CAFEBABE_BAR_SERIALIZED_BOXED);
 }
 
 #[test]
-fn test_unit_enum_variant_from_bytes_identifiable() {
-    let cafebabe_blob_deserialized: Cafebabe<()> = from_bytes_identifiable(&*CAFEBABE_BLOB_SERIALIZED, Some("Blob")).unwrap();
+fn test_enum_variant_from_bytes_boxed() {
+    let cafebabe_bar_deserialized_boxed: Boxed<Cafebabe<u32>> = from_bytes(&*CAFEBABE_BAR_SERIALIZED_BOXED, Some("Bar")).unwrap();
 
-    assert_eq!(cafebabe_blob_deserialized, *CAFEBABE_BLOB);
+    assert_eq!(cafebabe_bar_deserialized_boxed.into_inner(), *CAFEBABE_BAR);
 }
 
 #[test]
-fn test_unit_enum_variant_from_reader_identifiable() {
-    let cafebabe_blob_deserialized: Cafebabe<()> = from_reader_identifiable(CAFEBABE_BLOB_SERIALIZED.as_slice(), Some("Blob")).unwrap();
+fn test_enum_variant_from_reader_boxed() {
+    let cafebabe_bar_deserialized_boxed: Boxed<Cafebabe<u32>> = from_reader(CAFEBABE_BAR_SERIALIZED_BOXED.as_slice(), Some("Bar")).unwrap();
 
-    assert_eq!(cafebabe_blob_deserialized, *CAFEBABE_BLOB);
+    assert_eq!(cafebabe_bar_deserialized_boxed.into_inner(), *CAFEBABE_BAR);
+}
+
+
+#[test]
+fn test_enum_variant_to_bytes_boxed2() {
+    let vec = to_bytes(&Boxed::new(&*CAFEBABE_BAZ)).unwrap();
+
+    assert_eq!(vec, *CAFEBABE_BAZ_SERIALIZED_BOXED);
+}
+
+#[test]
+fn test_enum_variant_to_writer_boxed2() {
+    let mut vec = Vec::new();
+    to_writer(&mut vec, &Boxed::new(&*CAFEBABE_BAZ)).unwrap();
+
+    assert_eq!(vec, *CAFEBABE_BAZ_SERIALIZED_BOXED);
+}
+
+#[test]
+fn test_enum_variant_from_bytes_boxed2() {
+    let cafebabe_baz_deserialized_boxed: Boxed<Cafebabe<Vec<bool>>> = from_bytes(&*CAFEBABE_BAZ_SERIALIZED_BOXED, Some("Baz")).unwrap();
+
+    assert_eq!(cafebabe_baz_deserialized_boxed.into_inner(), *CAFEBABE_BAZ);
+}
+
+#[test]
+fn test_enum_variant_from_reader_boxed2() {
+    let cafebabe_baz_deserialized_boxed: Boxed<Cafebabe<Vec<bool>>> = from_reader(CAFEBABE_BAZ_SERIALIZED_BOXED.as_slice(), Some("Baz")).unwrap();
+
+    assert_eq!(cafebabe_baz_deserialized_boxed.into_inner(), *CAFEBABE_BAZ);
+}
+
+
+#[test]
+fn test_unit_enum_variant_to_bytes_boxed() {
+    let vec = to_bytes(&Boxed::new(&*CAFEBABE_BLOB)).unwrap();
+
+    assert_eq!(vec, *CAFEBABE_BLOB_SERIALIZED_BOXED);
+}
+
+#[test]
+fn test_unit_enum_variant_to_writer_boxed() {
+    let mut vec = Vec::new();
+    to_writer(&mut vec, &Boxed::new(&*CAFEBABE_BLOB)).unwrap();
+
+    assert_eq!(vec, *CAFEBABE_BLOB_SERIALIZED_BOXED);
+}
+
+#[test]
+fn test_unit_enum_variant_from_bytes_boxed() {
+    let cafebabe_blob_deserialized_boxed: Boxed<Cafebabe<()>> = from_bytes(&*CAFEBABE_BLOB_SERIALIZED_BOXED, Some("Blob")).unwrap();
+
+    assert_eq!(cafebabe_blob_deserialized_boxed.into_inner(), *CAFEBABE_BLOB);
+}
+
+#[test]
+fn test_unit_enum_variant_from_reader_boxed() {
+    let cafebabe_blob_deserialized_boxed: Boxed<Cafebabe<()>> = from_reader(CAFEBABE_BLOB_SERIALIZED_BOXED.as_slice(), Some("Blob")).unwrap();
+
+    assert_eq!(cafebabe_blob_deserialized_boxed.into_inner(), *CAFEBABE_BLOB);
 }
 
 
 /// MTProto-serialized data must be aligned by 4 bytes.
 #[test]
 fn test_serialization_alignment() {
-    assert!(FOO_SERIALIZED.len() % 4 == 0);
-    assert!(CAFEBABE_BAR_SERIALIZED.len() % 4 == 0);
-    assert!(CAFEBABE_BAZ_SERIALIZED.len() % 4 == 0);
+    assert!(FOO_SERIALIZED_BARE.len() % 4 == 0);
+    assert!(FOO_SERIALIZED_BOXED.len() % 4 == 0);
+    assert!(NOTHING_SERIALIZED_BARE.len() % 4 == 0);
+    assert!(NOTHING_SERIALIZED_BOXED.len() % 4 == 0);
+    assert!(CAFEBABE_BAR_SERIALIZED_BOXED.len() % 4 == 0);
+    assert!(CAFEBABE_BAZ_SERIALIZED_BOXED.len() % 4 == 0);
+    assert!(CAFEBABE_BLOB_SERIALIZED_BOXED.len() % 4 == 0);
 }

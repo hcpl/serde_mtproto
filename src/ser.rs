@@ -5,7 +5,6 @@ use serde::ser::{self, Serialize};
 
 use common::{FALSE_ID, TRUE_ID, safe_cast};
 use error::{self, SerErrorKind, SerSerdeType};
-use identifiable::{Identifiable, Wrapper};
 
 
 pub struct Serializer<W: io::Write> {
@@ -434,13 +433,6 @@ pub fn to_bytes<T>(value: &T) -> error::Result<Vec<u8>>
     Ok(ser.writer)
 }
 
-pub fn to_bytes_identifiable<T>(value: &T) -> error::Result<Vec<u8>>
-    where T: Serialize + Identifiable
-{
-    let wrapper = Wrapper::new(value);
-    to_bytes(&wrapper)
-}
-
 pub fn to_writer<W, T>(writer: W, value: &T) -> error::Result<()>
     where W: io::Write,
           T: Serialize,
@@ -449,12 +441,4 @@ pub fn to_writer<W, T>(writer: W, value: &T) -> error::Result<()>
     value.serialize(&mut ser)?;
 
     Ok(())
-}
-
-pub fn to_writer_identifiable<W, T>(writer: W, value: &T) -> error::Result<()>
-    where W: io::Write,
-          T: Serialize + Identifiable,
-{
-    let wrapper = Wrapper::new(value);
-    to_writer(writer, &wrapper)
 }

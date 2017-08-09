@@ -5,7 +5,6 @@ use serde::de::{self, Deserialize, DeserializeOwned, DeserializeSeed, Visitor};
 
 use common::{FALSE_ID, TRUE_ID, safe_cast};
 use error::{self, DeErrorKind, DeSerdeType};
-use identifiable::{Identifiable, Wrapper};
 
 
 pub struct Deserializer<R: io::Read> {
@@ -388,14 +387,6 @@ pub fn from_bytes<'a, T>(bytes: &'a [u8], enum_variant_id: Option<&'static str>)
     Ok(value)
 }
 
-pub fn from_bytes_identifiable<'a, T>(bytes: &'a [u8], enum_variant_id: Option<&'static str>) -> error::Result<T>
-    where T: Deserialize<'a> + Identifiable
-{
-    let wrapper: Wrapper<T> = from_bytes(bytes, enum_variant_id)?;
-
-    Ok(wrapper.take_data())
-}
-
 pub fn from_reader<R, T>(reader: R, enum_variant_id: Option<&'static str>) -> error::Result<T>
     where R: io::Read,
           T: DeserializeOwned,
@@ -404,13 +395,4 @@ pub fn from_reader<R, T>(reader: R, enum_variant_id: Option<&'static str>) -> er
     let value: T = Deserialize::deserialize(&mut de)?;
 
     Ok(value)
-}
-
-pub fn from_reader_identifiable<R, T>(reader: R, enum_variant_id: Option<&'static str>) -> error::Result<T>
-    where R: io::Read,
-          T: DeserializeOwned + Identifiable,
-{
-    let wrapper: Wrapper<T> = from_reader(reader, enum_variant_id)?;
-
-    Ok(wrapper.take_data())
 }
