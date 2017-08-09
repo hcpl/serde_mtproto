@@ -1,3 +1,9 @@
+//! # Serde MTProto
+//!
+//! MTProto is a mobile-first protocol for access to a server API.
+//! This crate provides means to serialize Rust types to its binary
+//! representation and to deserialize from said representation.
+
 extern crate byteorder;
 #[macro_use]
 extern crate error_chain;

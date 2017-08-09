@@ -1,3 +1,5 @@
+//! Serialize a Rust data structure into its MTProto binary representation.
+
 use std::io;
 
 use byteorder::{WriteBytesExt, LittleEndian};
@@ -8,11 +10,13 @@ use identifiable::Identifiable;
 use utils::safe_cast;
 
 
+/// A structure for serializing Rust values into MTProto binary representation.
 pub struct Serializer<W: io::Write> {
     writer: W,
 }
 
 impl<W: io::Write> Serializer<W> {
+    /// Create a MTProto serializer from an `io::Write`.
     pub fn new(writer: W) -> Serializer<W> {
         Serializer { writer: writer }
     }
@@ -244,6 +248,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 }
 
 
+/// Helper structure for serializing fixed-length sequences.
 pub struct SerializeFixedLengthSeq<'a, W: 'a + io::Write> {
     ser: &'a mut Serializer<W>,
     len: u32,
@@ -381,6 +386,7 @@ impl<'a, W> ser::SerializeStructVariant for SerializeFixedLengthSeq<'a, W>
 }
 
 
+/// Helper structure for serializing maps.
 pub struct SerializeMap<'a, W: 'a + io::Write> {
     ser: &'a mut Serializer<W>,
     len: u32,
@@ -429,6 +435,7 @@ impl<'a, W> ser::SerializeMap for SerializeMap<'a, W>
 }
 
 
+/// Serialize the given data structure as a byte vector of binary MTProto.
 pub fn to_bytes<T>(value: &T) -> error::Result<Vec<u8>>
     where T: Serialize
 {
@@ -438,6 +445,7 @@ pub fn to_bytes<T>(value: &T) -> error::Result<Vec<u8>>
     Ok(ser.writer)
 }
 
+/// Serialize the given data structure as binary MTProto into the IO stream.
 pub fn to_writer<W, T>(writer: W, value: &T) -> error::Result<()>
     where W: io::Write,
           T: Serialize,

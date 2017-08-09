@@ -1,3 +1,5 @@
+//! Deserialize MTProto binary representation to a Rust data structure.
+
 use std::io;
 
 use byteorder::{ReadBytesExt, LittleEndian};
@@ -8,12 +10,14 @@ use identifiable::{BOOL_FALSE_ID, BOOL_TRUE_ID};
 use utils::safe_cast;
 
 
+/// A structure that deserializes  MTProto binary representation into Rust values.
 pub struct Deserializer<R: io::Read> {
     reader: R,
     enum_variant_id: Option<&'static str>,
 }
 
 impl<R: io::Read> Deserializer<R> {
+    /// Create a MTProto deserializer from an `io::Read` and enum variant hint.
     pub fn new(reader: R, enum_variant_id: Option<&'static str>) -> Deserializer<R> {
         Deserializer {
             reader: reader,
@@ -386,6 +390,7 @@ impl<'de, 'a, R> de::VariantAccess<'de> for EnumVariantAccess<'a, R>
 }
 
 
+/// Deserialize an instance of type `T` from bytes of binary MTProto.
 pub fn from_bytes<'a, T>(bytes: &'a [u8], enum_variant_id: Option<&'static str>) -> error::Result<T>
     where T: Deserialize<'a>
 {
@@ -395,6 +400,7 @@ pub fn from_bytes<'a, T>(bytes: &'a [u8], enum_variant_id: Option<&'static str>)
     Ok(value)
 }
 
+/// Deserialize an instance of type `T` from an IO stream of binary MTProto.
 pub fn from_reader<R, T>(reader: R, enum_variant_id: Option<&'static str>) -> error::Result<T>
     where R: io::Read,
           T: DeserializeOwned,

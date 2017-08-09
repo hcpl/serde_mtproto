@@ -1,3 +1,5 @@
+//! When serializing or deserializing MTProto goes wrong.
+
 use std::fmt;
 
 use serde::{ser, de};
@@ -11,13 +13,13 @@ error_chain! {
 
     errors {
         Ser(kind: SerErrorKind) {
-            description("custom serialization error in serde_mtproto")
-            display("custom serialization error in serde_mtproto: {}", kind)
+            description("serialization error in serde_mtproto")
+            display("serialization error in serde_mtproto: {}", kind)
         }
 
         De(kind: DeErrorKind) {
-            description("custom deserialization error in serde_mtproto")
-            display("custom deserialization error in serde_mtproto: {}", kind)
+            description("deserialization error in serde_mtproto")
+            display("deserialization error in serde_mtproto: {}", kind)
         }
 
         IntegerCast {
@@ -28,6 +30,7 @@ error_chain! {
 }
 
 
+/// Serialization error kinds.
 #[derive(Debug)]
 pub enum SerErrorKind {
     Msg(String),
@@ -63,6 +66,7 @@ impl fmt::Display for SerErrorKind {
     }
 }
 
+/// Serde serialization data types that are not supported by `serde_mtproto`.
 #[derive(Debug)]
 pub enum SerSerdeType { Char, None, Some, Unit }
 
@@ -86,6 +90,7 @@ impl From<SerErrorKind> for Error {
 }
 
 
+/// Deserialization error kinds.
 #[derive(Debug)]
 pub enum DeErrorKind {
     Msg(String),
@@ -105,6 +110,7 @@ impl fmt::Display for DeErrorKind {
     }
 }
 
+/// Serde deserialization data types that are not supported by `serde_mtproto`.
 #[derive(Debug)]
 pub enum DeSerdeType { Any, Char, Option, Unit, IgnoredAny }
 
