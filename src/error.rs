@@ -10,9 +10,20 @@ error_chain! {
     }
 
     errors {
-        Ser(kind: SerErrorKind)
-        De(kind: DeErrorKind)
-        IntegerCast
+        Ser(kind: SerErrorKind) {
+            description("custom serialization error in serde_mtproto")
+            display("custom serialization error in serde_mtproto: {}", kind)
+        }
+
+        De(kind: DeErrorKind) {
+            description("custom deserialization error in serde_mtproto")
+            display("custom deserialization error in serde_mtproto: {}", kind)
+        }
+
+        IntegerCast {
+            description("error while casting an integer")
+            display("error while casting an integer")
+        }
     }
 }
 
@@ -21,14 +32,52 @@ error_chain! {
 pub enum SerErrorKind {
     Msg(String),
     ExcessElements(u32),
-    MapWithUnknownLengthUnsupported,
-    SeqWithUnknownLengthUnsupported,
+    MapsWithUnknownLengthUnsupported,
+    SeqsWithUnknownLengthUnsupported,
     StringTooLong(usize),
     UnsupportedSerdeType(SerSerdeType),
 }
 
+impl fmt::Display for SerErrorKind {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            SerErrorKind::Msg(ref string) => {
+                write!(f, "custom string: {}", string)
+            },
+            SerErrorKind::ExcessElements(len) => {
+                write!(f, "excess elements, need no more than {}", len)
+            },
+            SerErrorKind::MapsWithUnknownLengthUnsupported => {
+                write!(f, "maps with ahead-of-time unknown length are not supported")
+            },
+            SerErrorKind::SeqsWithUnknownLengthUnsupported => {
+                write!(f, "seqs with ahead-of-time unknown length are not supported")
+            },
+            SerErrorKind::StringTooLong(len) => {
+                write!(f, "string of length {} is too long to serialize", len)
+            },
+            SerErrorKind::UnsupportedSerdeType(ref type_) => {
+                write!(f, "{} type is not supported for serialization", type_)
+            },
+        }
+    }
+}
+
 #[derive(Debug)]
 pub enum SerSerdeType { Char, None, Some, Unit }
+
+impl fmt::Display for SerSerdeType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let repr = match *self {
+            SerSerdeType::Char => "char",
+            SerSerdeType::None => "none",
+            SerSerdeType::Some => "some",
+            SerSerdeType::Unit => "unit",
+        };
+
+        f.write_str(repr)
+    }
+}
 
 impl From<SerErrorKind> for Error {
     fn from(kind: SerErrorKind) -> Error {
@@ -43,8 +92,35 @@ pub enum DeErrorKind {
     UnsupportedSerdeType(DeSerdeType),
 }
 
+impl fmt::Display for DeErrorKind {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            DeErrorKind::Msg(ref string) => {
+                write!(f, "custom string: {}", string)
+            },
+            DeErrorKind::UnsupportedSerdeType(ref type_) => {
+                write!(f, "{} type is not supported for deserialization", type_)
+            },
+        }
+    }
+}
+
 #[derive(Debug)]
 pub enum DeSerdeType { Any, Char, Option, Unit, IgnoredAny }
+
+impl fmt::Display for DeSerdeType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let repr = match *self {
+            DeSerdeType::Any => "any",
+            DeSerdeType::Char => "char",
+            DeSerdeType::Option => "option",
+            DeSerdeType::Unit => "unit",
+            DeSerdeType::IgnoredAny => "ignored_any",
+        };
+
+        f.write_str(repr)
+    }
+}
 
 impl From<DeErrorKind> for Error {
     fn from(kind: DeErrorKind) -> Error {

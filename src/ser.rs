@@ -196,7 +196,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
         if let Some(len) = len {
             SerializeFixedLengthSeq::with_serialize_len(self, safe_cast(len)?)
         } else {
-            bail!(SerErrorKind::SeqWithUnknownLengthUnsupported);
+            bail!(SerErrorKind::SeqsWithUnknownLengthUnsupported);
         }
     }
 
@@ -224,7 +224,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
         if let Some(len) = len {
             SerializeMap::with_serialize_len(self, safe_cast(len)?)
         } else {
-            bail!(SerErrorKind::MapWithUnknownLengthUnsupported);
+            bail!(SerErrorKind::MapsWithUnknownLengthUnsupported);
         }
     }
 
