@@ -50,7 +50,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     type SerializeTuple = SerializeFixedLengthSeq<'a, W>;
     type SerializeTupleStruct = SerializeFixedLengthSeq<'a, W>;
     type SerializeTupleVariant = SerializeFixedLengthSeq<'a, W>;
-    type SerializeMap = SerializeMap<'a, W>;
+    type SerializeMap = SerializeFixedLengthMap<'a, W>;
     type SerializeStruct = SerializeFixedLengthSeq<'a, W>;
     type SerializeStructVariant = SerializeFixedLengthSeq<'a, W>;
 
@@ -227,7 +227,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
     fn serialize_map(self, len: Option<usize>) -> error::Result<Self::SerializeMap> {
         if let Some(len) = len {
-            SerializeMap::with_serialize_len(self, safe_cast(len)?)
+            SerializeFixedLengthMap::with_serialize_len(self, safe_cast(len)?)
         } else {
             bail!(SerErrorKind::MapsWithUnknownLengthUnsupported);
         }
@@ -387,17 +387,19 @@ impl<'a, W> ser::SerializeStructVariant for SerializeFixedLengthSeq<'a, W>
 
 
 /// Helper structure for serializing maps.
-pub struct SerializeMap<'a, W: 'a + io::Write> {
+pub struct SerializeFixedLengthMap<'a, W: 'a + io::Write> {
     ser: &'a mut Serializer<W>,
     len: u32,
     next_index: u32,
 }
 
-impl<'a, W: io::Write> SerializeMap<'a, W> {
-    fn with_serialize_len(ser: &'a mut Serializer<W>, len: u32) -> error::Result<SerializeMap<'a, W>> {
+impl<'a, W: io::Write> SerializeFixedLengthMap<'a, W> {
+    fn with_serialize_len(ser: &'a mut Serializer<W>,
+                          len: u32)
+                         -> error::Result<SerializeFixedLengthMap<'a, W>> {
         ser::Serializer::serialize_u32(&mut *ser, len)?;
 
-        Ok(SerializeMap {
+        Ok(SerializeFixedLengthMap {
             ser: ser,
             len: len,
             next_index: 0,
@@ -405,7 +407,7 @@ impl<'a, W: io::Write> SerializeMap<'a, W> {
     }
 }
 
-impl<'a, W> ser::SerializeMap for SerializeMap<'a, W>
+impl<'a, W> ser::SerializeMap for SerializeFixedLengthMap<'a, W>
     where W: io::Write
 {
     type Ok = ();
