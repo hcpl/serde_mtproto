@@ -32,7 +32,10 @@ impl<R: io::Read> Deserializer<R> {
             len = self.reader.read_uint::<LittleEndian>(3)? as usize;
             rem = len % 4;
         } else { // 255
-            bail!(DeErrorKind::InvalidStrFirstByte255);
+            assert_eq!(first_byte, 255);
+            return Err(de::Error::invalid_value(
+                de::Unexpected::Unsigned(255),
+                &"a byte in [0..254] range"));
         }
 
         Ok((len, if rem > 0 { 4 - rem } else { 0 }))
@@ -116,7 +119,11 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
         let value = match id_value {
             TRUE_ID => true,
             FALSE_ID => false,
-            _ => bail!(DeErrorKind::ExpectedBool),
+            _ => {
+                return Err(de::Error::invalid_value(
+                    de::Unexpected::Signed(id_value as i64),
+                    &format!("either {} for false or {} for true", FALSE_ID, TRUE_ID).as_str()));
+            }
         };
 
         visitor.visit_bool(value)

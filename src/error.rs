@@ -39,8 +39,6 @@ impl From<SerErrorKind> for Error {
 #[derive(Debug)]
 pub enum DeErrorKind {
     Msg(String),
-    ExpectedBool,
-    InvalidStrFirstByte255,
     UnsupportedSerdeType(DeSerdeType),
 }
 
