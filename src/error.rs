@@ -21,8 +21,9 @@ error_chain! {
 pub enum SerErrorKind {
     Msg(String),
     ExcessElements(u32),
-    SeqWithUnknownLengthUnsupported,
     MapWithUnknownLengthUnsupported,
+    SeqWithUnknownLengthUnsupported,
+    StringTooLong(usize),
     UnsupportedSerdeType(SerSerdeType),
 }
 

@@ -87,7 +87,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
             self.writer.write_u8(len as u8)?;
 
             rem = (len + 1) % 4;
-        } else {
+        } else if len <= 0xff_ff_ff {
             // If L >= 254, the serialization contains byte 254, followed by 3
             // bytes with the string length L in little-endian order, followed by L
             // bytes of the string, further followed by 0 to 3 null padding bytes.
@@ -96,6 +96,8 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
             self.writer.write_uint::<LittleEndian>(len as u64, 3)?;
 
             rem = len % 4;
+        } else {
+            bail!(SerErrorKind::StringTooLong(len));
         }
 
         // Write each character in the string
@@ -123,7 +125,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
             self.writer.write_u8(len as u8)?;
 
             rem = (len + 1) % 4;
-        } else {
+        } else if len <= 0xff_ff_ff {
             // If L >= 254, the serialization contains byte 254, followed by 3
             // bytes with the string length L in little-endian order, followed by L
             // bytes of the string, further followed by 0 to 3 null padding bytes.
@@ -132,6 +134,8 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
             self.writer.write_uint::<LittleEndian>(len as u64, 3)?;
 
             rem = len % 4;
+        } else {
+            bail!(SerErrorKind::StringTooLong(len));
         }
 
         // Write each character in the string
