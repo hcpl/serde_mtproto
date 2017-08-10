@@ -26,6 +26,11 @@ error_chain! {
             description("error while casting an integer")
             display("error while casting an integer")
         }
+
+        StringTooLong(len: usize) {
+            description("string of is too long to serialize")
+            display("string of length {} is too long to serialize", len)
+        }
     }
 }
 

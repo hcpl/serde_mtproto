@@ -12,10 +12,10 @@ extern crate serde_mtproto_derive;
 
 use std::collections::BTreeMap;
 
-use serde_mtproto_other_name::{Boxed, ByteBuf, to_bytes, to_writer, from_bytes, from_reader};
+use serde_mtproto_other_name::{Boxed, ByteBuf, MtProtoSized, to_bytes, to_writer, from_bytes, from_reader};
 
 
-#[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
 #[id = "0xdeadbeef"]
 struct Foo {
     has_receiver: bool,
@@ -23,12 +23,12 @@ struct Foo {
     raw_info: ByteBuf,
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable)]
+#[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
 #[id = "0xd15ea5e0"]
 struct Nothing;
 
-#[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable)]
-enum Cafebabe<T> {
+#[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
+enum Cafebabe<T: MtProtoSized> {
     #[id = "0x0badf00d"]
     Bar {
         byte_id: i8,
@@ -62,9 +62,9 @@ lazy_static! {
     ];
 
     static ref FOO_SERIALIZED_BOXED: Vec<u8> = vec![
-        0xef, 0xbe, 0xad, 0xde,     // id of Foo in little-endian
-        181, 117, 114, 153,         // id of true in little-endian
-        57, 0, 0, 0, 0, 0, 0, 0,    // 57 as little-endian 64-bit int
+        0xef, 0xbe, 0xad, 0xde,        // id of Foo in little-endian
+        181, 117, 114, 153,            // id of true in little-endian
+        57, 0, 0, 0, 0, 0, 0, 0,       // 57 as little-endian 64-bit int
         4, 56, 114, 200, 1, 0, 0, 0    // byte buffer containing 4 bytes
     ];
 
@@ -161,6 +161,13 @@ fn test_struct_from_reader_bare() {
     assert_eq!(foo_deserialized, *FOO);
 }
 
+#[test]
+fn test_struct_size_prediction_bare() {
+    let predicted_len = FOO.get_size_hint().unwrap();
+
+    assert_eq!(predicted_len, FOO_SERIALIZED_BARE.len());
+}
+
 
 #[test]
 fn test_struct_to_bytes_boxed() {
@@ -189,6 +196,13 @@ fn test_struct_from_reader_boxed() {
     let foo_deserialized_boxed: Boxed<Foo> = from_reader(FOO_SERIALIZED_BOXED.as_slice(), None).unwrap();
 
     assert_eq!(foo_deserialized_boxed.into_inner(), *FOO);
+}
+
+#[test]
+fn test_struct_size_prediction_boxed() {
+    let predicted_len = Boxed::new(&*FOO).get_size_hint().unwrap();
+
+    assert_eq!(predicted_len, FOO_SERIALIZED_BOXED.len());
 }
 
 
@@ -221,6 +235,13 @@ fn test_unit_struct_from_reader_bare() {
     assert_eq!(nothing_deserialized_bare, *NOTHING);
 }
 
+#[test]
+fn test_unit_struct_size_prediction_bare() {
+    let predicted_len = NOTHING.get_size_hint().unwrap();
+
+    assert_eq!(predicted_len, NOTHING_SERIALIZED_BARE.len());
+}
+
 
 #[test]
 fn test_unit_struct_to_bytes_boxed() {
@@ -249,6 +270,13 @@ fn test_unit_struct_from_reader_boxed() {
     let nothing_deserialized_boxed: Boxed<Nothing> = from_reader(NOTHING_SERIALIZED_BOXED.as_slice(), None).unwrap();
 
     assert_eq!(nothing_deserialized_boxed.into_inner(), *NOTHING);
+}
+
+#[test]
+fn test_unit_struct_size_prediction_boxed() {
+    let predicted_len = Boxed::new(&*NOTHING).get_size_hint().unwrap();
+
+    assert_eq!(predicted_len, NOTHING_SERIALIZED_BOXED.len());
 }
 
 
@@ -281,6 +309,13 @@ fn test_enum_variant_from_reader_boxed() {
     assert_eq!(cafebabe_bar_deserialized_boxed.into_inner(), *CAFEBABE_BAR);
 }
 
+#[test]
+fn test_enum_variant_size_prediction_boxed() {
+    let predicted_len = Boxed::new(&*CAFEBABE_BAR).get_size_hint().unwrap();
+
+    assert_eq!(predicted_len, CAFEBABE_BAR_SERIALIZED_BOXED.len());
+}
+
 
 #[test]
 fn test_enum_variant_to_bytes_boxed2() {
@@ -311,6 +346,13 @@ fn test_enum_variant_from_reader_boxed2() {
     assert_eq!(cafebabe_baz_deserialized_boxed.into_inner(), *CAFEBABE_BAZ);
 }
 
+#[test]
+fn test_enum_variant_size_prediction_boxed2() {
+    let predicted_len = Boxed::new(&*CAFEBABE_BAZ).get_size_hint().unwrap();
+
+    assert_eq!(predicted_len, CAFEBABE_BAZ_SERIALIZED_BOXED.len());
+}
+
 
 #[test]
 fn test_unit_enum_variant_to_bytes_boxed() {
@@ -339,6 +381,13 @@ fn test_unit_enum_variant_from_reader_boxed() {
     let cafebabe_blob_deserialized_boxed: Boxed<Cafebabe<()>> = from_reader(CAFEBABE_BLOB_SERIALIZED_BOXED.as_slice(), Some("Blob")).unwrap();
 
     assert_eq!(cafebabe_blob_deserialized_boxed.into_inner(), *CAFEBABE_BLOB);
+}
+
+#[test]
+fn test_unit_enum_variant_size_prediction_boxed() {
+    let predicted_len = Boxed::new(&*CAFEBABE_BLOB).get_size_hint().unwrap();
+
+    assert_eq!(predicted_len, CAFEBABE_BLOB_SERIALIZED_BOXED.len());
 }
 
 

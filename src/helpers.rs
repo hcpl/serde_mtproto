@@ -3,6 +3,9 @@ use std::fmt;
 use serde::ser::{Serialize, Serializer};
 use serde::de::{self, Deserialize, Deserializer, Visitor};
 
+use error::{self, ErrorKind};
+use sized::MtProtoSized;
+
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct ByteBuf {
@@ -55,6 +58,22 @@ impl<'de> Deserialize<'de> for ByteBuf {
     }
 }
 
+impl MtProtoSized for ByteBuf {
+    fn get_size_hint(&self) -> error::Result<usize> {
+        let len = self.byte_buf.len();
+
+        let size = if len <= 253 {
+            (len + 1) + (4 - (len + 1) % 4) % 4
+        } else if len <= 0xff_ff_ff {
+            len + (4 - len % 4) % 4
+        } else {
+            bail!(ErrorKind::StringTooLong(len));
+        };
+
+        Ok(size)
+    }
+}
+
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Bytes<'a> {
@@ -98,5 +117,21 @@ impl<'a, 'de: 'a> Deserialize<'de> for Bytes<'a> {
         }
 
         deserializer.deserialize_bytes(BytesVisitor)
+    }
+}
+
+impl<'a> MtProtoSized for Bytes<'a> {
+    fn get_size_hint(&self) -> error::Result<usize> {
+        let len = self.bytes.len();
+
+        let size = if len <= 253 {
+            (len + 1) + (4 - (len + 1) % 4) % 4
+        } else if len <= 0xff_ff_ff {
+            len + (4 - len % 4) % 4
+        } else {
+            bail!(ErrorKind::StringTooLong(len));
+        };
+
+        Ok(size)
     }
 }

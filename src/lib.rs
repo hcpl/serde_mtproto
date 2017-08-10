@@ -19,6 +19,7 @@ pub mod boxed;
 pub mod error;
 pub mod helpers;
 pub mod identifiable;
+pub mod sized;
 pub mod ser;
 pub mod de;
 
@@ -26,5 +27,6 @@ pub use boxed::Boxed;
 pub use error::{Error, ErrorKind, Result, ResultExt};
 pub use helpers::{ByteBuf, Bytes};
 pub use identifiable::Identifiable;
+pub use sized::MtProtoSized;
 pub use ser::{Serializer, to_bytes, to_writer};
 pub use de::{Deserializer, from_bytes, from_reader};
