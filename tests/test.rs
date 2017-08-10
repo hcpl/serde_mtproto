@@ -12,7 +12,7 @@ extern crate serde_mtproto_derive;
 
 use std::collections::BTreeMap;
 
-use serde_mtproto_other_name::{Boxed, to_bytes, to_writer, from_bytes, from_reader};
+use serde_mtproto_other_name::{Boxed, ByteBuf, to_bytes, to_writer, from_bytes, from_reader};
 
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable)]
@@ -20,6 +20,7 @@ use serde_mtproto_other_name::{Boxed, to_bytes, to_writer, from_bytes, from_read
 struct Foo {
     has_receiver: bool,
     size: usize,
+    raw_info: ByteBuf,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable)]
@@ -51,17 +52,20 @@ lazy_static! {
     static ref FOO: Foo = Foo {
         has_receiver: true,
         size: 57,
+        raw_info: ByteBuf::new(vec![56, 114, 200, 1]),
     };
 
     static ref FOO_SERIALIZED_BARE: Vec<u8> = vec![
-        181, 117, 114, 153,         // id of true in little-endian
-        57, 0, 0, 0, 0, 0, 0, 0,    // 57 as little-endian 64-bit int
+        181, 117, 114, 153,            // id of true in little-endian
+        57, 0, 0, 0, 0, 0, 0, 0,       // 57 as little-endian 64-bit int
+        4, 56, 114, 200, 1, 0, 0, 0    // byte buffer containing 4 bytes
     ];
 
     static ref FOO_SERIALIZED_BOXED: Vec<u8> = vec![
         0xef, 0xbe, 0xad, 0xde,     // id of Foo in little-endian
         181, 117, 114, 153,         // id of true in little-endian
         57, 0, 0, 0, 0, 0, 0, 0,    // 57 as little-endian 64-bit int
+        4, 56, 114, 200, 1, 0, 0, 0    // byte buffer containing 4 bytes
     ];
 
     static ref NOTHING: Nothing = Nothing;
