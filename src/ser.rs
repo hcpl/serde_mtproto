@@ -281,6 +281,17 @@ impl<'a, W: io::Write> SerializeFixedLengthSeq<'a, W> {
 
         value.serialize(&mut *self.ser)
     }
+
+    fn impl_serialize_end(self) -> error::Result<()> {
+        if self.next_index < self.len {
+            bail!(SerErrorKind::NotEnoughElements(self.next_index, self.len))
+        }
+
+        // `self.index > self.len` here is a programming error
+        assert_eq!(self.next_index, self.len);
+
+        Ok(())
+    }
 }
 
 impl<'a, W> ser::SerializeSeq for SerializeFixedLengthSeq<'a, W>
@@ -296,7 +307,7 @@ impl<'a, W> ser::SerializeSeq for SerializeFixedLengthSeq<'a, W>
     }
 
     fn end(self) -> error::Result<()> {
-        Ok(())
+        self.impl_serialize_end()
     }
 }
 
@@ -313,7 +324,7 @@ impl<'a, W> ser::SerializeTuple for SerializeFixedLengthSeq<'a, W>
     }
 
     fn end(self) -> error::Result<()> {
-        Ok(())
+        self.impl_serialize_end()
     }
 }
 
@@ -330,7 +341,7 @@ impl<'a, W> ser::SerializeTupleStruct for SerializeFixedLengthSeq<'a, W>
     }
 
     fn end(self) -> error::Result<()> {
-        Ok(())
+        self.impl_serialize_end()
     }
 }
 
@@ -347,7 +358,7 @@ impl<'a, W> ser::SerializeTupleVariant for SerializeFixedLengthSeq<'a, W>
     }
 
     fn end(self) -> error::Result<()> {
-        Ok(())
+        self.impl_serialize_end()
     }
 }
 
@@ -364,7 +375,7 @@ impl<'a, W> ser::SerializeStruct for SerializeFixedLengthSeq<'a, W>
     }
 
     fn end(self) -> error::Result<()> {
-        Ok(())
+        self.impl_serialize_end()
     }
 }
 
@@ -381,7 +392,7 @@ impl<'a, W> ser::SerializeStructVariant for SerializeFixedLengthSeq<'a, W>
     }
 
     fn end(self) -> error::Result<()> {
-        Ok(())
+        self.impl_serialize_end()
     }
 }
 

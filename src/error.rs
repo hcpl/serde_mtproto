@@ -36,6 +36,7 @@ pub enum SerErrorKind {
     Msg(String),
     ExcessElements(u32),
     MapsWithUnknownLengthUnsupported,
+    NotEnoughElements(u32, u32),
     SeqsWithUnknownLengthUnsupported,
     StringTooLong(usize),
     UnsupportedSerdeType(SerSerdeType),
@@ -52,6 +53,9 @@ impl fmt::Display for SerErrorKind {
             },
             SerErrorKind::MapsWithUnknownLengthUnsupported => {
                 write!(f, "maps with ahead-of-time unknown length are not supported")
+            },
+            SerErrorKind::NotEnoughElements(unexpected_len, expected_len) => {
+                write!(f, "not enough elements: have {}, need {}", unexpected_len, expected_len)
             },
             SerErrorKind::SeqsWithUnknownLengthUnsupported => {
                 write!(f, "seqs with ahead-of-time unknown length are not supported")
