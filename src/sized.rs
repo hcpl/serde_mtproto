@@ -4,7 +4,7 @@ use std::hash::Hash;
 use std::mem;
 
 use error::{self, ErrorKind};
-use utils::safe_cast;
+use utils::check_seq_len;
 
 
 pub const BOOL_SIZE: usize = 4;
@@ -81,7 +81,7 @@ impl MtProtoSized for String {
 impl<'a, T: MtProtoSized> MtProtoSized for &'a [T] {
     fn get_size_hint(&self) -> error::Result<usize> {
         // If len >= 2 ** 32, it's not serializable at all.
-        let _: u32 = safe_cast(self.len())?;
+        check_seq_len(self.len())?;
 
         self.iter()
             .map(|elem| elem.get_size_hint())
@@ -106,7 +106,7 @@ impl<K, V> MtProtoSized for HashMap<K, V>
 {
     fn get_size_hint(&self) -> error::Result<usize> {
         // If len >= 2 ** 32, it's not serializable at all.
-        let _: u32 = safe_cast(self.len())?;
+        check_seq_len(self.len())?;
 
         let mut result = 4;    // 4 for map length
 
@@ -122,7 +122,7 @@ impl<K, V> MtProtoSized for HashMap<K, V>
 impl<K: MtProtoSized, V: MtProtoSized> MtProtoSized for BTreeMap<K, V> {
     fn get_size_hint(&self) -> error::Result<usize> {
         // If len >= 2 ** 32, it's not serializable at all.
-        let _: u32 = safe_cast(self.len())?;
+        check_seq_len(self.len())?;
 
         let mut result = 4;    // 4 for map length
 

@@ -28,8 +28,13 @@ error_chain! {
         }
 
         StringTooLong(len: usize) {
-            description("string of is too long to serialize")
+            description("string is too long to serialize")
             display("string of length {} is too long to serialize", len)
+        }
+
+        SeqTooLong(len: usize) {
+            description("sequence is too long to serialize")
+            display("sequence of length {} is too long to serialize", len)
         }
     }
 }
