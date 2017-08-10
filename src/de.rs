@@ -36,18 +36,20 @@ impl<R: io::Read> Deserializer<R> {
         } else if first_byte == 254 {
             len = self.reader.read_uint::<LittleEndian>(3)? as usize;
             rem = len % 4;
-        } else { // 255
+        } else { // must be 255
             assert_eq!(first_byte, 255);
             return Err(de::Error::invalid_value(
                 de::Unexpected::Unsigned(255),
                 &"a byte in [0..254] range"));
         }
 
-        Ok((len, if rem > 0 { 4 - rem } else { 0 }))
+        let padding = (4 - rem) % 4;
+
+        Ok((len, padding))
     }
 
     fn read_string(&mut self) -> error::Result<String> {
-        let (len, rem) = self.get_str_info()?;
+        let (len, padding) = self.get_str_info()?;
 
         // Safe version of
         //     let mut s = String::with_capacity(len);
@@ -58,20 +60,20 @@ impl<R: io::Read> Deserializer<R> {
         self.reader.read_exact(&mut s_bytes)?;
         let s = String::from_utf8(s_bytes)?;
 
-        let mut padding = vec![0; rem];
-        self.reader.read_exact(&mut padding)?;
+        let mut p = vec![0; padding];
+        self.reader.read_exact(&mut p)?;
 
         Ok(s)
     }
 
     fn read_byte_buf(&mut self) -> error::Result<Vec<u8>> {
-        let (len, rem) = self.get_str_info()?;
+        let (len, padding) = self.get_str_info()?;
 
         let mut b = vec![0; len];
         self.reader.read_exact(&mut b)?;
 
-        let mut padding = vec![0; rem];
-        self.reader.read_exact(&mut padding)?;
+        let mut p = vec![0; padding];
+        self.reader.read_exact(&mut p)?;
 
         Ok(b)
     }
@@ -79,9 +81,7 @@ impl<R: io::Read> Deserializer<R> {
 
 
 macro_rules! impl_deserialize_small_int {
-    ($small_deserialize:ident, $small_visit:ident, $cast_to_small:ident,
-     $big_read:ident::<$big_endianness:ident>
-    ) => {
+    ($small_deserialize:ident, $big_read:ident::<$big_endianness:ident>, $small_visit:ident) => {
         fn $small_deserialize<V>(self, visitor: V) -> error::Result<V::Value>
             where V: Visitor<'de>
         {
@@ -134,13 +134,13 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
         visitor.visit_bool(value)
     }
 
-    impl_deserialize_small_int!(deserialize_i8,  visit_i8,  to_i8,  read_i32::<LittleEndian>);
-    impl_deserialize_small_int!(deserialize_i16, visit_i16, to_i16, read_i32::<LittleEndian>);
+    impl_deserialize_small_int!(deserialize_i8,  read_i32::<LittleEndian>, visit_i8);
+    impl_deserialize_small_int!(deserialize_i16, read_i32::<LittleEndian>, visit_i16);
     impl_deserialize_big_int!(deserialize_i32, read_i32::<LittleEndian>, visit_i32);
     impl_deserialize_big_int!(deserialize_i64, read_i64::<LittleEndian>, visit_i64);
 
-    impl_deserialize_small_int!(deserialize_u8,  visit_u8,  to_u8,  read_u32::<LittleEndian>);
-    impl_deserialize_small_int!(deserialize_u16, visit_u16, to_u16, read_u32::<LittleEndian>);
+    impl_deserialize_small_int!(deserialize_u8,  read_u32::<LittleEndian>, visit_u8);
+    impl_deserialize_small_int!(deserialize_u16, read_u32::<LittleEndian>, visit_u16);
     impl_deserialize_big_int!(deserialize_u32, read_u32::<LittleEndian>, visit_u32);
     impl_deserialize_big_int!(deserialize_u64, read_u64::<LittleEndian>, visit_u64);
 
@@ -335,6 +335,7 @@ impl<'de, 'a, R> de::MapAccess<'de> for MapAccess<'a, R>
         seed.deserialize(&mut *self.de)
     }
 }
+
 
 struct EnumVariantAccess<'a, R: 'a + io::Read> {
     de: &'a mut Deserializer<R>,
