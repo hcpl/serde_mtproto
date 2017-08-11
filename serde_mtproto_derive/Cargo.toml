@@ -9,6 +9,9 @@ documentation = "https://docs.rs/serde_mtproto_derive"
 repository = "https://github.com/hcpl/serde_mtproto"
 keywords = ["serde", "serialization", "telegram"]
 
+[badges]
+travis-ci = { repository = "hcpl/serde_mtproto" }
+
 [lib]
 proc-macro = true
 
