@@ -1,3 +1,6 @@
+//! `MtProtoSized` trait for any Rust data structure a predictable size of its MTProto binary
+//! representation can be computed.
+
 use std::cmp;
 use std::collections::{HashMap, BTreeMap};
 use std::hash::Hash;
@@ -13,7 +16,14 @@ pub const LONG_SIZE: usize = 8;
 pub const DOUBLE_SIZE: usize = 8;
 
 
+/// A trait for a Rust data structure a predictable size of its MTProto binary representation
+/// can be computed.
 pub trait MtProtoSized {
+    /// Compute the size of MTProto binary representation of this value without actually
+    /// serializing it.
+    ///
+    /// Returns an `error::Result` because not any value can be serialized (e.g. strings and
+    /// sequences that are too long).
     fn get_size_hint(&self) -> error::Result<usize>;
 }
 

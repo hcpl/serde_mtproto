@@ -1,3 +1,5 @@
+//! Various helper types to assist in expressing certain data layouts.
+
 use std::fmt;
 
 use serde::ser::{Serialize, Serializer};
@@ -7,12 +9,15 @@ use error::{self, ErrorKind};
 use sized::MtProtoSized;
 
 
+/// A wrapper around `Vec<u8>` with `Serialize` and `Deserialize` implementations tailored
+/// specifically for byte sequence [de]serialization.
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct ByteBuf {
     byte_buf: Vec<u8>,
 }
 
 impl ByteBuf {
+    /// Wrap a byte buffer.
     pub fn new(byte_buf: Vec<u8>) -> ByteBuf {
         ByteBuf {
             byte_buf: byte_buf,
@@ -75,12 +80,15 @@ impl MtProtoSized for ByteBuf {
 }
 
 
+/// A wrapper around `&[u8]` with `Serialize` and `Deserialize` implementations tailored
+/// specifically for byte sequence [de]serialization.
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Bytes<'a> {
     bytes: &'a [u8],
 }
 
 impl<'a> Bytes<'a> {
+    /// Wrap a byte slice.
     pub fn new(bytes: &'a [u8]) -> Bytes<'a> {
         Bytes {
             bytes: bytes,
