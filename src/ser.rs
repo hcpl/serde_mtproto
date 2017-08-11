@@ -20,6 +20,47 @@ impl<W: io::Write> Serializer<W> {
     pub fn new(writer: W) -> Serializer<W> {
         Serializer { writer: writer }
     }
+
+    fn impl_serialize_bytes(&mut self, value: &[u8]) -> error::Result<()> {
+        let len = value.len();
+        let rem;
+
+        if len <= 253 {
+            // If L <= 253, the serialization contains one byte with the value of L,
+            // then L bytes of the string followed by 0 to 3 characters containing 0,
+            // such that the overall length of the value be divisible by 4,
+            // whereupon all of this is interpreted as a sequence
+            // of int(L/4)+1 32-bit little-endian integers.
+
+            self.writer.write_u8(len as u8)?;
+
+            rem = (len + 1) % 4;
+        } else if len <= 0xff_ff_ff {
+            // If L >= 254, the serialization contains byte 254, followed by 3
+            // bytes with the string length L in little-endian order, followed by L
+            // bytes of the string, further followed by 0 to 3 null padding bytes.
+
+            self.writer.write_u8(254)?;
+            self.writer.write_uint::<LittleEndian>(len as u64, 3)?;
+
+            rem = len % 4;
+        } else {
+            bail!(SerErrorKind::StringTooLong(len));
+        }
+
+        // Write each character in the string
+        self.writer.write_all(value)?;
+
+        // [...] string followed by 0 to 3 characters containing 0,
+        // such that the overall length of the value be divisible by 4 [...]
+        if rem > 0 {
+            assert!(rem < 4);
+            let padding = 4 - rem;
+            self.writer.write_uint::<LittleEndian>(0, padding)?;
+        }
+
+        Ok(())
+    }
 }
 
 
@@ -92,89 +133,14 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     }
 
     fn serialize_str(self, value: &str) -> error::Result<()> {
-        // TODO: unicode length?
-        let len = value.len();
-        let rem;
-
-        if len <= 253 {
-            // If L <= 253, the serialization contains one byte with the value of L,
-            // then L bytes of the string followed by 0 to 3 characters containing 0,
-            // such that the overall length of the value be divisible by 4,
-            // whereupon all of this is interpreted as a sequence
-            // of int(L/4)+1 32-bit little-endian integers.
-
-            self.writer.write_u8(len as u8)?;
-
-            rem = (len + 1) % 4;
-        } else if len <= 0xff_ff_ff {
-            // If L >= 254, the serialization contains byte 254, followed by 3
-            // bytes with the string length L in little-endian order, followed by L
-            // bytes of the string, further followed by 0 to 3 null padding bytes.
-
-            self.writer.write_u8(254)?;
-            self.writer.write_uint::<LittleEndian>(len as u64, 3)?;
-
-            rem = len % 4;
-        } else {
-            bail!(SerErrorKind::StringTooLong(len));
-        }
-
-        // Write each character in the string
-        self.writer.write_all(value.as_bytes())?;
-
-        // [...] string followed by 0 to 3 characters containing 0,
-        // such that the overall length of the value be divisible by 4 [...]
-        if rem > 0 {
-            assert!(rem < 4);
-            let padding = 4 - rem;
-            self.writer.write_uint::<LittleEndian>(0, padding)?;
-        }
-
+        self.impl_serialize_bytes(value.as_bytes())?;
         debug!("Serialized str: {:?}", value);
-
         Ok(())
     }
 
     fn serialize_bytes(self, value: &[u8]) -> error::Result<()> {
-        let len = value.len();
-        let rem;
-
-        if len <= 253 {
-            // If L <= 253, the serialization contains one byte with the value of L,
-            // then L bytes of the string followed by 0 to 3 characters containing 0,
-            // such that the overall length of the value be divisible by 4,
-            // whereupon all of this is interpreted as a sequence
-            // of int(L/4)+1 32-bit little-endian integers.
-
-            self.writer.write_u8(len as u8)?;
-
-            rem = (len + 1) % 4;
-        } else if len <= 0xff_ff_ff {
-            // If L >= 254, the serialization contains byte 254, followed by 3
-            // bytes with the string length L in little-endian order, followed by L
-            // bytes of the string, further followed by 0 to 3 null padding bytes.
-
-            self.writer.write_u8(254)?;
-            self.writer.write_uint::<LittleEndian>(len as u64, 3)?;
-
-            rem = len % 4;
-        } else {
-            bail!(SerErrorKind::StringTooLong(len));
-        }
-
-        // Write each character in the string
-        self.writer.write_all(value)?;
-
-        // [...] string followed by 0 to 3 characters containing 0,
-        // such that the overall length of the value be divisible by 4 [...]
-        if rem > 0 {
-            assert!(rem < 4);
-            let padding = 4 - rem;
-            self.writer.write_uint::<LittleEndian>(0, padding)?;
-        }
-
+        self.impl_serialize_bytes(value)?;
         debug!("Serialized bytes: {:?}", value);
-
         Ok(())
     }
 
