@@ -32,6 +32,11 @@ error_chain! {
             display("string of length {} is too long to serialize", len)
         }
 
+        ByteSeqTooLong(len: usize) {
+            description("byte sequence is too long to serialize")
+            display("byte sequence of length {} is too long to serialize", len)
+        }
+
         SeqTooLong(len: usize) {
             description("sequence is too long to serialize")
             display("sequence of length {} is too long to serialize", len)

@@ -72,7 +72,7 @@ impl MtProtoSized for ByteBuf {
         } else if len <= 0xff_ff_ff {
             len + (4 - len % 4) % 4
         } else {
-            bail!(ErrorKind::StringTooLong(len));
+            bail!(ErrorKind::ByteSeqTooLong(len));
         };
 
         Ok(size)
@@ -137,7 +137,7 @@ impl<'a> MtProtoSized for Bytes<'a> {
         } else if len <= 0xff_ff_ff {
             len + (4 - len % 4) % 4
         } else {
-            bail!(ErrorKind::StringTooLong(len));
+            bail!(ErrorKind::ByteSeqTooLong(len));
         };
 
         Ok(size)
