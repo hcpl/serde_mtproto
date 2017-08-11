@@ -93,7 +93,7 @@ lazy_static! {
 
     static ref CAFEBABE_BAZ: Cafebabe<Vec<bool>> = Cafebabe::Baz {
         id: u64::max_value(),
-        name: "beef".to_owned(),
+        name: "bee".to_owned(),
         payload: vec![false, true, false],
         mapping: btreemap!{
             "QWERTY".to_owned()    => -1048576,
@@ -106,7 +106,7 @@ lazy_static! {
     static ref CAFEBABE_BAZ_SERIALIZED_BOXED: Vec<u8> = vec![
         0xad, 0xaa, 0xaa, 0xba,                    // id of Cafebabe::Baz in little-endian
         255, 255, 255, 255, 255, 255, 255, 255,    // u64::max_value() == 2 ** 64 - 1
-        4, 98, 101, 101, 102, 0, 0, 0,             // string "beef" of length 4 and 3 bytes of padding
+        3, 98, 101, 101,                           // string "bee" of length 4 and no padding
 
         3, 0, 0, 0,                                // vec has 3 elements, len as 32-bit int
         55, 151, 121, 188,                         // id of false in little-endian

@@ -124,8 +124,11 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
         // [...] string followed by 0 to 3 characters containing 0,
         // such that the overall length of the value be divisible by 4 [...]
-        let padding = (4 - rem) % 4;
-        self.writer.write_uint::<LittleEndian>(0, padding)?;
+        if rem > 0 {
+            assert!(rem < 4);
+            let padding = 4 - rem;
+            self.writer.write_uint::<LittleEndian>(0, padding)?;
+        }
 
         debug!("Serialized str: {:?}", value);
 
@@ -164,8 +167,11 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
         // [...] string followed by 0 to 3 characters containing 0,
         // such that the overall length of the value be divisible by 4 [...]
-        let padding = (4 - rem) % 4;
-        self.writer.write_uint::<LittleEndian>(0, padding)?;
+        if rem > 0 {
+            assert!(rem < 4);
+            let padding = 4 - rem;
+            self.writer.write_uint::<LittleEndian>(0, padding)?;
+        }
 
         debug!("Serialized bytes: {:?}", value);
 
