@@ -96,10 +96,11 @@ lazy_static! {
         name: "bee".to_owned(),
         payload: vec![false, true, false],
         mapping: btreemap!{
-            "QWERTY".to_owned()    => -1048576,
-            "something".to_owned() => 0,
-            "OtHeR".to_owned()     => 0x7fff_ffff_ffff_ffff,
-            "".to_owned()          => -1,
+            "QWERTY".to_owned()     => -1048576,
+            "something".to_owned()  => 0,
+            "OtHeR".to_owned()      => 0x7fff_ffff_ffff_ffff,
+            "こんにちは".to_owned() => 8024735636555,
+            "".to_owned()           => -1,
         },
     };
 
@@ -113,7 +114,7 @@ lazy_static! {
         181, 117, 114, 153,                        // id of true in little-endian
         55, 151, 121, 188,                         // id of false in little-endian
 
-        4, 0, 0, 0,                                // hashmap has 4 elements, len as 32-bit int
+        5, 0, 0, 0,                                // hashmap has 5 elements, len as 32-bit int
         0, 0, 0, 0,                                // ""
         255, 255, 255, 255, 255, 255, 255, 255,    // -1 as little-endian 64-bit int
         5, 79, 116, 72, 101, 82, 0, 0,             // "OtHeR"
@@ -122,6 +123,8 @@ lazy_static! {
         0, 0, 240, 255, 255, 255, 255, 255,        // -1048576 as little-endian 64-bit int
         9, 115, 111, 109, 101, 116, 104, 105, 110, 103, 0, 0,    // "something"
         0, 0, 0, 0, 0, 0, 0, 0,                    // 0 as little-endian 64-bit int
+        15, 227, 129, 147, 227, 130, 147, 227, 129, 171, 227, 129, 161, 227, 129, 175,    // "こんにちは"
+        75, 92, 132, 103, 76, 7, 0, 0,             // 8024735636555 as little-endian 64-bit int
     ];
 
     static ref CAFEBABE_BLOB: Cafebabe<()> = Cafebabe::Blob;
