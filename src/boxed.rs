@@ -22,6 +22,14 @@ impl<T: Identifiable> Boxed<T> {
         }
     }
 
+    pub fn inner(&self) -> &T {
+        &self.inner
+    }
+
+    pub fn inner_mut(&mut self) -> &mut T {
+        &mut self.inner
+    }
+
     /// Unwrap the box and return the wrapped value.
     pub fn into_inner(self) -> T {
         self.inner

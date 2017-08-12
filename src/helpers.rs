@@ -31,6 +31,14 @@ impl ByteBuf {
         }
     }
 
+    pub fn inner(&self) -> &Vec<u8> {
+        &self.byte_buf
+    }
+
+    pub fn inner_mut(&mut self) -> &mut Vec<u8> {
+        &mut self.byte_buf
+    }
+
     /// Unwrap the underlying byte buffer.
     pub fn into_inner(self) -> Vec<u8> {
         self.byte_buf
@@ -40,6 +48,14 @@ impl ByteBuf {
     pub fn as_bytes<'a>(&'a self) -> Bytes<'a> {
         Bytes {
             bytes: &self.byte_buf,
+        }
+    }
+}
+
+impl From<Vec<u8>> for ByteBuf {
+    fn from(byte_buf: Vec<u8>) -> ByteBuf {
+        ByteBuf {
+            byte_buf: byte_buf,
         }
     }
 }
