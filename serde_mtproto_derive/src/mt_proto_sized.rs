@@ -18,7 +18,7 @@ pub fn impl_mt_proto_sized(ast: &DeriveInput) -> quote::Tokens {
                         let field_name = &field.ident;
 
                         fields_quoted.append(quote! {
-                            + MtProtoSized::get_size_hint(&self.#field_name)?
+                            + _serde_mtproto::MtProtoSized::get_size_hint(&self.#field_name)?
                         });
                     }
                 }
@@ -26,7 +26,7 @@ pub fn impl_mt_proto_sized(ast: &DeriveInput) -> quote::Tokens {
                 VariantData::Tuple(ref fields) => {
                     for (i, _) in fields.iter().enumerate() {
                         fields_quoted.append(quote! {
-                            + MtProtoSized::get_size_hint(&self.#i)?
+                            + _serde_mtproto::MtProtoSized::get_size_hint(&self.#i)?
                         });
                     }
                 }
@@ -58,7 +58,7 @@ pub fn impl_mt_proto_sized(ast: &DeriveInput) -> quote::Tokens {
                             pattern_matches.push(quote! { ref #field_name });
 
                             fields_quoted.append(quote! {
-                                + MtProtoSized::get_size_hint(#field_name)?
+                                + _serde_mtproto::MtProtoSized::get_size_hint(#field_name)?
                             });
                         }
 
@@ -76,7 +76,7 @@ pub fn impl_mt_proto_sized(ast: &DeriveInput) -> quote::Tokens {
                             pattern_matches.push(quote! { ref #field_name });
 
                             fields_quoted.append(quote! {
-                                + MtProtoSized::get_size_hint(#field_name)?
+                                + _serde_mtproto::MtProtoSized::get_size_hint(#field_name)?
                             });
                         }
 
