@@ -23,6 +23,25 @@ impl ByteBuf {
             byte_buf: byte_buf,
         }
     }
+
+    /// Allocate a new `ByteBuf` from a `Bytes` instance.
+    pub fn from_bytes<'a>(bytes: Bytes<'a>) -> ByteBuf {
+        ByteBuf {
+            byte_buf: bytes.bytes.to_vec(),
+        }
+    }
+
+    /// Unwrap the underlying byte buffer.
+    pub fn into_inner(self) -> Vec<u8> {
+        self.byte_buf
+    }
+
+    /// View a reference to `ByteBuf` as `Bytes`.
+    pub fn as_bytes<'a>(&'a self) -> Bytes<'a> {
+        Bytes {
+            bytes: &self.byte_buf,
+        }
+    }
 }
 
 impl Serialize for ByteBuf {
@@ -93,6 +112,17 @@ impl<'a> Bytes<'a> {
         Bytes {
             bytes: bytes,
         }
+    }
+
+    /// View `Bytes` as a byte slice.
+    pub fn as_inner(&self) -> &[u8] {
+        self.bytes
+    }
+}
+
+impl<'a> AsRef<[u8]> for Bytes<'a> {
+    fn as_ref(&self) -> &[u8] {
+        self.bytes
     }
 }
 
