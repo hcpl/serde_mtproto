@@ -97,14 +97,13 @@ impl<'a, T: MtProtoSized> MtProtoSized for &'a [T] {
         // If len >= 2 ** 32, it's not serializable at all.
         check_seq_len(self.len())?;
 
-        self.iter()
-            .map(|elem| elem.get_size_hint())
-            .fold(Ok(4), |acc, size_hint| {
-                let acc = acc?;
-                let size_hint = size_hint?;
+        let mut result = 4;    // 4 for slice length
 
-                Ok(acc + size_hint)
-            })
+        for elem in self.iter() {
+            result += elem.get_size_hint()?;
+        }
+
+        Ok(result)
     }
 }
 
