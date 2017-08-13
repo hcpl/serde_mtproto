@@ -32,7 +32,7 @@ enum Cafebabe<T: MtProtoSized> {
     #[id = "0x0badf00d"]
     Bar {
         byte_id: i8,
-        position: (u64, u64),
+        position: (u64, u32),
         data: Boxed<T>,
     },
     #[id = "0xbaaaaaad"]
@@ -86,7 +86,7 @@ lazy_static! {
         0x0d, 0xf0, 0xad, 0x0b,     // id of Cafebabe::Bar in little-endian
         236, 255, 255, 255,         // -20 as 32-bit int (MTProto doesn't support less than 32-bit)
         94, 1, 0, 0, 0, 0, 0, 0,    // 350 as little-endian 64-bit int
-        9, 46, 2, 0, 0, 0, 0, 0,    // 142857 as little-endian 64-bit int
+        9, 46, 2, 0,                // 142857 as little-endian 32-bit int
         218, 155, 80, 168,          // id of int built-in MTProto type
         0, 16, 0, 0,                // 4096 as little-endian 32-bit int
     ];

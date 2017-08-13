@@ -162,6 +162,6 @@ impl<T1: MtProtoSized> MtProtoSized for (T1,) {
 
 impl<T1: MtProtoSized, T2: MtProtoSized> MtProtoSized for (T1, T2) {
     fn get_size_hint(&self) -> error::Result<usize> {
-        Ok(self.0.get_size_hint()? + self.0.get_size_hint()?)
+        Ok(self.0.get_size_hint()? + self.1.get_size_hint()?)
     }
 }
