@@ -15,6 +15,7 @@ travis-ci = { repository = "hcpl/serde_mtproto" }
 [dependencies]
 byteorder = "1.1.0"
 error-chain = "0.10.0"
+extprim = "1.4.0"
 log = "0.3.8"
 num-traits = "0.1.40"
 serde = "1.0.11"

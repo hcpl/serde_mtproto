@@ -14,6 +14,7 @@ pub const BOOL_SIZE: usize = 4;
 pub const INT_SIZE: usize = 4;
 pub const LONG_SIZE: usize = 8;
 pub const DOUBLE_SIZE: usize = 8;
+pub const INT128_SIZE: usize = 16;
 
 
 /// A trait for a Rust data structure a predictable size of its MTProto binary representation
@@ -64,6 +65,9 @@ impl_mt_proto_sized_for_primitives! {
 
     f32 => DOUBLE_SIZE,
     f64 => DOUBLE_SIZE,
+
+    ::extprim::i128::i128 => INT128_SIZE,
+    ::extprim::u128::u128 => INT128_SIZE,
 }
 
 impl<'a> MtProtoSized for &'a str {

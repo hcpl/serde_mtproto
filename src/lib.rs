@@ -7,6 +7,7 @@
 extern crate byteorder;
 #[macro_use]
 extern crate error_chain;
+extern crate extprim;
 #[macro_use]
 extern crate log;
 extern crate num_traits;
