@@ -154,14 +154,40 @@ impl MtProtoSized for () {
     }
 }
 
-impl<T1: MtProtoSized> MtProtoSized for (T1,) {
+impl<T1> MtProtoSized for (T1,)
+    where T1: MtProtoSized
+{
     fn get_size_hint(&self) -> error::Result<usize> {
         self.0.get_size_hint()
     }
 }
 
-impl<T1: MtProtoSized, T2: MtProtoSized> MtProtoSized for (T1, T2) {
+impl<T1, T2> MtProtoSized for (T1, T2)
+    where T1: MtProtoSized,
+          T2: MtProtoSized,
+{
     fn get_size_hint(&self) -> error::Result<usize> {
         Ok(self.0.get_size_hint()? + self.1.get_size_hint()?)
+    }
+}
+
+impl<T1, T2, T3> MtProtoSized for (T1, T2, T3)
+    where T1: MtProtoSized,
+          T2: MtProtoSized,
+          T3: MtProtoSized,
+{
+    fn get_size_hint(&self) -> error::Result<usize> {
+        Ok(self.0.get_size_hint()? + self.1.get_size_hint()? + self.2.get_size_hint()?)
+    }
+}
+
+impl<T1, T2, T3, T4> MtProtoSized for (T1, T2, T3, T4)
+    where T1: MtProtoSized,
+          T2: MtProtoSized,
+          T3: MtProtoSized,
+          T4: MtProtoSized,
+{
+    fn get_size_hint(&self) -> error::Result<usize> {
+        Ok(self.0.get_size_hint()? + self.1.get_size_hint()? + self.2.get_size_hint()? + self.3.get_size_hint()?)
     }
 }
