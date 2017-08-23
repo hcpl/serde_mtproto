@@ -154,40 +154,32 @@ impl MtProtoSized for () {
     }
 }
 
-impl<T1> MtProtoSized for (T1,)
-    where T1: MtProtoSized
-{
-    fn get_size_hint(&self) -> error::Result<usize> {
-        self.0.get_size_hint()
+macro_rules! impl_mt_proto_sized_for_tuple {
+    ($($ident:ident : $ty:ident),*,) => {
+        impl<$($ty: MtProtoSized),*> MtProtoSized for ($($ty),*,) {
+            fn get_size_hint(&self) -> error::Result<usize> {
+                let mut result = 0;
+                let &($(ref $ident),*,) = self;
+                $( result += $ident.get_size_hint()?; )*
+                Ok(result)
+            }
+        }
     }
 }
 
-impl<T1, T2> MtProtoSized for (T1, T2)
-    where T1: MtProtoSized,
-          T2: MtProtoSized,
-{
-    fn get_size_hint(&self) -> error::Result<usize> {
-        Ok(self.0.get_size_hint()? + self.1.get_size_hint()?)
-    }
-}
-
-impl<T1, T2, T3> MtProtoSized for (T1, T2, T3)
-    where T1: MtProtoSized,
-          T2: MtProtoSized,
-          T3: MtProtoSized,
-{
-    fn get_size_hint(&self) -> error::Result<usize> {
-        Ok(self.0.get_size_hint()? + self.1.get_size_hint()? + self.2.get_size_hint()?)
-    }
-}
-
-impl<T1, T2, T3, T4> MtProtoSized for (T1, T2, T3, T4)
-    where T1: MtProtoSized,
-          T2: MtProtoSized,
-          T3: MtProtoSized,
-          T4: MtProtoSized,
-{
-    fn get_size_hint(&self) -> error::Result<usize> {
-        Ok(self.0.get_size_hint()? + self.1.get_size_hint()? + self.2.get_size_hint()? + self.3.get_size_hint()?)
-    }
-}
+impl_mt_proto_sized_for_tuple! { x1: T1, }
+impl_mt_proto_sized_for_tuple! { x1: T1, x2: T2, }
+impl_mt_proto_sized_for_tuple! { x1: T1, x2: T2, x3: T3, }
+impl_mt_proto_sized_for_tuple! { x1: T1, x2: T2, x3: T3, x4: T4, }
+impl_mt_proto_sized_for_tuple! { x1: T1, x2: T2, x3: T3, x4: T4, x5: T5, }
+impl_mt_proto_sized_for_tuple! { x1: T1, x2: T2, x3: T3, x4: T4, x5: T5, x6: T6, }
+impl_mt_proto_sized_for_tuple! { x1: T1, x2: T2, x3: T3, x4: T4, x5: T5, x6: T6, x7: T7, }
+impl_mt_proto_sized_for_tuple! { x1: T1, x2: T2, x3: T3, x4: T4, x5: T5, x6: T6, x7: T7, x8: T8, }
+impl_mt_proto_sized_for_tuple! { x1: T1, x2: T2, x3: T3, x4: T4, x5: T5, x6: T6, x7: T7, x8: T8,
+                                 x9: T9, }
+impl_mt_proto_sized_for_tuple! { x1: T1, x2: T2, x3: T3, x4: T4, x5: T5, x6: T6, x7: T7, x8: T8,
+                                 x9: T9, x10: T10, }
+impl_mt_proto_sized_for_tuple! { x1: T1, x2: T2, x3: T3, x4: T4, x5: T5, x6: T6, x7: T7, x8: T8,
+                                 x9: T9, x10: T10, x11: T11, }
+impl_mt_proto_sized_for_tuple! { x1: T1, x2: T2, x3: T3, x4: T4, x5: T5, x6: T6, x7: T7, x8: T8,
+                                 x9: T9, x10: T10, x11: T11, x12: T12, }
