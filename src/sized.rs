@@ -155,11 +155,11 @@ impl MtProtoSized for () {
 }
 
 macro_rules! impl_mt_proto_sized_for_tuple {
-    ($($ident:ident : $ty:ident),*,) => {
-        impl<$($ty: MtProtoSized),*> MtProtoSized for ($($ty),*,) {
+    ($($ident:ident : $ty:ident ,)*) => {
+        impl<$($ty: MtProtoSized),*> MtProtoSized for ($($ty,)*) {
             fn get_size_hint(&self) -> error::Result<usize> {
                 let mut result = 0;
-                let &($(ref $ident),*,) = self;
+                let &($(ref $ident,)*) = self;
                 $( result += $ident.get_size_hint()?; )*
                 Ok(result)
             }

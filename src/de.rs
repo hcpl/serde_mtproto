@@ -49,19 +49,8 @@ impl<R: io::Read> Deserializer<R> {
     }
 
     fn read_string(&mut self) -> error::Result<String> {
-        let (len, padding) = self.get_str_info()?;
-
-        // Safe version of
-        //     let mut s = String::with_capacity(len);
-        //     unsafe {
-        //         self.reader.read_exact(s.as_mut_vec())?;
-        //     }
-        let mut s_bytes = vec![0; len];
-        self.reader.read_exact(&mut s_bytes)?;
+        let s_bytes = self.read_byte_buf()?;
         let s = String::from_utf8(s_bytes)?;
-
-        let mut p = vec![0; padding];
-        self.reader.read_exact(&mut p)?;
 
         Ok(s)
     }
