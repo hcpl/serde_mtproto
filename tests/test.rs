@@ -1,3 +1,5 @@
+//#[cfg(feature = "extprim")]
+//extern crate extprim;
 #[macro_use]
 extern crate lazy_static;
 #[macro_use]
@@ -12,6 +14,8 @@ extern crate serde_mtproto_derive;
 
 use std::collections::BTreeMap;
 
+//#[cfg(feature = "extprim")]
+//use extprim::i128::i128;
 use serde_mtproto_other_name::{Boxed, ByteBuf, MtProtoSized, to_bytes, to_writer, from_bytes, from_reader};
 
 
@@ -34,6 +38,8 @@ enum Cafebabe<T: MtProtoSized> {
         byte_id: i8,
         position: (u64, u32),
         data: Boxed<T>,
+        //#[cfg(feature = "extprim")]
+        //bignum: i128,
     },
     #[id = "0xbaaaaaad"]
     Baz {
@@ -80,6 +86,11 @@ lazy_static! {
         byte_id: -20,
         position: (350, 142857),
         data: Boxed::new(4096),
+        // TODO: uncomment this after bumping minimal Rust version to 1.20 with the struct field
+        // attributes feature.
+        //
+        //#[cfg(feature = "extprim")]
+        //bignum: i128::from_str("100000000000000000000000000000000000000").unwrap(),
     };
 
     static ref CAFEBABE_BAR_SERIALIZED_BOXED: Vec<u8> = vec![
