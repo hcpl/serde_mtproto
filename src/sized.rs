@@ -70,7 +70,10 @@ impl_mt_proto_sized_for_primitives! {
 
     f32 => DOUBLE_SIZE,
     f64 => DOUBLE_SIZE,
+}
 
+#[cfg(feature = "extprim")]
+impl_mt_proto_sized_for_primitives! {
     ::extprim::i128::i128 => INT128_SIZE,
     ::extprim::u128::u128 => INT128_SIZE,
 }

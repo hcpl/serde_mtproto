@@ -10,6 +10,7 @@
 extern crate byteorder;
 #[macro_use]
 extern crate error_chain;
+#[cfg(feature = "extprim")]
 extern crate extprim;
 #[macro_use]
 extern crate log;
