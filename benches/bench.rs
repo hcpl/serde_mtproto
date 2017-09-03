@@ -2,6 +2,7 @@
 
 
 extern crate lipsum;
+extern crate rand;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
@@ -19,17 +20,19 @@ use test::Bencher;
 
 #[bench]
 fn i64_serialize(b: &mut Bencher) {
+    let i64_random: i64 = rand::random();
+
     b.iter(|| {
-        to_bytes(&0x2a4ea54340204d12i64).unwrap();    // Truly random!
+        to_bytes(&i64_random).unwrap();
     });
 }
 
 #[bench]
 fn i64_deserialize(b: &mut Bencher) {
-    let i64_serialized = &[0xa3, 0xc6, 0x72, 0x47, 0x2f, 0xcd, 0xc5, 0xa4];    // Random too!
+    let i64_random_serialized: [u8; 8] = rand::random();
 
     b.iter(|| {
-        from_bytes::<i64>(i64_serialized, None).unwrap();
+        from_bytes::<i64>(&i64_random_serialized, None).unwrap();
     });
 }
 
@@ -99,6 +102,31 @@ fn string_long_deserialize(b: &mut Bencher) {
     });
 }
 
+fn random_string<R: rand::Rng>(rng: &mut R, max_words_count: usize) -> String {
+    let lipsum_words_count: usize = rng.gen_range(0, max_words_count);
+
+    lipsum::lipsum(lipsum_words_count)
+}
+
+#[bench]
+fn string_random_serialize(b: &mut Bencher) {
+    let string_random = random_string(&mut rand::thread_rng(), 4096);
+
+    b.iter(|| {
+        to_bytes(&string_random).unwrap();
+    });
+}
+
+#[bench]
+fn string_random_deserialize(b: &mut Bencher) {
+    let string_random = random_string(&mut rand::thread_rng(), 4096);
+    let string_random_serialized = to_bytes(&string_random).unwrap();
+
+    b.iter(|| {
+        from_bytes::<String>(&string_random_serialized, None).unwrap();
+    });
+}
+
 // MISC
 
 #[derive(Serialize, Deserialize, MtProtoIdentifiable)]
@@ -107,6 +135,16 @@ struct Foo {
     bar: bool,
     s: String,
     group: (i16, u64, i8),
+}
+
+impl rand::Rand for Foo {
+    fn rand<R: rand::Rng>(rng: &mut R) -> Foo {
+        Foo {
+            bar: rng.gen(),
+            s: random_string(rng, 4096),
+            group: rng.gen(),
+        }
+    }
 }
 
 #[bench]
@@ -134,5 +172,24 @@ fn foo_deserialize(b: &mut Bencher) {
 
     b.iter(|| {
         from_bytes::<Foo>(&foo_serialized, None).unwrap();
+    });
+}
+
+#[bench]
+fn foo_random_serialize(b: &mut Bencher) {
+    let foo_random: Foo = rand::random();
+
+    b.iter(|| {
+        to_bytes(&foo_random).unwrap();
+    });
+}
+
+#[bench]
+fn foo_random_deserialize(b: &mut Bencher) {
+    let foo_random: Foo = rand::random();
+    let foo_random_serialized = to_bytes(&foo_random).unwrap();
+
+    b.iter(|| {
+        from_bytes::<Foo>(&foo_random_serialized, None).unwrap();
     });
 }

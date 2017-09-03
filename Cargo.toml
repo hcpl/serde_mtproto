@@ -27,4 +27,5 @@ lazy_static = "0.2.8"
 lipsum = "0.3.0"
 maplit = "0.1.4"
 pretty_assertions = "0.3.4"
+rand = "0.3.16"
 serde_mtproto_derive = { path = "serde_mtproto_derive", version = "0.3.1" }
