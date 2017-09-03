@@ -1,11 +1,18 @@
 //! `Identifiable` trait for any Rust data structure that can have an id.
 
+/// Type id of the bool true value.
 pub const BOOL_TRUE_ID: i32 = -1720552011;
+/// Type id of the bool false value.
 pub const BOOL_FALSE_ID: i32 = -1132882121;
+/// Type id of the int type.
 pub const INT_ID: i32 = -1471112230;
+/// Type id of the long type.
 pub const LONG_ID: i32 = 570911930;
+/// Type id of the double type.
 pub const DOUBLE_ID: i32 = 571523412;
+/// Type id of the string type.
 pub const STRING_ID: i32 = -1255641564;
+/// Type id of the vector type.
 pub const VECTOR_ID: i32 = 481674261;
 
 

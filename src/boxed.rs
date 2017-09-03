@@ -22,10 +22,12 @@ impl<T: Identifiable> Boxed<T> {
         }
     }
 
+    /// Return an immutable reference to the underlying data.
     pub fn inner(&self) -> &T {
         &self.inner
     }
 
+    /// Return a mutable reference to the underlying data.
     pub fn inner_mut(&mut self) -> &mut T {
         &mut self.inner
     }

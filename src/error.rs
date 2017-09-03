@@ -7,36 +7,42 @@ use serde::{ser, de};
 
 error_chain! {
     foreign_links {
-        Io(::std::io::Error);
-        FromUtf8(::std::string::FromUtf8Error);
+        Io(::std::io::Error) #[doc = "Wraps an `io::Error`"];
+        FromUtf8(::std::string::FromUtf8Error) #[doc = "Wraps a `FromUtf8Error`"];
     }
 
     errors {
+        /// An error during serialization.
         Ser(kind: SerErrorKind) {
             description("serialization error in serde_mtproto")
             display("serialization error in serde_mtproto: {}", kind)
         }
 
+        /// An error during deserialization.
         De(kind: DeErrorKind) {
             description("deserialization error in serde_mtproto")
             display("deserialization error in serde_mtproto: {}", kind)
         }
 
+        /// Error while casting an integer.
         IntegerCast {
             description("error while casting an integer")
             display("error while casting an integer")
         }
 
+        /// A string that cannot be serialized because it exceeds a certain length limit.
         StringTooLong(len: usize) {
             description("string is too long to serialize")
             display("string of length {} is too long to serialize", len)
         }
 
+        /// A byte sequence that cannot be serialized because it exceeds a certain length limit.
         ByteSeqTooLong(len: usize) {
             description("byte sequence is too long to serialize")
             display("byte sequence of length {} is too long to serialize", len)
         }
 
+        /// A sequence that cannot be serialized because it exceeds a certain length limit.
         SeqTooLong(len: usize) {
             description("sequence is too long to serialize")
             display("sequence of length {} is too long to serialize", len)
@@ -48,12 +54,19 @@ error_chain! {
 /// Serialization error kinds.
 #[derive(Debug)]
 pub enum SerErrorKind {
+    /// A convenient variant for String.
     Msg(String),
+    /// Excess elements found, stores the needed count.
     ExcessElements(u32),
+    /// Cannot serialize maps with unknown length.
     MapsWithUnknownLengthUnsupported,
+    /// Not enough elements, stores the actual and needed count.
     NotEnoughElements(u32, u32),
+    /// Cannot serialize sequences with unknown length.
     SeqsWithUnknownLengthUnsupported,
+    /// A string that cannot be serialized because it exceeds a certain length limit.
     StringTooLong(usize),
+    /// This `serde` data format doesn't support several types in the Serde data model.
     UnsupportedSerdeType(SerSerdeType),
 }
 
@@ -87,7 +100,16 @@ impl fmt::Display for SerErrorKind {
 
 /// Serde serialization data types that are not supported by `serde_mtproto`.
 #[derive(Debug)]
-pub enum SerSerdeType { Char, None, Some, Unit }
+pub enum SerSerdeType {
+    /// Single character type.
+    Char,
+    /// None value of Option type.
+    None,
+    /// Some value of Option type.
+    Some,
+    /// Unit `()` type.
+    Unit,
+}
 
 impl fmt::Display for SerSerdeType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -112,7 +134,9 @@ impl From<SerErrorKind> for Error {
 /// Deserialization error kinds.
 #[derive(Debug)]
 pub enum DeErrorKind {
+    /// A convenient variant for String.
     Msg(String),
+    /// This `serde` data format doesn't support several types in the Serde data model.
     UnsupportedSerdeType(DeSerdeType),
 }
 
@@ -131,7 +155,18 @@ impl fmt::Display for DeErrorKind {
 
 /// Serde deserialization data types that are not supported by `serde_mtproto`.
 #[derive(Debug)]
-pub enum DeSerdeType { Any, Char, Option, Unit, IgnoredAny }
+pub enum DeSerdeType {
+    /// `serde_mtproto` doesn't support `*_any` hint.
+    Any,
+    /// Single character type.
+    Char,
+    /// Option type.
+    Option,
+    /// Unit `()` type.
+    Unit,
+    /// `serde_mtproto` doesn't support `*_ignored_any` hint.
+    IgnoredAny,
+}
 
 impl fmt::Display for DeSerdeType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

@@ -31,10 +31,12 @@ impl ByteBuf {
         }
     }
 
+    /// Return an immutable reference to the underlying byte buffer.
     pub fn inner(&self) -> &Vec<u8> {
         &self.byte_buf
     }
 
+    /// Return a mutable reference to the underlying byte buffer.
     pub fn inner_mut(&mut self) -> &mut Vec<u8> {
         &mut self.byte_buf
     }

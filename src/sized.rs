@@ -10,10 +10,15 @@ use error::{self, ErrorKind};
 use utils::check_seq_len;
 
 
+/// Size of a bool MtProto value.
 pub const BOOL_SIZE: usize = 4;
+/// Size of an int MtProto value.
 pub const INT_SIZE: usize = 4;
+/// Size of a long MtProto value.
 pub const LONG_SIZE: usize = 8;
+/// Size of a dobule MtProto value.
 pub const DOUBLE_SIZE: usize = 8;
+/// Size of an int128 MtProto value.
 pub const INT128_SIZE: usize = 16;
 
 
