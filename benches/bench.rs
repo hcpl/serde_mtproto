@@ -15,14 +15,7 @@ use serde_mtproto::{to_bytes, from_bytes};
 use test::Bencher;
 
 
-#[derive(Serialize, Deserialize, MtProtoIdentifiable)]
-#[id = "0xd594ba98"]
-struct Foo {
-    bar: bool,
-    s: String,
-    group: (i16, u64, i8),
-}
-
+// PRIMITIVES
 
 #[bench]
 fn i64_serialize(b: &mut Bencher) {
@@ -40,20 +33,80 @@ fn i64_deserialize(b: &mut Bencher) {
     });
 }
 
+// STRINGS
+
 #[bench]
-fn string_serialize(b: &mut Bencher) {
+fn string_empty_serialize(b: &mut Bencher) {
+    b.iter(|| {
+        to_bytes(&"").unwrap();
+    });
+}
+
+#[bench]
+fn string_empty_deserialize(b: &mut Bencher) {
+    let string_serialized = to_bytes(&"").unwrap();
+
+    b.iter(|| {
+        from_bytes::<String>(&string_serialized, None).unwrap();
+    });
+}
+
+#[bench]
+fn string_short_serialize(b: &mut Bencher) {
+    b.iter(|| {
+        to_bytes(&"foobar").unwrap();
+    });
+}
+
+#[bench]
+fn string_short_deserialize(b: &mut Bencher) {
+    let string_serialized = to_bytes(&"foobar").unwrap();
+
+    b.iter(|| {
+        from_bytes::<String>(&string_serialized, None).unwrap();
+    });
+}
+
+#[bench]
+fn string_medium_serialize(b: &mut Bencher) {
     b.iter(|| {
         to_bytes(&lipsum::LOREM_IPSUM).unwrap();
     });
 }
 
 #[bench]
-fn string_deserialize(b: &mut Bencher) {
+fn string_medium_deserialize(b: &mut Bencher) {
     let string_serialized = to_bytes(&lipsum::LOREM_IPSUM).unwrap();
 
     b.iter(|| {
         from_bytes::<String>(&string_serialized, None).unwrap();
     });
+}
+
+#[bench]
+fn string_long_serialize(b: &mut Bencher) {
+    b.iter(|| {
+        to_bytes(&lipsum::LIBER_PRIMUS).unwrap();
+    });
+}
+
+#[bench]
+fn string_long_deserialize(b: &mut Bencher) {
+    let string_serialized = to_bytes(&lipsum::LIBER_PRIMUS).unwrap();
+
+    b.iter(|| {
+        from_bytes::<String>(&string_serialized, None).unwrap();
+    });
+}
+
+// MISC
+
+#[derive(Serialize, Deserialize, MtProtoIdentifiable)]
+#[id = "0xd594ba98"]
+struct Foo {
+    bar: bool,
+    s: String,
+    group: (i16, u64, i8),
 }
 
 #[bench]
