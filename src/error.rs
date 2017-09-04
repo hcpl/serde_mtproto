@@ -25,9 +25,9 @@ error_chain! {
         }
 
         /// Error while casting an integer.
-        IntegerCast {
+        IntegerCast(num: u64) {
             description("error while casting an integer")
-            display("error while casting an integer")
+            display("error while casting an integer: {}", num)
         }
 
         /// A string that cannot be serialized because it exceeds a certain length limit.
