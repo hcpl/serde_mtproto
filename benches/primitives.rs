@@ -1,6 +1,8 @@
 #![feature(test)]
 
 
+#[cfg(feature = "extprim")]
+extern crate extprim;
 extern crate rand;
 extern crate test;
 extern crate serde_mtproto;
@@ -72,3 +74,8 @@ fixed_size_bench!(u64, u64_serialize, u64_deserialize => [u8; 8]: rand::random()
 
 fixed_size_bench!(f32, f32_serialize, f32_deserialize => [u8; 4]: rand::random());
 fixed_size_bench!(f64, f64_serialize, f64_deserialize => [u8; 8]: rand::random());
+
+#[cfg(feature = "extprim")]
+fixed_size_bench!(::extprim::i128::i128, i128_serialize, i128_deserialize => [u8; 16]: rand::random());
+#[cfg(feature = "extprim")]
+fixed_size_bench!(::extprim::u128::u128, u128_serialize, u128_deserialize => [u8; 16]: rand::random());
