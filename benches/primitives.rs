@@ -36,7 +36,13 @@ macro_rules! bench_with_ser {
 }
 
 bench_with_ser!(bool, bool_serialize, bool_deserialize);
+
+bench_with_ser!(i8, i8_serialize, i8_deserialize);
+bench_with_ser!(i16, i16_serialize, i16_deserialize);
 bench_with_ser!(isize, isize_serialize, isize_deserialize);
+
+bench_with_ser!(u8, u8_serialize, u8_deserialize);
+bench_with_ser!(u16, u16_serialize, u16_deserialize);
 bench_with_ser!(usize, usize_serialize, usize_deserialize);
 
 
@@ -62,13 +68,9 @@ macro_rules! fixed_size_bench {
     };
 }
 
-fixed_size_bench!(i8, i8_serialize, i8_deserialize => [u8; 4]: [rand::random(), 0, 0, 0]);
-fixed_size_bench!(i16, i16_serialize, i16_deserialize => [u8; 4]: [rand::random(), rand::random(), 0, 0]);
 fixed_size_bench!(i32, i32_serialize, i32_deserialize => [u8; 4]: rand::random());
 fixed_size_bench!(i64, i64_serialize, i64_deserialize => [u8; 8]: rand::random());
 
-fixed_size_bench!(u8, u8_serialize, u8_deserialize => [u8; 4]: [rand::random(), 0, 0, 0]);
-fixed_size_bench!(u16, u16_serialize, u16_deserialize => [u8; 4]: [rand::random(), rand::random(), 0, 0]);
 fixed_size_bench!(u32, u32_serialize, u32_deserialize => [u8; 4]: rand::random());
 fixed_size_bench!(u64, u64_serialize, u64_deserialize => [u8; 8]: rand::random());
 
