@@ -10,129 +10,65 @@ use serde_mtproto::{to_bytes, from_bytes};
 use test::Bencher;
 
 
-#[bench]
-fn bool_serialize(b: &mut Bencher) {
-    let random_bool: bool = rand::random();
+macro_rules! bench_with_ser {
+    ($ty:ty, $ser:ident, $de:ident) => {
+        #[bench]
+        fn $ser(b: &mut Bencher) {
+            let random_value: $ty = rand::random();
 
-    b.iter(|| {
-        to_bytes(&random_bool).unwrap();
-    });
+            b.iter(|| {
+                to_bytes(&random_value).unwrap();
+            });
+        }
+
+        #[bench]
+        fn $de(b: &mut Bencher) {
+            let random_value: $ty = rand::random();
+            let random_value_serialized = to_bytes(&random_value).unwrap();
+
+            b.iter(|| {
+                from_bytes::<$ty>(&random_value_serialized, None).unwrap();
+            });
+        }
+    };
 }
 
-#[bench]
-fn bool_deserialize(b: &mut Bencher) {
-    let random_bool: bool = rand::random();
-    let random_bool_serialized = to_bytes(&random_bool).unwrap();
+bench_with_ser!(bool, bool_serialize, bool_deserialize);
+bench_with_ser!(isize, isize_serialize, isize_deserialize);
+bench_with_ser!(usize, usize_serialize, usize_deserialize);
 
-    b.iter(|| {
-        from_bytes::<bool>(&random_bool_serialized, None).unwrap();
-    });
+
+macro_rules! fixed_size_bench {
+    ($ty:ty, $ser:ident, $de:ident => $de_bytes_ty:ty: $de_init:expr) => {
+        #[bench]
+        fn $ser(b: &mut Bencher) {
+            let random_num: $ty = rand::random();
+
+            b.iter(|| {
+                to_bytes(&random_num).unwrap();
+            });
+        }
+
+        #[bench]
+        fn $de(b: &mut Bencher) {
+            let random_num_serialized: $de_bytes_ty = $de_init;
+
+            b.iter(|| {
+                from_bytes::<$ty>(&random_num_serialized, None).unwrap();
+            });
+        }
+    };
 }
 
-#[bench]
-fn u8_serialize(b: &mut Bencher) {
-    let random_u8: u8 = rand::random();
+fixed_size_bench!(i8, i8_serialize, i8_deserialize => [u8; 4]: [rand::random(), 0, 0, 0]);
+fixed_size_bench!(i16, i16_serialize, i16_deserialize => [u8; 4]: [rand::random(), rand::random(), 0, 0]);
+fixed_size_bench!(i32, i32_serialize, i32_deserialize => [u8; 4]: rand::random());
+fixed_size_bench!(i64, i64_serialize, i64_deserialize => [u8; 8]: rand::random());
 
-    b.iter(|| {
-        to_bytes(&random_u8).unwrap();
-    });
-}
+fixed_size_bench!(u8, u8_serialize, u8_deserialize => [u8; 4]: [rand::random(), 0, 0, 0]);
+fixed_size_bench!(u16, u16_serialize, u16_deserialize => [u8; 4]: [rand::random(), rand::random(), 0, 0]);
+fixed_size_bench!(u32, u32_serialize, u32_deserialize => [u8; 4]: rand::random());
+fixed_size_bench!(u64, u64_serialize, u64_deserialize => [u8; 8]: rand::random());
 
-#[bench]
-fn u8_deserialize(b: &mut Bencher) {
-    let random_u8_serialized: [u8; 4] = [rand::random(), 0, 0, 0];
-
-    b.iter(|| {
-        from_bytes::<u8>(&random_u8_serialized, None).unwrap();
-    });
-}
-
-#[bench]
-fn u32_serialize(b: &mut Bencher) {
-    let random_u32: u32 = rand::random();
-
-    b.iter(|| {
-        to_bytes(&random_u32).unwrap();
-    });
-}
-
-#[bench]
-fn u32_deserialize(b: &mut Bencher) {
-    let random_u32_serialized: [u8; 4] = rand::random();
-
-    b.iter(|| {
-        from_bytes::<u32>(&random_u32_serialized, None).unwrap();
-    });
-}
-
-#[bench]
-fn i64_serialize(b: &mut Bencher) {
-    let random_i64: i64 = rand::random();
-
-    b.iter(|| {
-        to_bytes(&random_i64).unwrap();
-    });
-}
-
-#[bench]
-fn i64_deserialize(b: &mut Bencher) {
-    let random_i64_serialized: [u8; 8] = rand::random();
-
-    b.iter(|| {
-        from_bytes::<i64>(&random_i64_serialized, None).unwrap();
-    });
-}
-
-#[bench]
-fn u64_serialize(b: &mut Bencher) {
-    let random_u64: u64 = rand::random();
-
-    b.iter(|| {
-        to_bytes(&random_u64).unwrap();
-    });
-}
-
-#[bench]
-fn u64_deserialize(b: &mut Bencher) {
-    let random_u64_serialized: [u8; 8] = rand::random();
-
-    b.iter(|| {
-        from_bytes::<u64>(&random_u64_serialized, None).unwrap();
-    });
-}
-
-#[bench]
-fn f32_serialize(b: &mut Bencher) {
-    let random_f32: f32 = rand::random();
-
-    b.iter(|| {
-        to_bytes(&random_f32).unwrap();
-    });
-}
-
-#[bench]
-fn f32_deserialize(b: &mut Bencher) {
-    let random_f32_serialized: [u8; 4] = rand::random();
-
-    b.iter(|| {
-        from_bytes::<f32>(&random_f32_serialized, None).unwrap();
-    });
-}
-
-#[bench]
-fn f64_serialize(b: &mut Bencher) {
-    let random_f64: f64 = rand::random();
-
-    b.iter(|| {
-        to_bytes(&random_f64).unwrap();
-    });
-}
-
-#[bench]
-fn f64_deserialize(b: &mut Bencher) {
-    let random_f64_serialized: [u8; 8] = rand::random();
-
-    b.iter(|| {
-        from_bytes::<f64>(&random_f64_serialized, None).unwrap();
-    });
-}
+fixed_size_bench!(f32, f32_serialize, f32_deserialize => [u8; 4]: rand::random());
+fixed_size_bench!(f64, f64_serialize, f64_deserialize => [u8; 8]: rand::random());
