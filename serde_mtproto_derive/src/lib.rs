@@ -1,18 +1,25 @@
 //! This crate provides Serde MTProto's two derive macros.
 //!
 //! ```
+//! # #[macro_use] extern crate serde_mtproto_derive;
 //! #[derive(MtProtoIdentifiable, MtProtoSized)]
+//! # #[id = "0x00000000"]
+//! # struct Stub;
+//! # fn main() {}
 //! ```
 //!
 //! # Examples
 //!
 //! ```
+//! extern crate serde_mtproto;
+//! #[macro_use]
+//! extern crate serde_mtproto_derive;
+//!
 //! #[derive(MtProtoIdentifiable, MtProtoSized)]
 //! #[id = "0xbeefdead"]
 //! struct Message {
 //!     message_id: u32,
 //!     user_id: u32,
-//!     time: DateTime<Local>,    // from `chrono` crate
 //!     text: String,
 //!     attachment: Attachment,
 //! }
@@ -23,13 +30,15 @@
 //!     Nothing,
 //!     #[id = "0xbadf00d0"]
 //!     Link {
-//!         url: Url,    // from `url` crate
+//!         url: String,
 //!     },
 //!     #[id = "0xdeafbeef"]
 //!     Repost {
 //!         message_id: u32,
 //!     },
 //! }
+//!
+//! # fn main() {}
 //! ```
 
 extern crate proc_macro;
