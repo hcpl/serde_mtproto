@@ -10,4 +10,8 @@ Cargo.lock
 **/*.rs.bk
 
 # Vim swap files
-.*.sw?
+[._]*.sw?
+[._]sw?
+
+# Temporary files
+*~
