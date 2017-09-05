@@ -12,6 +12,9 @@ keywords = ["serde", "serialization", "telegram"]
 [badges]
 travis-ci = { repository = "hcpl/serde_mtproto" }
 
+[workspace]
+members = [ "serde_mtproto_derive" ]
+
 [dependencies]
 byteorder = "1.1.0"
 error-chain = "0.10.0"
