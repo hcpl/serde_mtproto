@@ -7,7 +7,7 @@ use serde::de::{self, Deserialize, DeserializeOwned, DeserializeSeed, Visitor};
 
 use error::{self, DeErrorKind, DeSerdeType};
 use identifiable::{BOOL_FALSE_ID, BOOL_TRUE_ID};
-use utils::safe_cast;
+use utils::{safe_float_cast, safe_int_cast};
 
 
 /// A structure that deserializes  MTProto binary representation into Rust values.
@@ -78,7 +78,7 @@ macro_rules! impl_deserialize_small_int {
         {
             let value = self.reader.$big_read::<$big_endianness>()?;
             debug!("Deserialized big int: {:#x}", value);
-            let casted = safe_cast(value)?;
+            let casted = safe_int_cast(value)?;
             debug!("Casted to {}: {:#x}", stringify!($small_type), casted);
 
             visitor.$small_visit(casted)
@@ -93,19 +93,6 @@ macro_rules! impl_deserialize_big_int {
         {
             let value = self.reader.$read::<$endianness>()?;
             debug!("Deserialized {}: {:#x}", stringify!($type), value);
-
-            visitor.$visit(value)
-        }
-    };
-}
-
-macro_rules! impl_deserialize_float {
-    ($type:ty, $deserialize:ident, $read:ident::<$endianness:ident>, $visit:ident) => {
-        fn $deserialize<V>(self, visitor: V) -> error::Result<V::Value>
-            where V: Visitor<'de>
-        {
-            let value = self.reader.$read::<$endianness>()?;
-            debug!("Deserialized {}: {}", stringify!($type), value);
 
             visitor.$visit(value)
         }
@@ -153,8 +140,26 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     impl_deserialize_big_int!(u32, deserialize_u32, read_u32::<LittleEndian>, visit_u32);
     impl_deserialize_big_int!(u64, deserialize_u64, read_u64::<LittleEndian>, visit_u64);
 
-    impl_deserialize_float!(f32, deserialize_f32, read_f32::<LittleEndian>, visit_f32);
-    impl_deserialize_float!(f64, deserialize_f64, read_f64::<LittleEndian>, visit_f64);
+    fn deserialize_f32<V>(self, visitor: V) -> error::Result<V::Value>
+        where V: Visitor<'de>
+    {
+        let value = self.reader.read_f64::<LittleEndian>()?;
+        debug!("Deserialized big float: {}", value);
+
+        let casted = safe_float_cast(value)?;
+        debug!("Casted to f32: {}", casted);
+
+        visitor.visit_f32(casted)
+    }
+
+    fn deserialize_f64<V>(self, visitor: V) -> error::Result<V::Value>
+        where V: Visitor<'de>
+    {
+        let value = self.reader.read_f64::<LittleEndian>()?;
+        debug!("Deserialized f64: {}", value);
+
+        visitor.visit_f64(value)
+    }
 
     fn deserialize_char<V>(self, _visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
@@ -229,13 +234,13 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_tuple<V>(self, len: usize, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        visitor.visit_seq(SeqAccess::new(self, safe_cast(len)?))
+        visitor.visit_seq(SeqAccess::new(self, safe_int_cast(len)?))
     }
 
     fn deserialize_tuple_struct<V>(self, _name: &'static str, len: usize, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        visitor.visit_seq(SeqAccess::new(self, safe_cast(len)?))
+        visitor.visit_seq(SeqAccess::new(self, safe_int_cast(len)?))
     }
 
     fn deserialize_map<V>(self, visitor: V) -> error::Result<V::Value>
@@ -249,7 +254,7 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_struct<V>(self, _name: &'static str, fields: &'static [&'static str], visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        visitor.visit_seq(SeqAccess::new(self, safe_cast(fields.len())?))
+        visitor.visit_seq(SeqAccess::new(self, safe_int_cast(fields.len())?))
     }
 
     fn deserialize_enum<V>(self, _name: &'static str, _variants: &'static [&'static str], visitor: V) -> error::Result<V::Value>

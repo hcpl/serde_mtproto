@@ -30,6 +30,12 @@ error_chain! {
             display("error while casting an integer: {}", num)
         }
 
+        /// Error while casting a floating-point number.
+        FloatCast(num: f64) {
+            description("error while casting a floating-point number")
+            display("error while casting a floating-point number: {}", num)
+        }
+
         /// A string that cannot be serialized because it exceeds a certain length limit.
         StringTooLong(len: usize) {
             description("string is too long to serialize")

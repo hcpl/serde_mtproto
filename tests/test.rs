@@ -4,6 +4,8 @@
 extern crate lazy_static;
 #[macro_use]
 extern crate maplit;
+#[macro_use]
+extern crate pretty_assertions;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
@@ -40,6 +42,7 @@ enum Cafebabe<T: MtProtoSized> {
         data: Boxed<T>,
         //#[cfg(feature = "extprim")]
         //bignum: i128,
+        ratio: f32,
     },
     #[id = "0xbaaaaaad"]
     Baz {
@@ -62,16 +65,16 @@ lazy_static! {
     };
 
     static ref FOO_SERIALIZED_BARE: Vec<u8> = vec![
-        181, 117, 114, 153,            // id of true in little-endian
-        57, 0, 0, 0, 0, 0, 0, 0,       // 57 as little-endian 64-bit int
-        4, 56, 114, 200, 1, 0, 0, 0    // byte buffer containing 4 bytes
+        181, 117, 114, 153,             // id of true in little-endian
+        57, 0, 0, 0, 0, 0, 0, 0,        // 57 as little-endian 64-bit int
+        4, 56, 114, 200, 1, 0, 0, 0,    // byte buffer containing 4 bytes
     ];
 
     static ref FOO_SERIALIZED_BOXED: Vec<u8> = vec![
-        0xef, 0xbe, 0xad, 0xde,        // id of Foo in little-endian
-        181, 117, 114, 153,            // id of true in little-endian
-        57, 0, 0, 0, 0, 0, 0, 0,       // 57 as little-endian 64-bit int
-        4, 56, 114, 200, 1, 0, 0, 0    // byte buffer containing 4 bytes
+        0xef, 0xbe, 0xad, 0xde,         // id of Foo in little-endian
+        181, 117, 114, 153,             // id of true in little-endian
+        57, 0, 0, 0, 0, 0, 0, 0,        // 57 as little-endian 64-bit int
+        4, 56, 114, 200, 1, 0, 0, 0,    // byte buffer containing 4 bytes
     ];
 
     static ref NOTHING: Nothing = Nothing;
@@ -91,15 +94,17 @@ lazy_static! {
         //
         //#[cfg(feature = "extprim")]
         //bignum: i128::from_str("100000000000000000000000000000000000000").unwrap(),
+        ratio: 2.718281828,
     };
 
     static ref CAFEBABE_BAR_SERIALIZED_BOXED: Vec<u8> = vec![
-        0x0d, 0xf0, 0xad, 0x0b,     // id of Cafebabe::Bar in little-endian
-        236, 255, 255, 255,         // -20 as 32-bit int (MTProto doesn't support less than 32-bit)
-        94, 1, 0, 0, 0, 0, 0, 0,    // 350 as little-endian 64-bit int
-        9, 46, 2, 0,                // 142857 as little-endian 32-bit int
-        218, 155, 80, 168,          // id of int built-in MTProto type
-        0, 16, 0, 0,                // 4096 as little-endian 32-bit int
+        0x0d, 0xf0, 0xad, 0x0b,          // id of Cafebabe::Bar in little-endian
+        236, 255, 255, 255,              // -20 as 32-bit int (MTProto doesn't support less than 32-bit)
+        94, 1, 0, 0, 0, 0, 0, 0,         // 350 as little-endian 64-bit int
+        9, 46, 2, 0,                     // 142857 as little-endian 32-bit int
+        218, 155, 80, 168,               // id of int built-in MTProto type
+        0, 16, 0, 0,                     // 4096 as little-endian 32-bit int
+        0, 0, 0, 128, 10, 191, 5, 64,    // 2.718281828 as little-endian 32-bit floating point
     ];
 
     static ref CAFEBABE_BAZ: Cafebabe<Vec<bool>> = Cafebabe::Baz {

@@ -7,7 +7,7 @@ use serde::ser::{self, Serialize};
 
 use error::{self, SerErrorKind, SerSerdeType};
 use identifiable::Identifiable;
-use utils::safe_cast;
+use utils::safe_int_cast;
 
 
 /// A structure for serializing Rust values into MTProto binary representation.
@@ -84,16 +84,6 @@ macro_rules! impl_serialize_big_int {
     };
 }
 
-macro_rules! impl_serialize_float {
-    ($type:ty, $method:ident, $write:path) => {
-        fn $method(self, value: $type) -> error::Result<()> {
-            $write(&mut self.writer, value)?;
-            debug!("Serialized {}: {}", stringify!($type), value);
-            Ok(())
-        }
-    };
-}
-
 impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     where W: io::Write
 {
@@ -125,8 +115,18 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     impl_serialize_big_int!(u32, serialize_u32, WriteBytesExt::write_u32<LittleEndian>);
     impl_serialize_big_int!(u64, serialize_u64, WriteBytesExt::write_u64<LittleEndian>);
 
-    impl_serialize_float!(f32, serialize_f32, WriteBytesExt::write_f32<LittleEndian>);
-    impl_serialize_float!(f64, serialize_f64, WriteBytesExt::write_f64<LittleEndian>);
+    fn serialize_f32(self, value: f32) -> error::Result<()> {
+        // There is only one floating-point type, and it's double precision
+        WriteBytesExt::write_f64::<LittleEndian>(&mut self.writer, value as f64)?;
+        debug!("Serialized f32 as f64: {}", value);
+        Ok(())
+    }
+
+    fn serialize_f64(self, value: f64) -> error::Result<()> {
+        WriteBytesExt::write_f64::<LittleEndian>(&mut self.writer, value)?;
+        debug!("Serialized f64: {}", value);
+        Ok(())
+    }
 
     fn serialize_char(self, _value: char) -> error::Result<()> {
         bail!(SerErrorKind::UnsupportedSerdeType(SerSerdeType::Char));
@@ -191,21 +191,21 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
     fn serialize_seq(self, len: Option<usize>) -> error::Result<Self::SerializeSeq> {
         if let Some(len) = len {
-            SerializeFixedLengthSeq::with_serialize_len(self, safe_cast(len)?)
+            SerializeFixedLengthSeq::with_serialize_len(self, safe_int_cast(len)?)
         } else {
             bail!(SerErrorKind::SeqsWithUnknownLengthUnsupported);
         }
     }
 
     fn serialize_tuple(self, len: usize) -> error::Result<Self::SerializeTuple> {
-        Ok(SerializeFixedLengthSeq::new(self, safe_cast(len)?))
+        Ok(SerializeFixedLengthSeq::new(self, safe_int_cast(len)?))
     }
 
     fn serialize_tuple_struct(self,
                               _name: &'static str,
                               len: usize)
                              -> error::Result<Self::SerializeTupleStruct> {
-        Ok(SerializeFixedLengthSeq::new(self, safe_cast(len)?))
+        Ok(SerializeFixedLengthSeq::new(self, safe_int_cast(len)?))
     }
 
     fn serialize_tuple_variant(self,
@@ -214,19 +214,19 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
                                _variant: &'static str,
                                len: usize)
                               -> error::Result<Self::SerializeTupleVariant> {
-        Ok(SerializeFixedLengthSeq::new(self, safe_cast(len)?))
+        Ok(SerializeFixedLengthSeq::new(self, safe_int_cast(len)?))
     }
 
     fn serialize_map(self, len: Option<usize>) -> error::Result<Self::SerializeMap> {
         if let Some(len) = len {
-            SerializeFixedLengthMap::with_serialize_len(self, safe_cast(len)?)
+            SerializeFixedLengthMap::with_serialize_len(self, safe_int_cast(len)?)
         } else {
             bail!(SerErrorKind::MapsWithUnknownLengthUnsupported);
         }
     }
 
     fn serialize_struct(self, _name: &'static str, len: usize) -> error::Result<Self::SerializeStruct> {
-        Ok(SerializeFixedLengthSeq::new(self, safe_cast(len)?))
+        Ok(SerializeFixedLengthSeq::new(self, safe_int_cast(len)?))
     }
 
     fn serialize_struct_variant(self,
@@ -235,7 +235,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
                                 _variant: &'static str,
                                 len: usize)
                                -> error::Result<Self::SerializeStructVariant> {
-        Ok(SerializeFixedLengthSeq::new(self, safe_cast(len)?))
+        Ok(SerializeFixedLengthSeq::new(self, safe_int_cast(len)?))
     }
 }
 

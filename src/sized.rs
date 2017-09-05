@@ -38,7 +38,7 @@
 //!
 //! // "John Smith" => 1 byte length, 10 bytes data, 1 byte padding;
 //! // 2000u16 => 4 bytes;
-//! // vec![...] => 1 byte length, 4 bytes data, 3 bytes padding;
+//! // ByteBuf { ... } => 1 byte length, 4 bytes data, 3 bytes padding;
 //! // (-50, 0xffff_ffff_ffff_ffff) => 4 bytes + 8 bytes == 12 bytes;
 //! //
 //! // Total: 12 + 4 + 8 + 12 == 36 bytes
