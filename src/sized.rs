@@ -1,5 +1,73 @@
 //! `MtProtoSized` trait for any Rust data structure a predictable size of its MTProto binary
 //! representation can be computed.
+//!
+//! # Examples
+//!
+//! ```
+//! use serde_mtproto::{MtProtoSized, ByteBuf};
+//!
+//! struct Something {
+//!     name: String,
+//!     small_num: u16,
+//!     raw_data: ByteBuf,
+//!     pair: (i8, u64),
+//! }
+//!
+//! // Implement manually
+//!
+//! impl MtProtoSized for Something {
+//!     fn get_size_hint(&self) -> serde_mtproto::Result<usize> {
+//!         let mut result = 0;
+//!
+//!         result += self.name.get_size_hint()?;
+//!         result += self.small_num.get_size_hint()?;
+//!         result += self.raw_data.get_size_hint()?;
+//!         result += self.pair.get_size_hint()?;
+//!
+//!         Ok(result)
+//!     }
+//! }
+//!
+//! # fn run() -> serde_mtproto::Result<()> {
+//! let smth = Something {
+//!     name: "John Smith".to_owned(),
+//!     small_num: 2000u16,
+//!     raw_data: ByteBuf::new(vec![0xf4, 0x58, 0x2e, 0x33]),
+//!     pair: (-50, 0xffff_ffff_ffff_ffff),
+//! };
+//!
+//! // "John Smith" => 1 byte length, 10 bytes data, 1 byte padding;
+//! // 2000u16 => 4 bytes;
+//! // vec![...] => 1 byte length, 4 bytes data, 3 bytes padding;
+//! // (-50, 0xffff_ffff_ffff_ffff) => 4 bytes + 8 bytes == 12 bytes;
+//! //
+//! // Total: 12 + 4 + 8 + 12 == 36 bytes
+//!
+//! assert_eq!(36, smth.get_size_hint()?);
+//! #     Ok(())
+//! # }
+//!
+//! # fn main() { run().unwrap(); }
+//! ```
+//!
+//! Alternatively, `MtProtoSized` can be `#[derive]`d:
+//!
+//! ```
+//! #[macro_use]
+//! extern crate serde_mtproto_derive;
+//!
+//! #[derive(MtProtoSized)]
+//! struct Something {
+//!     name: String,
+//!     small_num: u16,
+//!     raw_data: Vec<u8>,
+//!     pair: (i8, u64),
+//! }
+//!
+//! # fn main() {}
+//! ```
+//!
+//! The derived implementation is the same as the one shown above.
 
 use std::cmp;
 use std::collections::{HashMap, BTreeMap};
