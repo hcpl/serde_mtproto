@@ -61,7 +61,7 @@ lazy_static! {
     static ref FOO: Foo = Foo {
         has_receiver: true,
         size: 57,
-        raw_info: ByteBuf::new(vec![56, 114, 200, 1]),
+        raw_info: ByteBuf::from(vec![56, 114, 200, 1]),
     };
 
     static ref FOO_SERIALIZED_BARE: Vec<u8> = vec![

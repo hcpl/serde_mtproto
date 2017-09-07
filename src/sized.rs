@@ -32,7 +32,7 @@
 //! let smth = Something {
 //!     name: "John Smith".to_owned(),
 //!     small_num: 2000u16,
-//!     raw_data: ByteBuf::new(vec![0xf4, 0x58, 0x2e, 0x33]),
+//!     raw_data: ByteBuf::from(vec![0xf4, 0x58, 0x2e, 0x33]),
 //!     pair: (-50, 0xffff_ffff_ffff_ffff),
 //! };
 //!
@@ -73,6 +73,8 @@ use std::cmp;
 use std::collections::{HashMap, BTreeMap};
 use std::hash::Hash;
 use std::mem;
+
+use serde_bytes::{ByteBuf, Bytes};
 
 use error::{self, ErrorKind};
 use utils::check_seq_len;
@@ -227,6 +229,38 @@ impl<K: MtProtoSized, V: MtProtoSized> MtProtoSized for BTreeMap<K, V> {
 impl MtProtoSized for () {
     fn get_size_hint(&self) -> error::Result<usize> {
         Ok(0)
+    }
+}
+
+impl<'a> MtProtoSized for Bytes<'a> {
+    fn get_size_hint(&self) -> error::Result<usize> {
+        let len = self.len();
+
+        let size = if len <= 253 {
+            (len + 1) + (4 - (len + 1) % 4) % 4
+        } else if len <= 0xff_ff_ff {
+            len + (4 - len % 4) % 4
+        } else {
+            bail!(ErrorKind::ByteSeqTooLong(len));
+        };
+
+        Ok(size)
+    }
+}
+
+impl MtProtoSized for ByteBuf {
+    fn get_size_hint(&self) -> error::Result<usize> {
+        let len = self.len();
+
+        let size = if len <= 253 {
+            (len + 1) + (4 - (len + 1) % 4) % 4
+        } else if len <= 0xff_ff_ff {
+            len + (4 - len % 4) % 4
+        } else {
+            bail!(ErrorKind::ByteSeqTooLong(len));
+        };
+
+        Ok(size)
     }
 }
 

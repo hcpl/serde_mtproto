@@ -16,6 +16,7 @@ extern crate extprim;
 extern crate log;
 extern crate num_traits;
 extern crate serde;
+extern crate serde_bytes;
 #[macro_use]
 extern crate serde_derive;
 
@@ -24,15 +25,17 @@ mod utils;
 
 pub mod boxed;
 pub mod error;
-pub mod helpers;
 pub mod identifiable;
 pub mod sized;
 pub mod ser;
 pub mod de;
 
+
+// Reexport for convenience
+pub use serde_bytes::{ByteBuf, Bytes};
+
 pub use boxed::Boxed;
 pub use error::{Error, ErrorKind, Result, ResultExt};
-pub use helpers::{ByteBuf, Bytes};
 pub use identifiable::Identifiable;
 pub use sized::MtProtoSized;
 pub use ser::{Serializer, to_bytes, to_writer};
