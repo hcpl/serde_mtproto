@@ -25,6 +25,14 @@ impl<R: io::Read> Deserializer<R> {
         }
     }
 
+    /// Consumes the `Deserializer` and returns remaining unprocessed bytes.
+    pub fn remaining_bytes(mut self) -> error::Result<Vec<u8>> {
+        let mut buf = Vec::new();
+        self.reader.read_to_end(&mut buf);
+
+        Ok(buf)
+    }
+
     fn get_str_info(&mut self) -> error::Result<(usize, usize)> {
         let first_byte = self.reader.read_u8()?;
         let len;
