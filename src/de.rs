@@ -25,10 +25,15 @@ impl<R: io::Read> Deserializer<R> {
         }
     }
 
+    /// Unwraps the `Deserializer` and returns the underlying `io::Read`.
+    pub fn into_reader(self) -> R {
+        self.reader
+    }
+
     /// Consumes the `Deserializer` and returns remaining unprocessed bytes.
     pub fn remaining_bytes(mut self) -> error::Result<Vec<u8>> {
         let mut buf = Vec::new();
-        self.reader.read_to_end(&mut buf);
+        self.reader.read_to_end(&mut buf)?;
 
         Ok(buf)
     }
@@ -73,6 +78,13 @@ impl<R: io::Read> Deserializer<R> {
         self.reader.read_exact(&mut p)?;
 
         Ok(b)
+    }
+}
+
+impl<'a> Deserializer<&'a [u8]> {
+    /// Length of unprocessed data in the byte buffer.
+    pub fn remaining_length(&self) -> usize {
+        self.reader.len()
     }
 }
 

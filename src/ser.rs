@@ -21,6 +21,11 @@ impl<W: io::Write> Serializer<W> {
         Serializer { writer: writer }
     }
 
+    /// Unwraps the `Serializer` and returns the underlying `io::Write`.
+    pub fn into_writer(self) -> W {
+        self.writer
+    }
+
     fn impl_serialize_bytes(&mut self, value: &[u8]) -> error::Result<()> {
         let len = value.len();
         let rem;
