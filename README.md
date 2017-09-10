@@ -15,10 +15,15 @@ serde_mtproto = "0.3"
 
 You may be looking for:
 
-- [MTProto API documentation](https://docs.serde.rs/serde_mtproto/)
+- [Serde MTProto API documentation](https://docs.serde.rs/serde_mtproto/)
 - [Serde API documentation](https://docs.serde.rs/serde/)
 - [Detailed documentation about Serde](https://serde.rs/)
 - [Setting up `#[derive(Serialize, Deserialize)]`](https://serde.rs/codegen.html)
+
+
+## Changelog
+
+Maintained in [CHANGELOG.md](https://github.com/hcpl/serde_mtproto/CHANGELOG.md).
 
 
 ## License
