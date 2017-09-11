@@ -1,5 +1,8 @@
 # Changelog
 
+All notable changes to this project will be documented in this file.
+This project adheres to [Semantic Versioning](http://semver.org/).
+
 
 ## [Unreleased]
 
@@ -26,6 +29,7 @@
 
 ### Fixed
 
+- Size prediction for strings and byte sequences.
 - A bug in `#[derive(MtProtoSized)]`
 - Size prediction for 2-tuples.
 - `ErrorKind::IntegerCast` now holds an `u64` value which failed to cast.
@@ -110,3 +114,10 @@
 - `Identifiable` trait for types that have an id in MtProto type system.
 - `from_bytes`, `from_reader`, `to_bytes` and `to_reader` convenience functions along with their `*_identifiable` counterparts.
 - `#[derive(MtProtoIdentifiable)]` for structs and enums.
+
+
+[Unreleased]: https://github.com/hcpl/serde_mtproto/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/hcpl/serde_mtproto/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/hcpl/serde_mtproto/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/hcpl/serde_mtproto/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/hcpl/serde_mtproto/tree/v0.1.0

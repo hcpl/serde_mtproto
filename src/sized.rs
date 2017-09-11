@@ -103,6 +103,7 @@ pub trait MtProtoSized {
     fn get_size_hint(&self) -> error::Result<usize>;
 }
 
+
 impl<'a, T: MtProtoSized> MtProtoSized for &'a T {
     fn get_size_hint(&self) -> error::Result<usize> {
         (*self).get_size_hint()
@@ -148,25 +149,34 @@ impl_mt_proto_sized_for_primitives! {
     ::extprim::u128::u128 => INT128_SIZE,
 }
 
+
+/// Helper function for everything natually representable as a byte sequence.
+fn byte_seq_size_hint(b: &[u8]) -> error::Result<usize> {
+    let len = b.len();
+
+    let (len_info, data, padding) = if len <= 253 {
+        (1, len, (4 - (len + 1) % 4) % 4)
+    } else if len <= 0xff_ff_ff {
+        (4, len, (4 - len % 4) % 4)
+    } else {
+        bail!(ErrorKind::StringTooLong(len));
+    };
+
+    let size = len_info + data + padding;
+    assert!(size % 4 == 0);
+
+    Ok(size)
+}
+
 impl<'a> MtProtoSized for &'a str {
     fn get_size_hint(&self) -> error::Result<usize> {
-        let len = self.len();
-
-        let size = if len <= 253 {
-            (len + 1) + (4 - (len + 1) % 4) % 4
-        } else if len <= 0xff_ff_ff {
-            len + (4 - len % 4) % 4
-        } else {
-            bail!(ErrorKind::StringTooLong(len));
-        };
-
-        Ok(size)
+        byte_seq_size_hint(self.as_bytes())
     }
 }
 
 impl MtProtoSized for String {
     fn get_size_hint(&self) -> error::Result<usize> {
-        self.as_str().get_size_hint()
+        byte_seq_size_hint(self.as_bytes())
     }
 }
 
@@ -234,33 +244,13 @@ impl MtProtoSized for () {
 
 impl<'a> MtProtoSized for Bytes<'a> {
     fn get_size_hint(&self) -> error::Result<usize> {
-        let len = self.len();
-
-        let size = if len <= 253 {
-            (len + 1) + (4 - (len + 1) % 4) % 4
-        } else if len <= 0xff_ff_ff {
-            len + (4 - len % 4) % 4
-        } else {
-            bail!(ErrorKind::ByteSeqTooLong(len));
-        };
-
-        Ok(size)
+        byte_seq_size_hint(self)
     }
 }
 
 impl MtProtoSized for ByteBuf {
     fn get_size_hint(&self) -> error::Result<usize> {
-        let len = self.len();
-
-        let size = if len <= 253 {
-            (len + 1) + (4 - (len + 1) % 4) % 4
-        } else if len <= 0xff_ff_ff {
-            len + (4 - len % 4) % 4
-        } else {
-            bail!(ErrorKind::ByteSeqTooLong(len));
-        };
-
-        Ok(size)
+        byte_seq_size_hint(self)
     }
 }
 
