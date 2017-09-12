@@ -455,6 +455,19 @@ pub fn to_bytes<T>(value: &T) -> error::Result<Vec<u8>>
     Ok(ser.writer)
 }
 
+/// Serialize bytes with padding to 16 bytes as a byte vector of binary MTProto.
+pub fn unsized_bytes_pad_to_bytes(value: &[u8]) -> error::Result<Vec<u8>> {
+    let padding = (16 - value.len() % 16) % 16;
+    let mut result = Vec::with_capacity(value.len() + padding);
+
+    result.extend(value);
+    for _ in 0..padding {
+        result.push(0);
+    }
+
+    Ok(result)
+}
+
 /// Serialize the given data structure as binary MTProto into the IO stream.
 pub fn to_writer<W, T>(writer: W, value: &T) -> error::Result<()>
     where W: io::Write,
@@ -462,6 +475,20 @@ pub fn to_writer<W, T>(writer: W, value: &T) -> error::Result<()>
 {
     let mut ser = Serializer::new(writer);
     value.serialize(&mut ser)?;
+
+    Ok(())
+}
+
+/// Serialize bytes with padding to 16 bytes into the IO stream.
+pub fn unsized_bytes_pad_to_writer<W>(mut writer: W, value: &[u8]) -> error::Result<()>
+    where W: io::Write
+{
+    let padding = (16 - value.len() % 16) % 16;
+
+    writer.write_all(value)?;
+    for _ in 0..padding {
+        writer.write_u8(0)?;
+    }
 
     Ok(())
 }

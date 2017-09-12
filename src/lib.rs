@@ -38,5 +38,5 @@ pub use boxed::Boxed;
 pub use error::{Error, ErrorKind, Result, ResultExt};
 pub use identifiable::Identifiable;
 pub use sized::MtProtoSized;
-pub use ser::{Serializer, to_bytes, to_writer};
+pub use ser::{Serializer, to_bytes, to_writer, unsized_bytes_pad_to_bytes, unsized_bytes_pad_to_writer};
 pub use de::{Deserializer, from_bytes, from_bytes_reuse, from_reader, from_reader_reuse};
