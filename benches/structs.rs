@@ -12,7 +12,7 @@ extern crate test;
 
 
 use rand::{Rand, Rng};
-use serde_mtproto::{to_bytes, from_bytes};
+use serde_mtproto::{MtProtoSized, to_bytes, to_writer, from_bytes};
 use test::Bencher;
 
 
@@ -23,7 +23,7 @@ fn random_string<R: Rng>(rng: &mut R, words_count: (usize, usize)) -> String {
 }
 
 
-#[derive(Serialize, Deserialize, MtProtoIdentifiable)]
+#[derive(Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
 #[id = "0xd594ba98"]
 struct Foo {
     bar: bool,
@@ -50,9 +50,10 @@ fn foo_serialize(b: &mut Bencher) {
         s: "Hello, world!".to_owned(),
         group: (-500, 0xffff_ffff_ffff, -64),
     };
+    let mut v = vec![0; foo.get_size_hint().unwrap()];
 
     b.iter(|| {
-        to_bytes(&foo).unwrap();
+        to_writer(v.as_mut_slice(), &foo).unwrap();
     });
 }
 
@@ -74,9 +75,10 @@ fn foo_deserialize(b: &mut Bencher) {
 #[bench]
 fn random_foo_serialize(b: &mut Bencher) {
     let random_foo: Foo = rand::random();
+    let mut v = vec![0; random_foo.get_size_hint().unwrap()];
 
     b.iter(|| {
-        to_bytes(&random_foo).unwrap();
+        to_writer(v.as_mut_slice(), &random_foo).unwrap();
     });
 }
 
