@@ -11,6 +11,7 @@ cache: cargo
 script:
   - cargo build --verbose --all --features "${FEATURES}"
   - cargo test --verbose --all --features "${FEATURES}"
+  - [ "${TRAVIS_RUST_VERSION}" = nightly ] && cargo bench --no-run --all --features "${FEATURES}"
 
 env:
   - FEATURES=""
