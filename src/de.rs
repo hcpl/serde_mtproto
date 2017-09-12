@@ -439,6 +439,18 @@ pub fn from_bytes<'a, T>(bytes: &'a [u8], enum_variant_id: Option<&'static str>)
     Ok(value)
 }
 
+/// Deserialize an instance of type `T` from bytes of binary MTProto and return unused bytes.
+pub fn from_bytes_reuse<'a, T>(bytes: &'a [u8],
+                               enum_variant_id: Option<&'static str>)
+                              -> error::Result<(T, &'a [u8])>
+    where T: Deserialize<'a>
+{
+    let mut de = Deserializer::new(bytes, enum_variant_id);
+    let value: T = Deserialize::deserialize(&mut de)?;
+
+    Ok((value, de.reader))
+}
+
 /// Deserialize an instance of type `T` from an IO stream of binary MTProto.
 pub fn from_reader<R, T>(reader: R, enum_variant_id: Option<&'static str>) -> error::Result<T>
     where R: io::Read,
@@ -448,4 +460,18 @@ pub fn from_reader<R, T>(reader: R, enum_variant_id: Option<&'static str>) -> er
     let value: T = Deserialize::deserialize(&mut de)?;
 
     Ok(value)
+}
+
+/// Deserialize an instance of type `T` from an IO stream of binary MTProto and return unused part
+/// of IO stream.
+pub fn from_reader_reuse<R, T>(reader: R,
+                               enum_variant_id: Option<&'static str>)
+                              -> error::Result<(T, R)>
+    where R: io::Read,
+          T: DeserializeOwned,
+{
+    let mut de = Deserializer::new(reader, enum_variant_id);
+    let value: T = Deserialize::deserialize(&mut de)?;
+
+    Ok((value, de.reader))
 }

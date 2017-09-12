@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- `from_bytes_reuse` and `from_reader_reuse` which return the derialized value coupled with the bytes reference/reader at the point where deserialization stopped respectively. This allows to use the leftover data afterwards.
 - `impl MtProtoSized` for `extprim::i128::u128`, `extprim::u128::u128` and tuples up to arity 12 (like standard library does)
 - Benchmarks for primitives, strings, custom types and `extprim` 128-bit types.
 - Doctests.
