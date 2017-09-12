@@ -17,7 +17,7 @@ macro_rules! bench_string {
         #[bench]
         fn $ser(b: &mut Bencher) {
             let string = $init_value;
-            let mut v: Vec<u8> = vec![0; string.get_size_hint().unwrap()];
+            let mut v = vec![0; string.get_size_hint().unwrap()];
 
             b.iter(|| {
                 to_writer(v.as_mut_slice(), &string).unwrap();
