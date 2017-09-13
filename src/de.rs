@@ -331,6 +331,10 @@ impl<'de, 'a, R> de::SeqAccess<'de> for SeqAccess<'a, R>
 
         seed.deserialize(&mut *self.de).map(Some)
     }
+
+    fn size_hint(&self) -> Option<usize> {
+        safe_int_cast(self.len - self.next_index).ok()
+    }
 }
 
 
@@ -371,6 +375,10 @@ impl<'de, 'a, R> de::MapAccess<'de> for MapAccess<'a, R>
         where V: DeserializeSeed<'de>
     {
         seed.deserialize(&mut *self.de)
+    }
+
+    fn size_hint(&self) -> Option<usize> {
+        safe_int_cast(self.len - self.next_index).ok()
     }
 }
 
