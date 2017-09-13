@@ -240,7 +240,7 @@ macro_rules! test_suite {
 
         #[test]
         fn $size_prediction() {
-            let predicted_len = $SER_VAR.get_size_hint().unwrap();
+            let predicted_len = $SER_VAR.size_hint().unwrap();
 
             assert_eq!(predicted_len, $VAR_SERIALIZED.len());
         }

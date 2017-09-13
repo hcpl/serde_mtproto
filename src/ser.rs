@@ -105,8 +105,8 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
 
     fn serialize_bool(self, value: bool) -> error::Result<()> {
-        self.writer.write_i32::<LittleEndian>(value.get_id())?;
-        debug!("Serialized bool: {} => {:#x}", value, value.get_id());
+        self.writer.write_i32::<LittleEndian>(value.type_id())?;
+        debug!("Serialized bool: {} => {:#x}", value, value.type_id());
         Ok(())
     }
 

@@ -8,7 +8,7 @@ pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> quote::Tokens {
 
     let dummy_const = Ident::new(format!("_IMPL_MT_PROTO_IDENTIFIABLE_FOR_{}", item_name));
 
-    let get_id_body = match ast.body {
+    let type_id_body = match ast.body {
         Body::Struct(_) => {
             let id = get_id_from_attrs(&ast.attrs);
 
@@ -37,7 +37,7 @@ pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> quote::Tokens {
         }
     };
 
-    let get_enum_variant_id_body = match ast.body {
+    let enum_variant_id_body = match ast.body {
         Body::Struct(_) => {
             quote! {
                 None
@@ -73,12 +73,12 @@ pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> quote::Tokens {
             impl #item_impl_generics _serde_mtproto::Identifiable for #item_name #item_ty_generics
                 #item_where_clause
             {
-                fn get_id(&self) -> i32 {
-                    #get_id_body
+                fn type_id(&self) -> i32 {
+                    #type_id_body
                 }
 
-                fn get_enum_variant_id(&self) -> Option<&'static str> {
-                    #get_enum_variant_id_body
+                fn enum_variant_id(&self) -> Option<&'static str> {
+                    #enum_variant_id_body
                 }
             }
         };

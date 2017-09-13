@@ -8,7 +8,7 @@ pub fn impl_mt_proto_sized(ast: &DeriveInput) -> quote::Tokens {
 
     let dummy_const = Ident::new(format!("_IMPL_MT_PROTO_SIZED_FOR_{}", item_name));
 
-    let get_size_hint_body = match ast.body {
+    let size_hint_body = match ast.body {
         Body::Struct(ref data) => {
             let mut fields_quoted = quote! { 0 };
 
@@ -18,7 +18,7 @@ pub fn impl_mt_proto_sized(ast: &DeriveInput) -> quote::Tokens {
                         let field_name = &field.ident;
 
                         fields_quoted.append(quote! {
-                            + _serde_mtproto::MtProtoSized::get_size_hint(&self.#field_name)?
+                            + _serde_mtproto::MtProtoSized::size_hint(&self.#field_name)?
                         });
                     }
                 }
@@ -26,7 +26,7 @@ pub fn impl_mt_proto_sized(ast: &DeriveInput) -> quote::Tokens {
                 VariantData::Tuple(ref fields) => {
                     for (i, _) in fields.iter().enumerate() {
                         fields_quoted.append(quote! {
-                            + _serde_mtproto::MtProtoSized::get_size_hint(&self.#i)?
+                            + _serde_mtproto::MtProtoSized::size_hint(&self.#i)?
                         });
                     }
                 }
@@ -58,7 +58,7 @@ pub fn impl_mt_proto_sized(ast: &DeriveInput) -> quote::Tokens {
                             pattern_matches.push(quote! { ref #field_name });
 
                             fields_quoted.append(quote! {
-                                + _serde_mtproto::MtProtoSized::get_size_hint(#field_name)?
+                                + _serde_mtproto::MtProtoSized::size_hint(#field_name)?
                             });
                         }
 
@@ -76,7 +76,7 @@ pub fn impl_mt_proto_sized(ast: &DeriveInput) -> quote::Tokens {
                             pattern_matches.push(quote! { ref #field_name });
 
                             fields_quoted.append(quote! {
-                                + _serde_mtproto::MtProtoSized::get_size_hint(#field_name)?
+                                + _serde_mtproto::MtProtoSized::size_hint(#field_name)?
                             });
                         }
 
@@ -113,8 +113,8 @@ pub fn impl_mt_proto_sized(ast: &DeriveInput) -> quote::Tokens {
             impl #item_impl_generics _serde_mtproto::MtProtoSized for #item_name #item_ty_generics
                 #item_where_clause
             {
-                fn get_size_hint(&self) -> _serde_mtproto::Result<usize> {
-                    #get_size_hint_body
+                fn size_hint(&self) -> _serde_mtproto::Result<usize> {
+                    #size_hint_body
                 }
             }
         };

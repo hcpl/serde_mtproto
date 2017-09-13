@@ -16,13 +16,13 @@
 //! // Implement manually
 //!
 //! impl MtProtoSized for Something {
-//!     fn get_size_hint(&self) -> serde_mtproto::Result<usize> {
+//!     fn size_hint(&self) -> serde_mtproto::Result<usize> {
 //!         let mut result = 0;
 //!
-//!         result += self.name.get_size_hint()?;
-//!         result += self.small_num.get_size_hint()?;
-//!         result += self.raw_data.get_size_hint()?;
-//!         result += self.pair.get_size_hint()?;
+//!         result += self.name.size_hint()?;
+//!         result += self.small_num.size_hint()?;
+//!         result += self.raw_data.size_hint()?;
+//!         result += self.pair.size_hint()?;
 //!
 //!         Ok(result)
 //!     }
@@ -43,7 +43,7 @@
 //! //
 //! // Total: 12 + 4 + 8 + 12 == 36 bytes
 //!
-//! assert_eq!(36, smth.get_size_hint()?);
+//! assert_eq!(36, smth.size_hint()?);
 //! #     Ok(())
 //! # }
 //!
@@ -100,13 +100,13 @@ pub trait MtProtoSized {
     ///
     /// Returns an `error::Result` because not any value can be serialized (e.g. strings and
     /// sequences that are too long).
-    fn get_size_hint(&self) -> error::Result<usize>;
+    fn size_hint(&self) -> error::Result<usize>;
 }
 
 
 impl<'a, T: MtProtoSized> MtProtoSized for &'a T {
-    fn get_size_hint(&self) -> error::Result<usize> {
-        (*self).get_size_hint()
+    fn size_hint(&self) -> error::Result<usize> {
+        (*self).size_hint()
     }
 }
 
@@ -115,7 +115,7 @@ macro_rules! impl_mt_proto_sized_for_primitives {
 
     ($type:ty => $size:expr, $($rest:tt)*) => {
         impl MtProtoSized for $type {
-            fn get_size_hint(&self) -> error::Result<usize> {
+            fn size_hint(&self) -> error::Result<usize> {
                 Ok($size)
             }
         }
@@ -169,26 +169,26 @@ fn byte_seq_size_hint(b: &[u8]) -> error::Result<usize> {
 }
 
 impl<'a> MtProtoSized for &'a str {
-    fn get_size_hint(&self) -> error::Result<usize> {
+    fn size_hint(&self) -> error::Result<usize> {
         byte_seq_size_hint(self.as_bytes())
     }
 }
 
 impl MtProtoSized for String {
-    fn get_size_hint(&self) -> error::Result<usize> {
+    fn size_hint(&self) -> error::Result<usize> {
         byte_seq_size_hint(self.as_bytes())
     }
 }
 
 impl<'a, T: MtProtoSized> MtProtoSized for &'a [T] {
-    fn get_size_hint(&self) -> error::Result<usize> {
+    fn size_hint(&self) -> error::Result<usize> {
         // If len >= 2 ** 32, it's not serializable at all.
         check_seq_len(self.len())?;
 
         let mut result = 4;    // 4 for slice length
 
         for elem in self.iter() {
-            result += elem.get_size_hint()?;
+            result += elem.size_hint()?;
         }
 
         Ok(result)
@@ -196,8 +196,8 @@ impl<'a, T: MtProtoSized> MtProtoSized for &'a [T] {
 }
 
 impl<T: MtProtoSized> MtProtoSized for Vec<T> {
-    fn get_size_hint(&self) -> error::Result<usize> {
-        self.as_slice().get_size_hint()
+    fn size_hint(&self) -> error::Result<usize> {
+        self.as_slice().size_hint()
     }
 }
 
@@ -205,15 +205,15 @@ impl<K, V> MtProtoSized for HashMap<K, V>
     where K: Eq + Hash + MtProtoSized,
           V: MtProtoSized,
 {
-    fn get_size_hint(&self) -> error::Result<usize> {
+    fn size_hint(&self) -> error::Result<usize> {
         // If len >= 2 ** 32, it's not serializable at all.
         check_seq_len(self.len())?;
 
         let mut result = 4;    // 4 for map length
 
         for (k, v) in self.iter() {
-            result += k.get_size_hint()?;
-            result += v.get_size_hint()?;
+            result += k.size_hint()?;
+            result += v.size_hint()?;
         }
 
         Ok(result)
@@ -221,15 +221,15 @@ impl<K, V> MtProtoSized for HashMap<K, V>
 }
 
 impl<K: MtProtoSized, V: MtProtoSized> MtProtoSized for BTreeMap<K, V> {
-    fn get_size_hint(&self) -> error::Result<usize> {
+    fn size_hint(&self) -> error::Result<usize> {
         // If len >= 2 ** 32, it's not serializable at all.
         check_seq_len(self.len())?;
 
         let mut result = 4;    // 4 for map length
 
         for (k, v) in self.iter() {
-            result += k.get_size_hint()?;
-            result += v.get_size_hint()?;
+            result += k.size_hint()?;
+            result += v.size_hint()?;
         }
 
         Ok(result)
@@ -237,19 +237,19 @@ impl<K: MtProtoSized, V: MtProtoSized> MtProtoSized for BTreeMap<K, V> {
 }
 
 impl MtProtoSized for () {
-    fn get_size_hint(&self) -> error::Result<usize> {
+    fn size_hint(&self) -> error::Result<usize> {
         Ok(0)
     }
 }
 
 impl<'a> MtProtoSized for Bytes<'a> {
-    fn get_size_hint(&self) -> error::Result<usize> {
+    fn size_hint(&self) -> error::Result<usize> {
         byte_seq_size_hint(self)
     }
 }
 
 impl MtProtoSized for ByteBuf {
-    fn get_size_hint(&self) -> error::Result<usize> {
+    fn size_hint(&self) -> error::Result<usize> {
         byte_seq_size_hint(self)
     }
 }
@@ -257,10 +257,10 @@ impl MtProtoSized for ByteBuf {
 macro_rules! impl_mt_proto_sized_for_tuple {
     ($($ident:ident : $ty:ident ,)*) => {
         impl<$($ty: MtProtoSized),*> MtProtoSized for ($($ty,)*) {
-            fn get_size_hint(&self) -> error::Result<usize> {
+            fn size_hint(&self) -> error::Result<usize> {
                 let mut result = 0;
                 let &($(ref $ident,)*) = self;
-                $( result += $ident.get_size_hint()?; )*
+                $( result += $ident.size_hint()?; )*
                 Ok(result)
             }
         }
@@ -287,18 +287,18 @@ impl_mt_proto_sized_for_tuple! { x1: T1, x2: T2, x3: T3, x4: T4, x5: T5, x6: T6,
 macro_rules! impl_mt_proto_sized_for_arrays {
     (0) => {
         impl<T> MtProtoSized for [T; 0] {
-            fn get_size_hint(&self) -> error::Result<usize> {
+            fn size_hint(&self) -> error::Result<usize> {
                 Ok(0)
             }
         }
     };
     ($size:expr) => {
         impl<T: MtProtoSized> MtProtoSized for [T; $size] {
-            fn get_size_hint(&self) -> error::Result<usize> {
+            fn size_hint(&self) -> error::Result<usize> {
                 let mut result = 0;
 
                 for elem in self {
-                    result += elem.get_size_hint()?;
+                    result += elem.size_hint()?;
                 }
 
                 Ok(result)

@@ -17,7 +17,7 @@ impl<T: Identifiable> Boxed<T> {
     /// Wrap a value along with its id.
     pub fn new(inner: T) -> Boxed<T> {
         Boxed {
-            id: inner.get_id(),
+            id: inner.type_id(),
             inner: inner,
         }
     }
@@ -39,9 +39,9 @@ impl<T: Identifiable> Boxed<T> {
 }
 
 impl<T: MtProtoSized> MtProtoSized for Boxed<T> {
-    fn get_size_hint(&self) -> error::Result<usize> {
-        let id_size_hint = self.id.get_size_hint()?;
-        let inner_size_hint = self.inner.get_size_hint()?;
+    fn size_hint(&self) -> error::Result<usize> {
+        let id_size_hint = self.id.size_hint()?;
+        let inner_size_hint = self.inner.size_hint()?;
 
         Ok(id_size_hint + inner_size_hint)
     }

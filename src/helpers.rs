@@ -119,7 +119,7 @@ impl<'de> DeserializeSeed<'de> for UnsizedByteBufSeed {
 }
 
 impl MtProtoSized for UnsizedByteBuf {
-    fn get_size_hint(&self) -> error::Result<usize> {
+    fn size_hint(&self) -> error::Result<usize> {
         Ok(self.inner.len() + (16 - self.inner.len() % 16) % 16)
     }
 }
