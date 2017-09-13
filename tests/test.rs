@@ -7,6 +7,7 @@ extern crate maplit;
 #[macro_use]
 extern crate pretty_assertions;
 extern crate serde;
+extern crate serde_bytes;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_mtproto as serde_mtproto_other_name;    // Tests `serde_mtproto_derive`
@@ -18,7 +19,9 @@ use std::collections::BTreeMap;
 
 //#[cfg(feature = "extprim")]
 //use extprim::i128::i128;
-use serde_mtproto_other_name::{Boxed, ByteBuf, MtProtoSized, to_bytes, to_writer, from_bytes, from_reader};
+use serde::de::{Deserializer, DeserializeSeed};
+use serde_bytes::ByteBuf;
+use serde_mtproto_other_name::{Boxed, MtProtoSized, UnsizedByteBuf, UnsizedByteBufSeed, to_bytes, to_writer, from_bytes, from_reader};
 
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
@@ -27,6 +30,33 @@ struct Foo {
     has_receiver: bool,
     size: usize,
     raw_info: ByteBuf,
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
+#[id = "0x80808080"]
+struct Message {
+    auth_key_id: i64,
+    msg_key: [u32; 4],
+    #[serde(deserialize_with = "deserialize_message")]
+    encrypted_data: UnsizedByteBuf,
+}
+
+fn deserialize_message<'de, D>(deserializer: D) -> Result<UnsizedByteBuf, D::Error>
+    where D: Deserializer<'de>
+{
+    UnsizedByteBufSeed::new(19).deserialize(deserializer)
+}
+
+fn pad(bytes: &[u8]) -> Vec<u8> {
+    let padding = (16 - bytes.len() % 16) % 16;
+    let mut byte_buf = Vec::with_capacity(bytes.len() + padding);
+    byte_buf.extend_from_slice(bytes);
+
+    for _ in 0..padding {
+        byte_buf.push(0);
+    }
+
+    byte_buf
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
@@ -75,6 +105,29 @@ lazy_static! {
         181, 117, 114, 153,             // id of true in little-endian
         57, 0, 0, 0, 0, 0, 0, 0,        // 57 as little-endian 64-bit int
         4, 56, 114, 200, 1, 0, 0, 0,    // byte buffer containing 4 bytes
+    ];
+
+    static ref MESSAGE: Message = Message {
+        auth_key_id: -0x7edcba9876543210,
+        msg_key: [3230999370, 1546177172, 3106848747, 2091612143],
+        encrypted_data: UnsizedByteBuf::new(pad(&vec![0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18])),
+    };
+
+    static ref MESSAGE_SERIALIZED_BARE: Vec<u8> = vec![
+        0xf0, 0xcd, 0xab, 0x89, 0x67, 0x45, 0x23, 0x81,
+        0x4a, 0x23, 0x95, 0xc0, 0x94, 0xca, 0x28, 0x5c,
+        0xeb, 0xbf, 0x2e, 0xb9, 0xef, 0x77, 0xab, 0x7c,
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+        16, 17, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    ];
+
+    static ref MESSAGE_SERIALIZED_BOXED: Vec<u8> = vec![
+        0x80, 0x80, 0x80, 0x80,
+        0xf0, 0xcd, 0xab, 0x89, 0x67, 0x45, 0x23, 0x81,
+        0x4a, 0x23, 0x95, 0xc0, 0x94, 0xca, 0x28, 0x5c,
+        0xeb, 0xbf, 0x2e, 0xb9, 0xef, 0x77, 0xab, 0x7c,
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+        16, 17, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     ];
 
     static ref NOTHING: Nothing = Nothing;
@@ -222,6 +275,80 @@ fn test_struct_size_prediction_boxed() {
     let predicted_len = Boxed::new(&*FOO).get_size_hint().unwrap();
 
     assert_eq!(predicted_len, FOO_SERIALIZED_BOXED.len());
+}
+
+
+#[test]
+fn test_struct_to_bytes_bare2() {
+    let vec = to_bytes(&*MESSAGE).unwrap();
+
+    assert_eq!(vec, *MESSAGE_SERIALIZED_BARE);
+}
+
+#[test]
+fn test_struct_to_writer_bare2() {
+    let mut vec = Vec::new();
+    to_writer(&mut vec, &*MESSAGE).unwrap();
+
+    assert_eq!(vec, *MESSAGE_SERIALIZED_BARE);
+}
+
+#[test]
+fn test_struct_from_bytes_bare2() {
+    let message_deserialized: Message = from_bytes(&*MESSAGE_SERIALIZED_BARE, None).unwrap();
+
+    assert_eq!(message_deserialized, *MESSAGE);
+}
+
+#[test]
+fn test_struct_from_reader_bare2() {
+    let message_deserialized: Message = from_reader(MESSAGE_SERIALIZED_BARE.as_slice(), None).unwrap();
+
+    assert_eq!(message_deserialized, *MESSAGE);
+}
+
+#[test]
+fn test_struct_size_prediction_bare2() {
+    let predicted_len = MESSAGE.get_size_hint().unwrap();
+
+    assert_eq!(predicted_len, MESSAGE_SERIALIZED_BARE.len());
+}
+
+
+#[test]
+fn test_struct_to_bytes_boxed2() {
+    let vec = to_bytes(&Boxed::new(&*MESSAGE)).unwrap();
+
+    assert_eq!(vec, *MESSAGE_SERIALIZED_BOXED);
+}
+
+#[test]
+fn test_struct_to_writer_boxed2() {
+    let mut vec = Vec::new();
+    to_writer(&mut vec, &Boxed::new(&*MESSAGE)).unwrap();
+
+    assert_eq!(vec, *MESSAGE_SERIALIZED_BOXED);
+}
+
+#[test]
+fn test_struct_from_bytes_boxed2() {
+    let message_deserialized_boxed: Boxed<Message> = from_bytes(&*MESSAGE_SERIALIZED_BOXED, None).unwrap();
+
+    assert_eq!(message_deserialized_boxed.into_inner(), *MESSAGE);
+}
+
+#[test]
+fn test_struct_from_reader_boxed2() {
+    let message_deserialized_boxed: Boxed<Message> = from_reader(MESSAGE_SERIALIZED_BOXED.as_slice(), None).unwrap();
+
+    assert_eq!(message_deserialized_boxed.into_inner(), *MESSAGE);
+}
+
+#[test]
+fn test_struct_size_prediction_boxed2() {
+    let predicted_len = Boxed::new(&*MESSAGE).get_size_hint().unwrap();
+
+    assert_eq!(predicted_len, MESSAGE_SERIALIZED_BOXED.len());
 }
 
 

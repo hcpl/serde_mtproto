@@ -11,6 +11,7 @@ use sized::MtProtoSized;
 
 
 /// A byte buffer which doesn'y write its length when serialized.
+#[derive(Debug, PartialEq)]
 pub struct UnsizedByteBuf {
     inner: Vec<u8>,
 }
@@ -110,8 +111,10 @@ impl<'de> DeserializeSeed<'de> for UnsizedByteBufSeed {
             }
         }
 
+        let padded_len = self.inner_len + (16 - self.inner_len % 16) % 16;
+
         // FIXME: use safe cast here
-        deserializer.deserialize_tuple(self.inner_len as usize / 8, UnsizedByteBufVisitor)
+        deserializer.deserialize_tuple(padded_len as usize / 8, UnsizedByteBufVisitor)
     }
 }
 
