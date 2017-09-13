@@ -295,8 +295,13 @@ macro_rules! impl_mt_proto_sized_for_arrays {
     ($size:expr) => {
         impl<T: MtProtoSized> MtProtoSized for [T; $size] {
             fn get_size_hint(&self) -> error::Result<usize> {
-                let elem_size = self[0].get_size_hint()?;
-                Ok(elem_size * $size)
+                let mut result = 0;
+
+                for elem in self {
+                    result += elem.get_size_hint()?;
+                }
+
+                Ok(result)
             }
         }
     };
