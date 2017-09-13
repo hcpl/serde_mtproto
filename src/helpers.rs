@@ -6,6 +6,9 @@ use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use serde::de::{self, Deserializer, DeserializeSeed, Visitor};
 use serde::ser::{Serialize, Serializer, SerializeTuple};
 
+use error;
+use sized::MtProtoSized;
+
 
 /// A byte buffer which doesn'y write its length when serialized.
 pub struct UnsizedByteBuf {
@@ -113,7 +116,7 @@ impl<'de> DeserializeSeed<'de> for UnsizedByteBufSeed {
 }
 
 impl MtProtoSized for UnsizedByteBuf {
-    fn get_size_hint(&self) -> error:Result<usize> {
-        Ok(self.len() + (16 - self.len() % 16) % 16)
+    fn get_size_hint(&self) -> error::Result<usize> {
+        Ok(self.inner.len() + (16 - self.inner.len() % 16) % 16)
     }
 }

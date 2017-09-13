@@ -37,7 +37,7 @@ pub use serde_bytes::{ByteBuf, Bytes};
 
 pub use boxed::Boxed;
 pub use error::{Error, ErrorKind, Result, ResultExt};
-pub use helpers::UnsizedByteBuf;
+pub use helpers::{UnsizedByteBuf, UnsizedByteBufSeed};
 pub use identifiable::Identifiable;
 pub use sized::MtProtoSized;
 pub use ser::{Serializer, to_bytes, to_writer, unsized_bytes_pad_to_bytes, unsized_bytes_pad_to_writer};
