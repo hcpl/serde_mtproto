@@ -264,7 +264,7 @@ macro_rules! impl_mt_proto_sized_for_tuple {
                 Ok(result)
             }
         }
-    }
+    };
 }
 
 impl_mt_proto_sized_for_tuple! { x1: T1, }
@@ -283,3 +283,28 @@ impl_mt_proto_sized_for_tuple! { x1: T1, x2: T2, x3: T3, x4: T4, x5: T5, x6: T6,
                                  x9: T9, x10: T10, x11: T11, }
 impl_mt_proto_sized_for_tuple! { x1: T1, x2: T2, x3: T3, x4: T4, x5: T5, x6: T6, x7: T7, x8: T8,
                                  x9: T9, x10: T10, x11: T11, x12: T12, }
+
+macro_rules! impl_mt_proto_sized_for_arrays {
+    (0) => {
+        impl<T> MtProtoSized for [T; 0] {
+            fn get_size_hint(&self) -> error::Result<usize> {
+                Ok(0)
+            }
+        }
+    };
+    ($size:expr) => {
+        impl<T: MtProtoSized> MtProtoSized for [T; $size] {
+            fn get_size_hint(&self) -> error::Result<usize> {
+                let elem_size = self[0].get_size_hint()?;
+                Ok(elem_size * $size)
+            }
+        }
+    };
+    ($size:expr, $($rest:tt)*) => {
+        impl_mt_proto_sized_for_arrays!($size);
+        impl_mt_proto_sized_for_arrays!($($rest)*);
+    };
+}
+
+impl_mt_proto_sized_for_arrays!(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+                                19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32);
