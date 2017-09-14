@@ -111,18 +111,17 @@ impl<'a, T: MtProtoSized> MtProtoSized for &'a T {
 }
 
 macro_rules! impl_mt_proto_sized_for_primitives {
-    () => {};
-
-    ($type:ty => $size:expr, $($rest:tt)*) => {
-        impl MtProtoSized for $type {
-            fn size_hint(&self) -> error::Result<usize> {
-                Ok($size)
+    ($($type:ty => $size:expr,)*) => {
+        $(
+            impl MtProtoSized for $type {
+                fn size_hint(&self) -> error::Result<usize> {
+                    Ok($size)
+                }
             }
-        }
-
-        impl_mt_proto_sized_for_primitives! { $($rest)* }
+        )*
     };
 }
+
 
 impl_mt_proto_sized_for_primitives! {
     bool => BOOL_SIZE,
@@ -285,14 +284,15 @@ impl_mt_proto_sized_for_tuple! { x1: T1, x2: T2, x3: T3, x4: T4, x5: T5, x6: T6,
                                  x9: T9, x10: T10, x11: T11, x12: T12, }
 
 macro_rules! impl_mt_proto_sized_for_arrays {
-    (0) => {
+    (__impl 0) => {
         impl<T> MtProtoSized for [T; 0] {
             fn size_hint(&self) -> error::Result<usize> {
                 Ok(0)
             }
         }
     };
-    ($size:expr) => {
+
+    (__impl $size:expr) => {
         impl<T: MtProtoSized> MtProtoSized for [T; $size] {
             fn size_hint(&self) -> error::Result<usize> {
                 let mut result = 0;
@@ -305,9 +305,9 @@ macro_rules! impl_mt_proto_sized_for_arrays {
             }
         }
     };
-    ($size:expr, $($rest:tt)*) => {
-        impl_mt_proto_sized_for_arrays!($size);
-        impl_mt_proto_sized_for_arrays!($($rest)*);
+
+    ($($size:expr),*) => {
+        $( impl_mt_proto_sized_for_arrays!(__impl $size); )*
     };
 }
 

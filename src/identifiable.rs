@@ -63,20 +63,18 @@ impl Identifiable for bool {
 
 
 macro_rules! impl_identifiable_for_primitives {
-    () => {};
+    ($($type:ty => $id_value:expr,)*) => {
+        $(
+            impl Identifiable for $type {
+                fn type_id(&self) -> i32 {
+                    $id_value
+                }
 
-    ($type:ty => $id_value:expr, $($rest:tt)*) => {
-        impl Identifiable for $type {
-            fn type_id(&self) -> i32 {
-                $id_value
+                fn enum_variant_id(&self) -> Option<&'static str> {
+                    None
+                }
             }
-
-            fn enum_variant_id(&self) -> Option<&'static str> {
-                None
-            }
-        }
-
-        impl_identifiable_for_primitives! { $($rest)* }
+        )*
     };
 }
 

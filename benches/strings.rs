@@ -13,35 +13,39 @@ use test::Bencher;
 
 
 macro_rules! bench_string {
-    ($ser:ident, $de:ident => $init_value:expr) => {
-        #[bench]
-        fn $ser(b: &mut Bencher) {
-            let string = $init_value;
-            let mut v = vec![0; string.get_size_hint().unwrap()];
+    ($( ($ser:ident, $de:ident) => $init_value:expr, )*) => {
+        $(
+            #[bench]
+            fn $ser(b: &mut Bencher) {
+                let string = $init_value;
+                let mut v = vec![0; string.get_size_hint().unwrap()];
 
-            b.iter(|| {
-                to_writer(v.as_mut_slice(), &string).unwrap();
-            });
-        }
+                b.iter(|| {
+                    to_writer(v.as_mut_slice(), &string).unwrap();
+                });
+            }
 
-        #[bench]
-        fn $de(b: &mut Bencher) {
-            let string_serialized = to_bytes(&$init_value).unwrap();
+            #[bench]
+            fn $de(b: &mut Bencher) {
+                let string_serialized = to_bytes(&$init_value).unwrap();
 
-            b.iter(|| {
-                from_bytes::<String>(&string_serialized, None).unwrap();
-            });
-        }
+                b.iter(|| {
+                    from_bytes::<String>(&string_serialized, None).unwrap();
+                });
+            }
+        )*
     };
 }
 
 
 // STATIC STRINGS
 
-bench_string!(string_empty_serialize, string_empty_deserialize => "");
-bench_string!(string_short_serialize, string_short_deserialize => "foobar");
-bench_string!(string_medium_serialize, string_medium_deserialize => lipsum::LOREM_IPSUM);
-bench_string!(string_long_serialize, string_long_deserialize => lipsum::LIBER_PRIMUS);
+bench_string! {
+    (string_empty_serialize, string_empty_deserialize) => "",
+    (string_short_serialize, string_short_deserialize) => "foobar",
+    (string_medium_serialize, string_medium_deserialize) => lipsum::LOREM_IPSUM,
+    (string_long_serialize, string_long_deserialize) => lipsum::LIBER_PRIMUS,
+}
 
 
 // RANDOM STRINGS
@@ -59,12 +63,16 @@ const RANGE_LONG: (usize, usize) = (32768, 65536);
 const RANGE_VERY_LONG: (usize, usize) = (1048576, 2097152);
 
 macro_rules! bench_random_string {
-    ($ser:ident, $de:ident => $range:expr) => {
-        bench_string!($ser, $de => random_string(&mut rand::thread_rng(), $range));
+    ($( ($ser:ident, $de:ident) => $range:expr, )*) => {
+        bench_string! {
+            $( ($ser, $de) => random_string(&mut rand::thread_rng(), $range) )*
+        }
     };
 }
 
-bench_random_string!(random_string_short_serialize, random_string_short_deserialize => RANGE_SHORT);
-bench_random_string!(random_string_medium_serialize, random_string_medium_deserialize => RANGE_MEDIUM);
-bench_random_string!(random_string_long_serialize, random_string_long_deserialize => RANGE_LONG);
-bench_random_string!(random_string_very_long_serialize, random_string_very_long_deserialize => RANGE_VERY_LONG);
+bench_random_string! {
+    (random_string_short_serialize, random_string_short_deserialize) => RANGE_SHORT,
+    (random_string_medium_serialize, random_string_medium_deserialize) => RANGE_MEDIUM,
+    (random_string_long_serialize, random_string_long_deserialize) => RANGE_LONG,
+    (random_string_very_long_serialize, random_string_very_long_deserialize) => RANGE_VERY_LONG,
+}
