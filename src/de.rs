@@ -231,15 +231,17 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
         bail!(DeErrorKind::UnsupportedSerdeType(DeSerdeType::Unit));
     }
 
-    fn deserialize_unit_struct<V>(self, _name: &'static str, visitor: V) -> error::Result<V::Value>
+    fn deserialize_unit_struct<V>(self, name: &'static str, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
+        debug!("Deserialized unit struct {}", name);
         visitor.visit_unit()
     }
 
-    fn deserialize_newtype_struct<V>(self, _name: &'static str, visitor: V) -> error::Result<V::Value>
+    fn deserialize_newtype_struct<V>(self, name: &'static str, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
+        debug!("Deserializing newtype struct {}", name);
         visitor.visit_newtype_struct(self)
     }
 
@@ -247,6 +249,7 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
         where V: Visitor<'de>
     {
         let len = self.reader.read_u32::<LittleEndian>()?;
+        debug!("Deserializing seq of len {}", len);
 
         visitor.visit_seq(SeqAccess::new(self, len))
     }
@@ -254,12 +257,14 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_tuple<V>(self, len: usize, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
+        debug!("Deserializing tuple of len {}", len);
         visitor.visit_seq(SeqAccess::new(self, safe_int_cast(len)?))
     }
 
-    fn deserialize_tuple_struct<V>(self, _name: &'static str, len: usize, visitor: V) -> error::Result<V::Value>
+    fn deserialize_tuple_struct<V>(self, name: &'static str, len: usize, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
+        debug!("Deserializing tuple struct {} of len {}", name, len);
         visitor.visit_seq(SeqAccess::new(self, safe_int_cast(len)?))
     }
 
@@ -267,26 +272,31 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
         where V: Visitor<'de>
     {
         let len = self.reader.read_u32::<LittleEndian>()?;
+        debug!("Deserializing map of len {}", len);
 
         visitor.visit_map(MapAccess::new(self, len))
     }
 
-    fn deserialize_struct<V>(self, _name: &'static str, fields: &'static [&'static str], visitor: V) -> error::Result<V::Value>
+    fn deserialize_struct<V>(self, name: &'static str, fields: &'static [&'static str], visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
+        debug!("Deserializing struct {} with fields {:?}", name, fields);
         visitor.visit_seq(SeqAccess::new(self, safe_int_cast(fields.len())?))
     }
 
-    fn deserialize_enum<V>(self, _name: &'static str, _variants: &'static [&'static str], visitor: V) -> error::Result<V::Value>
+    fn deserialize_enum<V>(self, name: &'static str, variants: &'static [&'static str], visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
+        debug!("Deserializing enum {} with variants {:?}", name, variants);
         visitor.visit_enum(EnumVariantAccess::new(self))
     }
 
     fn deserialize_identifier<V>(self, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
+        debug!("Deserializing identifier");
         let variant_id = self.enum_variant_id.unwrap();
+        debug!("Deserialized variant_id {}", variant_id);
 
         visitor.visit_str(variant_id)
     }
@@ -326,9 +336,11 @@ impl<'de, 'a, R> de::SeqAccess<'de> for SeqAccess<'a, R>
         if self.next_index < self.len {
             self.next_index += 1;
         } else {
+            debug!("SeqAccess::next_element_seed() is called when no elements is left to deserialize");
             return Ok(None);
         }
 
+        debug!("Deserializing sequence element");
         seed.deserialize(&mut *self.de).map(Some)
     }
 
@@ -365,15 +377,18 @@ impl<'de, 'a, R> de::MapAccess<'de> for MapAccess<'a, R>
         if self.next_index < self.len {
             self.next_index += 1;
         } else {
+            debug!("MapAccess::next_element_seed() is called when no elements is left to deserialize");
             return Ok(None);
         }
 
+        debug!("Deserializing map key");
         seed.deserialize(&mut *self.de).map(Some)
     }
 
     fn next_value_seed<V>(&mut self, seed: V) -> error::Result<V::Value>
         where V: DeserializeSeed<'de>
     {
+        debug!("Deserializing map value");
         seed.deserialize(&mut *self.de)
     }
 
@@ -402,6 +417,7 @@ impl<'de, 'a, R> de::EnumAccess<'de> for EnumVariantAccess<'a, R>
     fn variant_seed<V>(self, seed: V) -> error::Result<(V::Value, Self::Variant)>
         where V: DeserializeSeed<'de>
     {
+        debug!("Deserializing enum variant");
         let value = seed.deserialize(&mut *self.de)?;
 
         Ok((value, self))
@@ -414,24 +430,28 @@ impl<'de, 'a, R> de::VariantAccess<'de> for EnumVariantAccess<'a, R>
     type Error = error::Error;
 
     fn unit_variant(self) -> error::Result<()> {
+        debug!("Deserialized unit variant");
         Ok(())
     }
 
     fn newtype_variant_seed<T>(self, seed: T) -> error::Result<T::Value>
         where T: DeserializeSeed<'de>
     {
+        debug!("Deserializing newtype variant");
         seed.deserialize(self.de)
     }
 
     fn tuple_variant<V>(self, len: usize, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
+        debug!("Deserializing tuple variant");
         de::Deserializer::deserialize_tuple_struct(self.de, "", len, visitor)
     }
 
     fn struct_variant<V>(self, fields: &'static [&'static str], visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
+        debug!("Deserializing struct variant");
         de::Deserializer::deserialize_struct(self.de, "", fields, visitor)
     }
 }

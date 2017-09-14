@@ -177,25 +177,28 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
         Ok(())
     }
 
-    fn serialize_newtype_struct<T>(self, _name: &'static str, value: &T) -> error::Result<()>
+    fn serialize_newtype_struct<T>(self, name: &'static str, value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
+        debug!("Serializing newtype variant {}", name);
         value.serialize(self)
     }
 
     fn serialize_newtype_variant<T>(self,
-                                    _name: &'static str,
-                                    _variant_index: u32,
-                                    _variant: &'static str,
+                                    name: &'static str,
+                                    variant_index: u32,
+                                    variant: &'static str,
                                     value: &T)
                                    -> error::Result<()>
         where T: ?Sized + Serialize
     {
+        debug!("Serializing newtype variant {}::{} (variant index {})", name, variant, variant_index);
         value.serialize(self)
     }
 
     fn serialize_seq(self, len: Option<usize>) -> error::Result<Self::SerializeSeq> {
         if let Some(len) = len {
+            debug!("Serializing seq of len {}", len);
             SerializeFixedLengthSeq::with_serialize_len(self, safe_int_cast(len)?)
         } else {
             bail!(SerErrorKind::SeqsWithUnknownLengthUnsupported);
@@ -203,43 +206,51 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     }
 
     fn serialize_tuple(self, len: usize) -> error::Result<Self::SerializeTuple> {
+        debug!("Serializing tuple of len {}", len);
         Ok(SerializeFixedLengthSeq::new(self, safe_int_cast(len)?))
     }
 
     fn serialize_tuple_struct(self,
-                              _name: &'static str,
+                              name: &'static str,
                               len: usize)
                              -> error::Result<Self::SerializeTupleStruct> {
+        debug!("Serializing tuple struct {} of len {}", name, len);
         Ok(SerializeFixedLengthSeq::new(self, safe_int_cast(len)?))
     }
 
     fn serialize_tuple_variant(self,
-                               _name: &'static str,
-                               _variant_index: u32,
-                               _variant: &'static str,
+                               name: &'static str,
+                               variant_index: u32,
+                               variant: &'static str,
                                len: usize)
                               -> error::Result<Self::SerializeTupleVariant> {
+        debug!("Serializing tuple variant {}::{} (variant index {}) of len {}",
+            name, variant, variant_index, len);
         Ok(SerializeFixedLengthSeq::new(self, safe_int_cast(len)?))
     }
 
     fn serialize_map(self, len: Option<usize>) -> error::Result<Self::SerializeMap> {
         if let Some(len) = len {
+            debug!("Serializing map of len {}", len);
             SerializeFixedLengthMap::with_serialize_len(self, safe_int_cast(len)?)
         } else {
             bail!(SerErrorKind::MapsWithUnknownLengthUnsupported);
         }
     }
 
-    fn serialize_struct(self, _name: &'static str, len: usize) -> error::Result<Self::SerializeStruct> {
+    fn serialize_struct(self, name: &'static str, len: usize) -> error::Result<Self::SerializeStruct> {
+        debug!("Serializing struct {} of len {}", name, len);
         Ok(SerializeFixedLengthSeq::new(self, safe_int_cast(len)?))
     }
 
     fn serialize_struct_variant(self,
-                                _name: &'static str,
-                                _variant_index: u32,
-                                _variant: &'static str,
+                                name: &'static str,
+                                variant_index: u32,
+                                variant: &'static str,
                                 len: usize)
                                -> error::Result<Self::SerializeStructVariant> {
+        debug!("Serializing struct variant {}::{} (variant index {}) of len {}",
+            name, variant, variant_index, len);
         Ok(SerializeFixedLengthSeq::new(self, safe_int_cast(len)?))
     }
 }
@@ -267,25 +278,40 @@ impl<'a, W: io::Write> SerializeFixedLengthSeq<'a, W> {
         Ok(SerializeFixedLengthSeq::new(ser, len))
     }
 
-    fn impl_serialize_seq_value<T>(&mut self, value: &T) -> error::Result<()>
+    fn impl_serialize_seq_value<T>(&mut self,
+                                   key: Option<&'static str>,
+                                   value: &T,
+                                   serializer_type: &'static str)
+                                  -> error::Result<()>
         where T: ?Sized + Serialize
     {
         if self.next_index < self.len {
             self.next_index += 1;
         } else {
+            debug!("{}::serialize_element() is called when no elements is left to serialize",
+                serializer_type);
+
             bail!(SerErrorKind::ExcessElements(self.len));
+        }
+
+        if let Some(key) = key {
+            debug!("Serializing field {}", key);
+        } else {
+            debug!("Serializing element");
         }
 
         value.serialize(&mut *self.ser)
     }
 
-    fn impl_serialize_end(self) -> error::Result<()> {
+    fn impl_serialize_end(self, data_type: &'static str) -> error::Result<()> {
         if self.next_index < self.len {
             bail!(SerErrorKind::NotEnoughElements(self.next_index, self.len))
         }
 
         // `self.index > self.len` here is a programming error
         assert_eq!(self.next_index, self.len);
+
+        debug!("Finished serializing {}", data_type);
 
         Ok(())
     }
@@ -300,11 +326,11 @@ impl<'a, W> ser::SerializeSeq for SerializeFixedLengthSeq<'a, W>
     fn serialize_element<T>(&mut self, value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
-        self.impl_serialize_seq_value(value)
+        self.impl_serialize_seq_value(None, value, "SerializeSeq")
     }
 
     fn end(self) -> error::Result<()> {
-        self.impl_serialize_end()
+        self.impl_serialize_end("seq")
     }
 }
 
@@ -317,11 +343,11 @@ impl<'a, W> ser::SerializeTuple for SerializeFixedLengthSeq<'a, W>
     fn serialize_element<T>(&mut self, value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
-        self.impl_serialize_seq_value(value)
+        self.impl_serialize_seq_value(None, value, "SerializeTuple")
     }
 
     fn end(self) -> error::Result<()> {
-        self.impl_serialize_end()
+        self.impl_serialize_end("tuple")
     }
 }
 
@@ -334,11 +360,11 @@ impl<'a, W> ser::SerializeTupleStruct for SerializeFixedLengthSeq<'a, W>
     fn serialize_field<T>(&mut self, value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
-        self.impl_serialize_seq_value(value)
+        self.impl_serialize_seq_value(None, value, "SerializeTupleStruct")
     }
 
     fn end(self) -> error::Result<()> {
-        self.impl_serialize_end()
+        self.impl_serialize_end("tuple struct")
     }
 }
 
@@ -351,11 +377,11 @@ impl<'a, W> ser::SerializeTupleVariant for SerializeFixedLengthSeq<'a, W>
     fn serialize_field<T>(&mut self, value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
-        self.impl_serialize_seq_value(value)
+        self.impl_serialize_seq_value(None, value, "SerializeTupleVariant")
     }
 
     fn end(self) -> error::Result<()> {
-        self.impl_serialize_end()
+        self.impl_serialize_end("tuple variant")
     }
 }
 
@@ -365,14 +391,14 @@ impl<'a, W> ser::SerializeStruct for SerializeFixedLengthSeq<'a, W>
     type Ok = ();
     type Error = error::Error;
 
-    fn serialize_field<T>(&mut self, _key: &'static str, value: &T) -> error::Result<()>
+    fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
-        self.impl_serialize_seq_value(value)
+        self.impl_serialize_seq_value(Some(key), value, "SerializeStruct")
     }
 
     fn end(self) -> error::Result<()> {
-        self.impl_serialize_end()
+        self.impl_serialize_end("struct")
     }
 }
 
@@ -382,14 +408,14 @@ impl<'a, W> ser::SerializeStructVariant for SerializeFixedLengthSeq<'a, W>
     type Ok = ();
     type Error = error::Error;
 
-    fn serialize_field<T>(&mut self, _key: &'static str, value: &T) -> error::Result<()>
+    fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
-        self.impl_serialize_seq_value(value)
+        self.impl_serialize_seq_value(Some(key), value, "SerializeStructVariant")
     }
 
     fn end(self) -> error::Result<()> {
-        self.impl_serialize_end()
+        self.impl_serialize_end("struct variant")
     }
 }
 
@@ -427,19 +453,24 @@ impl<'a, W> ser::SerializeMap for SerializeFixedLengthMap<'a, W>
         if self.next_index < self.len {
             self.next_index += 1;
         } else {
+            debug!("SerializeMap::serialize_key() is called when no elements is left to serialize");
+
             bail!(SerErrorKind::ExcessElements(self.len));
         }
 
+        debug!("Serializing key");
         key.serialize(&mut *self.ser)
     }
 
     fn serialize_value<T>(&mut self, value: &T) -> error::Result<()>
         where T: ?Sized + Serialize
     {
+        debug!("Serializing value");
         value.serialize(&mut *self.ser)
     }
 
     fn end(self) -> error::Result<()> {
+        debug!("Finished serializing map");
         Ok(())
     }
 }
