@@ -104,12 +104,6 @@ pub trait MtProtoSized {
 }
 
 
-impl<'a, T: MtProtoSized> MtProtoSized for &'a T {
-    fn size_hint(&self) -> error::Result<usize> {
-        (*self).size_hint()
-    }
-}
-
 macro_rules! impl_mt_proto_sized_for_primitives {
     ($($type:ty => $size:expr,)*) => {
         $(
@@ -121,7 +115,6 @@ macro_rules! impl_mt_proto_sized_for_primitives {
         )*
     };
 }
-
 
 impl_mt_proto_sized_for_primitives! {
     bool => BOOL_SIZE,
@@ -176,6 +169,18 @@ impl<'a> MtProtoSized for &'a str {
 impl MtProtoSized for String {
     fn size_hint(&self) -> error::Result<usize> {
         byte_seq_size_hint(self.as_bytes())
+    }
+}
+
+impl<'a, T: MtProtoSized> MtProtoSized for &'a T {
+    fn size_hint(&self) -> error::Result<usize> {
+        (*self).size_hint()
+    }
+}
+
+impl<T: MtProtoSized> MtProtoSized for Box<T> {
+    fn size_hint(&self) -> error::Result<usize> {
+        (**self).size_hint()
     }
 }
 

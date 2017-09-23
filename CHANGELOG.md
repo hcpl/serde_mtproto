@@ -8,6 +8,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- `MtProtoSized` implementation for arrays up to length 32 and `Box<T>` where `T: MtProtoSized`.
+- Size hints for `de::SeqAccess` and `de::MapAccess`.
+- `UnsizedByteBuf` helper type and tests for it.
+- `unsized_bytes_pad_to_bytes` and `unsized_bytes_pad_to_writer` convenience serialization functions that write bytes sequence without its length and also pads the sequence so that the length be divisible by 16.
 - `from_bytes_reuse` and `from_reader_reuse` which return the derialized value coupled with the bytes reference/reader at the point where deserialization stopped respectively. This allows to use the leftover data afterwards.
 - `impl MtProtoSized` for `extprim::i128::u128`, `extprim::u128::u128` and tuples up to arity 12 (like standard library does)
 - Benchmarks for primitives, strings, custom types and `extprim` 128-bit types.
@@ -20,6 +24,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Use shorter method names in `Identifiable` and `MtProtoSized` traits.
 - Documentation covers all public items as enforced by `#[deny(missing_docs)]`
 - Make dependency on `extprim` an optional feature.
 - Now uses `error_chain` 0.11 (can be incompatible with other versions).
