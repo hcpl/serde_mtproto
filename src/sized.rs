@@ -119,12 +119,14 @@ macro_rules! impl_mt_proto_sized_for_primitives {
 impl_mt_proto_sized_for_primitives! {
     bool => BOOL_SIZE,
 
+    // Minimum MTProto integer size is 4 bytes
     isize => cmp::max(mem::size_of::<isize>(), INT_SIZE),
     i8    => INT_SIZE,
     i16   => INT_SIZE,
     i32   => INT_SIZE,
     i64   => LONG_SIZE,
 
+    // Same here
     usize => cmp::max(mem::size_of::<usize>(), INT_SIZE),
     u8    => INT_SIZE,
     u16   => INT_SIZE,
@@ -172,13 +174,13 @@ impl MtProtoSized for String {
     }
 }
 
-impl<'a, T: MtProtoSized> MtProtoSized for &'a T {
+impl<'a, T: ?Sized + MtProtoSized> MtProtoSized for &'a T {
     fn size_hint(&self) -> error::Result<usize> {
         (*self).size_hint()
     }
 }
 
-impl<T: MtProtoSized> MtProtoSized for Box<T> {
+impl<T: ?Sized + MtProtoSized> MtProtoSized for Box<T> {
     fn size_hint(&self) -> error::Result<usize> {
         (**self).size_hint()
     }
