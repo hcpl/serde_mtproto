@@ -64,7 +64,7 @@ fn pad(bytes: &[u8]) -> Vec<u8> {
 struct Nothing;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
-enum Cafebabe<T: MtProtoSized> {
+enum Cafebabe<T> {
     #[id = "0x0badf00d"]
     Bar {
         byte_id: i8,

@@ -1,15 +1,15 @@
 use quote;
-use syn::{Attribute, Body, DeriveInput, Ident, Lit, MetaItem, StrStyle};
+use syn;
 
 
-pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> quote::Tokens {
-    let item_name = &ast.ident;
+pub fn impl_mt_proto_identifiable(ast: &syn::DeriveInput) -> quote::Tokens {
     let (item_impl_generics, item_ty_generics, item_where_clause) = ast.generics.split_for_impl();
 
-    let dummy_const = Ident::new(format!("_IMPL_MT_PROTO_IDENTIFIABLE_FOR_{}", item_name));
+    let item_name = &ast.ident;
+    let dummy_const = syn::Ident::new(format!("_IMPL_MT_PROTO_IDENTIFIABLE_FOR_{}", item_name));
 
     let type_id_body = match ast.body {
-        Body::Struct(_) => {
+        syn::Body::Struct(_) => {
             let id = get_id_from_attrs(&ast.attrs);
 
             quote! {
@@ -17,7 +17,7 @@ pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> quote::Tokens {
             }
         }
 
-        Body::Enum(ref variants) => {
+        syn::Body::Enum(ref variants) => {
             let mut variants_quoted = quote::Tokens::new();
 
             for variant in variants {
@@ -38,13 +38,13 @@ pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> quote::Tokens {
     };
 
     let enum_variant_id_body = match ast.body {
-        Body::Struct(_) => {
+        syn::Body::Struct(_) => {
             quote! {
                 None
             }
         }
 
-        Body::Enum(ref variants) => {
+        syn::Body::Enum(ref variants) => {
             let mut variants_quoted = quote::Tokens::new();
 
             for variant in variants {
@@ -85,12 +85,12 @@ pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> quote::Tokens {
     }
 }
 
-fn get_id_from_attrs(attrs: &[Attribute]) -> i32 {
+fn get_id_from_attrs(attrs: &[syn::Attribute]) -> i32 {
     for attr in attrs {
         match attr.value {
-            MetaItem::NameValue(ref name, ref value) => {
+            syn::MetaItem::NameValue(ref name, ref value) => {
                 if name.as_ref() == "id" {
-                    if let Lit::Str(ref value, StrStyle::Cooked) = *value {
+                    if let syn::Lit::Str(ref value, syn::StrStyle::Cooked) = *value {
                         // Found an identifier
                         let value = u32::from_str_radix(&value[2..], 16).unwrap();
 
