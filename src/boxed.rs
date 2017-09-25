@@ -4,13 +4,14 @@
 use error;
 use identifiable::Identifiable;
 use sized::MtProtoSized;
+use utils::safe_int_cast;
 
 
 /// A struct that wraps an `Identifiable` type value to serialize and
 /// deserialize as a boxed MTProto data type.
 ///
-/// Note: if you with to attach both id and serialized size to the
-/// underlying data in this order, see `BoxedWithSize`.
+/// Note: if you want to attach both id and serialized size to the
+/// underlying data (in this order), see `BoxedWithSize`.
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Boxed<T> {
     id: i32,
@@ -57,7 +58,7 @@ impl<T: MtProtoSized> MtProtoSized for Boxed<T> {
 /// value.
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct WithSize<T> {
-    size: usize,
+    size: u32,
     inner: T,
 }
 
@@ -65,7 +66,7 @@ impl<T: MtProtoSized> WithSize<T> {
     /// Wrap a value along with its serialized size.
     pub fn new(inner: T) -> error::Result<WithSize<T>> {
         let with_size = WithSize {
-            size: inner.size_hint()?,
+            size: safe_int_cast(inner.size_hint()?)?,
             inner: inner,
         };
 
@@ -108,7 +109,7 @@ impl<T: MtProtoSized> MtProtoSized for WithSize<T> {
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct BoxedWithSize<T> {
     id: i32,
-    size: usize,
+    size: u32,
     inner: T,
 }
 
@@ -117,7 +118,7 @@ impl<T: Identifiable + MtProtoSized> BoxedWithSize<T> {
     pub fn new(inner: T) -> error::Result<BoxedWithSize<T>> {
         let boxed_with_size = BoxedWithSize {
             id: inner.type_id(),
-            size: inner.size_hint()?,
+            size: safe_int_cast(inner.size_hint()?)?,
             inner: inner,
         };
 
