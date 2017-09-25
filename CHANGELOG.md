@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- `BoxedWithLength` wrapper type which attaches id and size_hint of a `T: Identifiable + MtProtoSized` type.
 - `MtProtoSized` implementation for arrays up to length 32 and `Box<T>` where `T: MtProtoSized`.
 - Size hints for `de::SeqAccess` and `de::MapAccess`.
 - `UnsizedByteBuf` helper type and tests for it.

@@ -35,7 +35,7 @@ pub mod de;
 // Reexport for convenience
 pub use serde_bytes::{ByteBuf, Bytes};
 
-pub use boxed::Boxed;
+pub use boxed::{Boxed, BoxedWithLength};
 pub use error::{Error, ErrorKind, Result, ResultExt};
 pub use helpers::{UnsizedByteBuf, UnsizedByteBufSeed};
 pub use identifiable::Identifiable;
