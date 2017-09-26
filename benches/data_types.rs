@@ -4,6 +4,8 @@
 extern crate lipsum;
 extern crate rand;
 #[macro_use]
+extern crate rand_derive;
+#[macro_use]
 extern crate serde_derive;
 extern crate serde_mtproto;
 #[macro_use]
@@ -41,7 +43,6 @@ impl Rand for Foo {
         }
     }
 }
-
 
 #[bench]
 fn foo_serialize(b: &mut Bencher) {
@@ -89,5 +90,49 @@ fn random_foo_deserialize(b: &mut Bencher) {
 
     b.iter(|| {
         from_bytes::<Foo>(&random_foo_serialized, None).unwrap();
+    });
+}
+
+
+#[derive(Rand, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
+#[id = "200c5e59"]
+struct Nothing;
+
+#[bench]
+fn nothing_serialize(b: &mut Bencher) {
+    let nothing = Nothing;
+    let mut v = vec![0; nothing.size_hint().unwrap()];
+
+    b.iter(|| {
+        to_writer(v.as_mut_slice(), &nothing).unwrap();
+    });
+}
+
+#[bench]
+fn nothing_deserialize(b: &mut Bencher) {
+    let nothing_serialized = [];
+
+    b.iter(|| {
+        from_bytes::<Nothing>(&nothing_serialized, None).unwrap();
+    });
+}
+
+#[bench]
+fn random_nothing_serialize(b: &mut Bencher) {
+    let random_nothing: Nothing = rand::random();
+    let mut v = vec![0; random_nothing.size_hint().unwrap()];
+
+    b.iter(|| {
+        to_writer(v.as_mut_slice(), &random_nothing).unwrap();
+    });
+}
+
+#[bench]
+fn random_nothing_deserialize(b: &mut Bencher) {
+    let random_nothing: Nothing = rand::random();
+    let random_nothing_serialized = to_bytes(&random_nothing).unwrap();
+
+    b.iter(|| {
+        from_bytes::<Nothing>(&random_nothing_serialized, None).unwrap();
     });
 }

@@ -14,8 +14,11 @@ script:
   - [ "${TRAVIS_RUST_VERSION}" = nightly ] && cargo bench --no-run --all --features "${FEATURES}"
 
 env:
-  - FEATURES=""
-  - FEATURES="extprim"
+  global:
+    - RUST_BACKTRACE=1
+  matrix:
+    - FEATURES=""
+    - FEATURES="extprim"
 
 matrix:
   allow_failures:
