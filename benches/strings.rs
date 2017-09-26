@@ -18,7 +18,7 @@ macro_rules! bench_string {
             #[bench]
             fn $ser(b: &mut Bencher) {
                 let string = $init_value;
-                let mut v = vec![0; string.get_size_hint().unwrap()];
+                let mut v = vec![0; string.size_hint().unwrap()];
 
                 b.iter(|| {
                     to_writer(v.as_mut_slice(), &string).unwrap();
@@ -65,7 +65,7 @@ const RANGE_VERY_LONG: (usize, usize) = (1048576, 2097152);
 macro_rules! bench_random_string {
     ($( ($ser:ident, $de:ident) => $range:expr, )*) => {
         bench_string! {
-            $( ($ser, $de) => random_string(&mut rand::thread_rng(), $range) )*
+            $( ($ser, $de) => random_string(&mut rand::thread_rng(), $range), )*
         }
     };
 }

@@ -50,7 +50,7 @@ fn foo_serialize(b: &mut Bencher) {
         s: "Hello, world!".to_owned(),
         group: (-500, 0xffff_ffff_ffff, -64),
     };
-    let mut v = vec![0; foo.get_size_hint().unwrap()];
+    let mut v = vec![0; foo.size_hint().unwrap()];
 
     b.iter(|| {
         to_writer(v.as_mut_slice(), &foo).unwrap();
@@ -75,7 +75,7 @@ fn foo_deserialize(b: &mut Bencher) {
 #[bench]
 fn random_foo_serialize(b: &mut Bencher) {
     let random_foo: Foo = rand::random();
-    let mut v = vec![0; random_foo.get_size_hint().unwrap()];
+    let mut v = vec![0; random_foo.size_hint().unwrap()];
 
     b.iter(|| {
         to_writer(v.as_mut_slice(), &random_foo).unwrap();
