@@ -9,9 +9,34 @@ rust:
 cache: cargo
 
 script:
-  - cargo build --verbose --all --features "${FEATURES}"
-  - cargo test --verbose --all --features "${FEATURES}"
-  - [ "${TRAVIS_RUST_VERSION}" = nightly ] && cargo bench --no-run --all --features "${FEATURES}"
+  - |
+    cargo build --verbose --all --lib --features "${FEATURES}" &&
+    cargo test --verbose --all --lib --features "${FEATURES}"
+  - |
+    cargo build --verbose --all --tests --features "${FEATURES}" &&
+    cargo test --verbose --all --tests --features "${FEATURES}"
+  - |
+    [ "${TRAVIS_RUST_VERSION}" = nightly ] &&
+    cargo build --verbose --all --benches --features "${FEATURES}" &&
+    cargo test --verbose --all --benches --features "${FEATURES}"
+
+after_success:
+  - |
+    # Adapted from https://beachape.com/blog/2016/11/02/rust-performance-testing-on-travis-ci/
+    [ "${TRAVIS_PULL_REQUEST_BRANCH:~${TRAVIS_BRANCH}}" != master ] &&
+    [ "${TRAVIS_RUST_VERSION}" = nightly ] &&
+    cd "${TRAVIS_BUILD_DIR}"/.. &&
+    git clone "${REMOTE_URL}" "${TRAVIS_REPO_SLUG}-bench" &&
+    cd  "${TRAVIS_REPO_SLUG}-bench" &&
+    # Bench master
+    git checkout master &&
+    cargo bench > before &&
+    # Bench PR'ing branch
+    git checkout "${TRAVIS_COMMIT}" &&
+    cargo bench > after &&
+    # Compare results
+    cargo install --force cargo-benchcmp &&
+    cargo benchcmp --include-missing before after
 
 env:
   global:
