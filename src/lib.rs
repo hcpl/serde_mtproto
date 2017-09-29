@@ -23,22 +23,27 @@ extern crate serde_derive;
 
 mod utils;
 
-pub mod boxed;
+pub mod de;
 pub mod error;
 pub mod helpers;
 pub mod identifiable;
-pub mod sized;
 pub mod ser;
-pub mod de;
+pub mod sized;
+pub mod wrappers;
 
 
-// Reexport for convenience
+// Extern crate re-export for convenience
 pub use serde_bytes::{ByteBuf, Bytes};
 
-pub use boxed::{Boxed, WithSize, BoxedWithSize};
+// Serde essential re-exports
+pub use ser::{Serializer, to_bytes, to_writer, unsized_bytes_pad_to_bytes, unsized_bytes_pad_to_writer};
+pub use de::{Deserializer, from_bytes, from_bytes_reuse, from_reader, from_reader_reuse};
+
+// Error types and typedefs
 pub use error::{Error, ErrorKind, Result, ResultExt};
+
+// Other items generally useful for MTProto [de]serialization
 pub use helpers::{UnsizedByteBuf, UnsizedByteBufSeed};
 pub use identifiable::Identifiable;
 pub use sized::MtProtoSized;
-pub use ser::{Serializer, to_bytes, to_writer, unsized_bytes_pad_to_bytes, unsized_bytes_pad_to_writer};
-pub use de::{Deserializer, from_bytes, from_bytes_reuse, from_reader, from_reader_reuse};
+pub use wrappers::{Boxed, BoxedWithSize, WithSize};

@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Move `boxed` module to `wrappers`.
 - `WithSize` wrapper type which attaches size hint of a `T: MtProtoSized` type.
 - `BoxedWithSize` wrapper type which attaches id and size hint of a `T: Identifiable + MtProtoSized` type.
 - `MtProtoSized` implementation for arrays up to length 32 and `Box<T>` where `T: MtProtoSized`.
