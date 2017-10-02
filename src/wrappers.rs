@@ -1,5 +1,20 @@
 //! Wrapper structs for attaching additional data to a type for
-//! [de]serializatioh purposes.
+//! [de]serialization purposes.
+//!
+//! `Boxed` and `BoxedWithSize` types have aliases `WithId` and
+//! `WithIdAndSize` respectively to convey different meanings about
+//! them:
+//!
+//! * `Boxed<T>`/`BoxedWithSize<T>` mean "not a bare `T`/`T` with size"
+//!   respectively where boxed/bare types distinction is drawn from the
+//!   MTProto official documentation about serialization:
+//!   https://core.telegram.org/mtproto/serialize.
+//! * `WithId<T>`/`WithIdAndSize<T>` mean "`T` with an id/an id and a
+//!   size attached" repectively which explains *how* this type is
+//!   representing data.
+//!
+//! This crate uses `Boxed*` family as the default, whereas `WithId*`
+//! are type aliases.
 
 use error;
 use identifiable::Identifiable;
@@ -17,6 +32,9 @@ pub struct Boxed<T> {
     id: i32,
     inner: T,
 }
+
+/// Give `Boxed` an alias that is similar to `WithSize`.
+pub type WithId<T> = Boxed<T>;
 
 impl<T: Identifiable> Boxed<T> {
     /// Wrap a value along with its id.
@@ -112,6 +130,9 @@ pub struct BoxedWithSize<T> {
     size: u32,
     inner: T,
 }
+
+/// Give `BoxedWithSize` an alias that is similar to `WithId` and `WithSize`.
+pub type WithIdAndSize<T> = BoxedWithSize<T>;
 
 impl<T: Identifiable + MtProtoSized> BoxedWithSize<T> {
     /// Wrap a value along with its id and serialized size.
