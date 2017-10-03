@@ -8,6 +8,7 @@ extern crate serde_json;
 extern crate serde_mtproto;
 #[macro_use]
 extern crate serde_mtproto_derive;
+extern crate serde_yaml;
 
 
 use serde_bytes::ByteBuf;
@@ -43,6 +44,7 @@ lazy_static! {
 
     static ref DATA_MTPROTO: Vec<u8> = serde_mtproto::to_bytes(&*DATA).unwrap();
     static ref DATA_JSON: Vec<u8> = serde_json::to_vec(&*DATA).unwrap();
+    static ref DATA_YAML: Vec<u8> = serde_yaml::to_vec(&*DATA).unwrap();
 }
 
 
@@ -60,4 +62,20 @@ fn mtproto_to_json() {
     let data_json = serde_json::to_vec(&data).unwrap();
 
     assert_eq!(data_json, *DATA_JSON);
+}
+
+#[test]
+fn yaml_to_mtproto() {
+    let data: Data = serde_yaml::from_slice(&*DATA_YAML).unwrap();
+    let data_mtproto = serde_mtproto::to_bytes(&data).unwrap();
+
+    assert_eq!(data_mtproto, *DATA_MTPROTO);
+}
+
+#[test]
+fn mtproto_to_yaml() {
+    let data: Data = serde_mtproto::from_bytes(&*DATA_MTPROTO, None).unwrap();
+    let data_yaml = serde_yaml::to_vec(&data).unwrap();
+
+    assert_eq!(data_yaml, *DATA_YAML);
 }
