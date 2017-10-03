@@ -9,6 +9,7 @@ extern crate serde_mtproto;
 #[macro_use]
 extern crate serde_mtproto_derive;
 extern crate serde_yaml;
+extern crate toml;
 
 
 use serde_bytes::ByteBuf;
@@ -18,8 +19,8 @@ use serde_bytes::ByteBuf;
 #[id = "7e298afc"]
 struct Data {
     id: u64,
-    metadata: Metadata,
     raw_data: ByteBuf,
+    metadata: Metadata,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
@@ -34,17 +35,18 @@ struct Metadata {
 lazy_static! {
     static ref DATA: Data = Data {
         id: 6422701054949988527,
+        raw_data: ByteBuf::from(b"content".as_ref().to_owned()),
         metadata: Metadata {
             username: "new_user".to_owned(),
             encrypted: false,
             seen_times: 31,
         },
-        raw_data: ByteBuf::from(b"content".as_ref().to_owned()),
     };
 
     static ref DATA_MTPROTO: Vec<u8> = serde_mtproto::to_bytes(&*DATA).unwrap();
     static ref DATA_JSON: Vec<u8> = serde_json::to_vec(&*DATA).unwrap();
     static ref DATA_YAML: Vec<u8> = serde_yaml::to_vec(&*DATA).unwrap();
+    static ref DATA_TOML: Vec<u8> = toml::to_vec(&*DATA).unwrap();
 }
 
 
@@ -78,4 +80,63 @@ fn mtproto_to_yaml() {
     let data_yaml = serde_yaml::to_vec(&data).unwrap();
 
     assert_eq!(data_yaml, *DATA_YAML);
+}
+
+#[test]
+fn toml_to_mtproto() {
+    let data: Data = toml::from_slice(&*DATA_TOML).unwrap();
+    let data_mtproto = serde_mtproto::to_bytes(&data).unwrap();
+
+    assert_eq!(data_mtproto, *DATA_MTPROTO);
+}
+
+#[test]
+fn mtproto_to_toml() {
+    let data: Data = serde_mtproto::from_bytes(&*DATA_MTPROTO, None).unwrap();
+    let data_toml = toml::to_vec(&data).unwrap();
+
+    assert_eq!(data_toml, *DATA_TOML);
+}
+
+
+#[test]
+fn extern_serde_formats_interop() {
+    // JSON & YAML
+    {
+        let data: Data = serde_yaml::from_slice(&*DATA_YAML).unwrap();
+        let data_json = serde_json::to_vec(&data).unwrap();
+
+        assert_eq!(data_json, *DATA_JSON);
+
+        let data: Data = serde_json::from_slice(&*DATA_JSON).unwrap();
+        let data_yaml = serde_yaml::to_vec(&data).unwrap();
+
+        assert_eq!(data_yaml, *DATA_YAML);
+    }
+
+    // JSON & TOML
+    {
+        let data: Data = toml::from_slice(&*DATA_TOML).unwrap();
+        let data_json = serde_json::to_vec(&data).unwrap();
+
+        assert_eq!(data_json, *DATA_JSON);
+
+        let data: Data = serde_json::from_slice(&*DATA_JSON).unwrap();
+        let data_toml = toml::to_vec(&data).unwrap();
+
+        assert_eq!(data_toml, *DATA_TOML);
+    }
+
+    // YAML & TOML
+    {
+        let data: Data = toml::from_slice(&*DATA_TOML).unwrap();
+        let data_yaml = serde_yaml::to_vec(&data).unwrap();
+
+        assert_eq!(data_yaml, *DATA_YAML);
+
+        let data: Data = serde_yaml::from_slice(&*DATA_YAML).unwrap();
+        let data_toml = toml::to_vec(&data).unwrap();
+
+        assert_eq!(data_toml, *DATA_TOML);
+    }
 }
