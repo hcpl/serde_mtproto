@@ -16,9 +16,10 @@ script:
     cargo build --verbose --all --tests --features "${FEATURES}" &&
     cargo test --verbose --all --tests --features "${FEATURES}"
   - |
-    [ "${TRAVIS_RUST_VERSION}" = nightly ] &&
-    cargo build --verbose --all --benches --features "${FEATURES}" &&
-    cargo test --verbose --all --benches --features "${FEATURES}"
+    if [ "${TRAVIS_RUST_VERSION}" = nightly ]; then
+        cargo build --verbose --all --benches --features "${FEATURES}" &&
+        cargo test --verbose --all --benches --features "${FEATURES}"
+    fi
 
 after_success:
   - |
