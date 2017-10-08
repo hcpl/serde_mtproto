@@ -1,4 +1,7 @@
-# Serde MTProto &emsp; [![Travis Build Status]][travis] [![Latest Version]][crates.io]
+# Serde MTProto
+
+[![Travis Build Status]][travis]
+[![Latest Version]][crates.io]
 
 [Travis Build Status]: https://api.travis-ci.org/hcpl/serde\_mtproto.svg?branch=master
 [travis]: https://travis-ci.org/hcpl/serde\_mtproto

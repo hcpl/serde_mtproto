@@ -8,7 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Move `boxed` module to `wrappers`.
+- Type aliases for `Boxed` (`WithId`) and `BoxedWithSize` (`WithIdAndSize`).
 - `WithSize` wrapper type which attaches size hint of a `T: MtProtoSized` type.
 - `BoxedWithSize` wrapper type which attaches id and size hint of a `T: Identifiable + MtProtoSized` type.
 - `MtProtoSized` implementation for arrays up to length 32 and `Box<T>` where `T: MtProtoSized`.
@@ -27,6 +27,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Move `boxed` module to `wrappers`.
 - Use shorter method names in `Identifiable` and `MtProtoSized` traits.
 - Documentation covers all public items as enforced by `#[deny(missing_docs)]`
 - Make dependency on `extprim` an optional feature.
