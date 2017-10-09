@@ -44,10 +44,11 @@ impl<R: io::Read> Deserializer<R> {
         let rem;
 
         if first_byte <= 253 {
-            len = first_byte as usize;
+            len = usize::from(first_byte);
             rem = (len + 1) % 4;
         } else if first_byte == 254 {
-            len = self.reader.read_uint::<LittleEndian>(3)? as usize;
+            let uncasted = self.reader.read_u24::<LittleEndian>()?;
+            len = safe_int_cast::<u32, usize>(uncasted)?;
             rem = len % 4;
         } else { // must be 255
             assert_eq!(first_byte, 255);
@@ -140,7 +141,7 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
             BOOL_TRUE_ID => true,
             _ => {
                 return Err(de::Error::invalid_value(
-                    de::Unexpected::Signed(id_value as i64),
+                    de::Unexpected::Signed(i64::from(id_value)),
                     &format!("either {} for false or {} for true", BOOL_FALSE_ID, BOOL_TRUE_ID).as_str()));
             }
         };

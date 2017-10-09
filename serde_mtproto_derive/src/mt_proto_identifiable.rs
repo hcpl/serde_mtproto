@@ -94,7 +94,7 @@ fn get_id_from_attrs(attrs: &[syn::Attribute]) -> i32 {
                         // Found an identifier
                         let value = u32::from_str_radix(&value[2..], 16).unwrap();
 
-                        return value as i32;
+                        return value as i32; // u32 and i32 have the same size, must be OK
                     }
                 }
             }

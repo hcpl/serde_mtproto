@@ -3,11 +3,12 @@
 use std::fmt;
 
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
-use serde::de::{self, Deserializer, DeserializeSeed, Visitor};
+use serde::de::{self, Deserializer, DeserializeSeed, Error as DeError, Visitor};
 use serde::ser::{Serialize, Serializer, SerializeTuple};
 
 use error;
 use sized::MtProtoSized;
+use utils::safe_int_cast;
 
 
 /// A byte buffer which doesn'y write its length when serialized.
@@ -45,10 +46,16 @@ impl Serialize for UnsizedByteBuf {
         let mut serialized_len = 0;
         while serialized_len < padded_len {
             let u64_value = if inner_ref.len() > 0 {
+                // Prefer using `WriteBytesExt::write_u64` over `ByteOrder::write_u64` in case
+                // if something goes really wrong
                 inner_ref.read_u64::<LittleEndian>().unwrap_or_else(|_| {
+                    // TODO: Revise this part for guarantees of len % 4 == 0 or the like
+                    // Must be the last element out there, let's read the truncated value and use
+                    // it as any u64 element
                     if let Ok(value) = inner_ref.read_uint::<LittleEndian>(inner_ref.len()) {
                         value
                     } else {
+                        // Prefer using a detailed error message in case if something goes really wrong
                         unreachable!("Should be able to read remaining bytes without errors from {:?}", inner_ref)
                     }
                 })
@@ -100,8 +107,10 @@ impl<'de> DeserializeSeed<'de> for UnsizedByteBufSeed {
                 let mut inner = Vec::with_capacity(seq.size_hint().unwrap_or(0));
 
                 while let Some(value) = seq.next_element()? {
+                    // Prefer using `WriteBytesExt::write_u64` over `ByteOrder::write_u64` in case
+                    // if something goes really wrong
                     if inner.write_u64::<LittleEndian>(value).is_err() {
-                        unreachable!("Should be able to write into the in-memory buffer without errors to {:?}", inner)
+                        unreachable!("Should be able to write without errors into the in-memory buffer {:?}", inner)
                     }
                 }
 
@@ -111,10 +120,10 @@ impl<'de> DeserializeSeed<'de> for UnsizedByteBufSeed {
             }
         }
 
-        let padded_len = self.inner_len + (16 - self.inner_len % 16) % 16;
+        let padded_bytes_len = self.inner_len + (16 - self.inner_len % 16) % 16;
+        let padded_len = safe_int_cast::<u32, usize>(padded_bytes_len / 8).map_err(D::Error::custom)?;
 
-        // FIXME: use safe cast here
-        deserializer.deserialize_tuple(padded_len as usize / 8, UnsizedByteBufVisitor)
+        deserializer.deserialize_tuple(padded_len, UnsizedByteBufVisitor)
     }
 }
 
