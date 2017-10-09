@@ -45,7 +45,7 @@ impl Serialize for UnsizedByteBuf {
 
         let mut serialized_len = 0;
         while serialized_len < padded_len {
-            let u64_value = if inner_ref.len() > 0 {
+            let u64_value = if !inner_ref.is_empty() {
                 // Prefer using `WriteBytesExt::write_u64` over `ByteOrder::write_u64` in case
                 // if something goes really wrong
                 inner_ref.read_u64::<LittleEndian>().unwrap_or_else(|_| {

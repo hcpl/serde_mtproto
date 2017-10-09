@@ -56,11 +56,10 @@ fn random_string<R: Rng>(rng: &mut R, words_count: (usize, usize)) -> String {
     lipsum::lipsum(lipsum_words_count)
 }
 
-
 const RANGE_SHORT: (usize, usize) = (0, 32);
 const RANGE_MEDIUM: (usize, usize) = (128, 512);
-const RANGE_LONG: (usize, usize) = (32768, 65536);
-const RANGE_VERY_LONG: (usize, usize) = (1048576, 2097152);
+const RANGE_LONG: (usize, usize) = (32_768, 65_536);
+const RANGE_VERY_LONG: (usize, usize) = (1_048_576, 2_097_152);
 
 macro_rules! bench_random_string {
     ($( ($ser:ident, $de:ident) => $range:expr, )*) => {

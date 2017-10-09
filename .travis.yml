@@ -13,7 +13,8 @@ script:
     cargo build --verbose --all --lib --features "${FEATURES}" &&
     cargo test --verbose --all --lib --features "${FEATURES}"
   - |
-    # --tests flag only appeared in Rust 1.18:
+    # Prefer finer-grained commands
+    # Note: --tests flag only appeared in Rust 1.18:
     #   * https://blog.rust-lang.org/2017/06/08/Rust-1.18.html
     #   * https://github.com/rust-lang/cargo/pull/3901
     if [ "${TRAVIS_RUST_VERSION}" != 1.17.0 ]; then
@@ -25,7 +26,9 @@ script:
   - |
     if [ "${TRAVIS_RUST_VERSION}" = nightly ]; then
         cargo build --verbose --all --benches --features "${FEATURES}" &&
-        cargo test --verbose --all --benches --features "${FEATURES}"
+        cargo test --verbose --all --benches --features "${FEATURES}" &&
+
+        cargo clippy --verbose --all --features "${FEATURES}"
     fi
 
 after_success:

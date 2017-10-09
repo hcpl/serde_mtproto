@@ -1,19 +1,23 @@
 //! `Identifiable` trait for any Rust data structure that can have an id.
 
+#![allow(overflowing_literals)]
+#![cfg_attr(feature = "cargo-clippy", allow(unreadable_literal))]  // To match the look & feel from TL schema
+
+
 /// Type id of the bool true value.
-pub const BOOL_TRUE_ID: i32 = -1720552011;
+pub const BOOL_TRUE_ID: i32 = 0x997275b5;
 /// Type id of the bool false value.
-pub const BOOL_FALSE_ID: i32 = -1132882121;
+pub const BOOL_FALSE_ID: i32 = 0xbc799737;
 /// Type id of the int type.
-pub const INT_ID: i32 = -1471112230;
+pub const INT_ID: i32 = 0xa8509bda;
 /// Type id of the long type.
-pub const LONG_ID: i32 = 570911930;
+pub const LONG_ID: i32 = 0x22076cba;
 /// Type id of the double type.
-pub const DOUBLE_ID: i32 = 571523412;
+pub const DOUBLE_ID: i32 = 0x2210c154;
 /// Type id of the string type.
-pub const STRING_ID: i32 = -1255641564;
+pub const STRING_ID: i32 = 0xb5286e24;
 /// Type id of the vector type.
-pub const VECTOR_ID: i32 = 481674261;
+pub const VECTOR_ID: i32 = 0x1cb5c415;
 
 
 /// A trait for a Rust data structure that can have an id.
@@ -44,6 +48,7 @@ impl<'a, T: Identifiable> Identifiable for &'a T {
     }
 }
 
+#[cfg_attr(feature = "cargo-clippy", allow(match_bool))]  // match looks better here
 impl Identifiable for bool {
     fn type_id(&self) -> i32 {
         match *self {

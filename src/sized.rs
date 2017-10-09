@@ -145,6 +145,7 @@ impl_mt_proto_sized_for_primitives! {
 
 
 /// Helper function for everything natually representable as a byte sequence.
+#[cfg_attr(feature = "cargo-clippy", allow(should_assert_eq))]  // `==` is more visible in source code though
 fn byte_seq_size_hint(b: &[u8]) -> error::Result<usize> {
     let len = b.len();
 

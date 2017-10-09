@@ -27,15 +27,15 @@ fn random_string<R: Rng>(rng: &mut R, words_count: (usize, usize)) -> String {
 
 #[derive(Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
 #[id = "0xd594ba98"]
-struct Foo {
+struct Struct {
     bar: bool,
     s: String,
     group: (i16, u64, i8),
 }
 
-impl Rand for Foo {
-    fn rand<R: Rng>(rng: &mut R) -> Foo {
-        Foo {
+impl Rand for Struct {
+    fn rand<R: Rng>(rng: &mut R) -> Struct {
+        Struct {
             bar: rng.gen(),
             // Generate moderately long strings for reference
             s: random_string(rng, (2048, 4096)),
@@ -45,22 +45,22 @@ impl Rand for Foo {
 }
 
 #[bench]
-fn foo_serialize(b: &mut Bencher) {
-    let foo = Foo {
+fn struct_serialize(b: &mut Bencher) {
+    let struct_ = Struct {
         bar: false,
         s: "Hello, world!".to_owned(),
         group: (-500, 0xffff_ffff_ffff, -64),
     };
-    let mut v = vec![0; foo.size_hint().unwrap()];
+    let mut v = vec![0; struct_.size_hint().unwrap()];
 
     b.iter(|| {
-        to_writer(v.as_mut_slice(), &foo).unwrap();
+        to_writer(v.as_mut_slice(), &struct_).unwrap();
     });
 }
 
 #[bench]
-fn foo_deserialize(b: &mut Bencher) {
-    let foo_serialized = [
+fn struct_deserialize(b: &mut Bencher) {
+    let struct_serialized = [
         55, 151, 121, 188,
         13, 72, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 33, 0, 0,
         12, 254, 255, 255,
@@ -69,27 +69,27 @@ fn foo_deserialize(b: &mut Bencher) {
     ];
 
     b.iter(|| {
-        from_bytes::<Foo>(&foo_serialized, None).unwrap();
+        from_bytes::<Struct>(&struct_serialized, None).unwrap();
     });
 }
 
 #[bench]
-fn random_foo_serialize(b: &mut Bencher) {
-    let random_foo: Foo = rand::random();
-    let mut v = vec![0; random_foo.size_hint().unwrap()];
+fn random_struct_serialize(b: &mut Bencher) {
+    let random_struct: Struct = rand::random();
+    let mut v = vec![0; random_struct.size_hint().unwrap()];
 
     b.iter(|| {
-        to_writer(v.as_mut_slice(), &random_foo).unwrap();
+        to_writer(v.as_mut_slice(), &random_struct).unwrap();
     });
 }
 
 #[bench]
-fn random_foo_deserialize(b: &mut Bencher) {
-    let random_foo: Foo = rand::random();
-    let random_foo_serialized = to_bytes(&random_foo).unwrap();
+fn random_struct_deserialize(b: &mut Bencher) {
+    let random_struct: Struct = rand::random();
+    let random_struct_serialized = to_bytes(&random_struct).unwrap();
 
     b.iter(|| {
-        from_bytes::<Foo>(&random_foo_serialized, None).unwrap();
+        from_bytes::<Struct>(&random_struct_serialized, None).unwrap();
     });
 }
 

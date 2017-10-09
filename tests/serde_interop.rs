@@ -34,7 +34,7 @@ struct Metadata {
 
 lazy_static! {
     static ref DATA: Data = Data {
-        id: 6422701054949988527,
+        id: 0x5922_0494_9ed2_18af,
         raw_data: ByteBuf::from(b"content".as_ref().to_owned()),
         metadata: Metadata {
             username: "new_user".to_owned(),

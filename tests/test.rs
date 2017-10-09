@@ -108,9 +108,11 @@ lazy_static! {
     ];
 
     static ref MESSAGE: Message = Message {
-        auth_key_id: -0x7edcba9876543210,
+        #![cfg_attr(feature = "cargo-clippy", allow(unreadable_literal))]  // We need to seamlessly test ser/de for large decimal numbers in any form
+
+        auth_key_id: -0x7edc_ba98_7654_3210,
         msg_key: [3230999370, 1546177172, 3106848747, 2091612143],
-        encrypted_data: UnsizedByteBuf::new(pad(&vec![0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18])),
+        encrypted_data: UnsizedByteBuf::new(pad(&[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18])),
     };
 
     static ref MESSAGE_SERIALIZED_BARE: Vec<u8> = vec![
@@ -140,14 +142,14 @@ lazy_static! {
 
     static ref CAFEBABE_BAR: Cafebabe<u32> = Cafebabe::Bar {
         byte_id: -20,
-        position: (350, 142857),
+        position: (350, 142_857),
         data: Boxed::new(4096),
         // TODO: uncomment this after bumping minimal Rust version to 1.20 with the struct field
         // attributes feature.
         //
         //#[cfg(feature = "extprim")]
         //bignum: i128::from_str("100000000000000000000000000000000000000").unwrap(),
-        ratio: 2.718281828,
+        ratio: ::std::f32::consts::E,
     };
 
     static ref CAFEBABE_BAR_SERIALIZED_BOXED: Vec<u8> = vec![
@@ -165,10 +167,10 @@ lazy_static! {
         name: "bee".to_owned(),
         payload: vec![false, true, false],
         mapping: btreemap!{
-            "QWERTY".to_owned()     => -1048576,
+            "QWERTY".to_owned()     => -1_048_576,
             "something".to_owned()  => 0,
             "OtHeR".to_owned()      => 0x7fff_ffff_ffff_ffff,
-            "こんにちは".to_owned() => 8024735636555,
+            "こんにちは".to_owned() => 0b0111_0100_1100_0110_0111_1000_0100_0101_1100_0100_1011,
             "".to_owned()           => -1,
         },
     };
@@ -360,6 +362,7 @@ test_suite_boxed! {
 
 
 /// MTProto-serialized data must be aligned by 4 bytes.
+#[cfg_attr(feature = "cargo-clippy", allow(should_assert_eq))]  // `==` is more visible in source code though
 #[test]
 fn test_serialization_alignment() {
     assert!(FOO_SERIALIZED_BARE.len() % 4 == 0);
