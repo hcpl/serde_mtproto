@@ -37,6 +37,7 @@ impl<W: io::Write> Serializer<W> {
             // whereupon all of this is interpreted as a sequence
             // of int(L/4)+1 32-bit little-endian integers.
 
+            #[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation))]
             self.writer.write_u8(len as u8)?; // `as` is safe: [0..253] \subseteq [0..255]
 
             rem = (len + 1) % 4;
@@ -46,6 +47,7 @@ impl<W: io::Write> Serializer<W> {
             // bytes of the string, further followed by 0 to 3 null padding bytes.
 
             self.writer.write_u8(254)?;
+            #[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation))]
             self.writer.write_u24::<LittleEndian>(len as u32)?; // `as` is safe: [0..0xff_ff_ff] \subseteq [0..0xff_ff_ff_ff]
 
             rem = len % 4;

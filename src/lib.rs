@@ -6,6 +6,33 @@
 
 #![deny(missing_docs)]
 
+#![cfg_attr(feature = "cargo-clippy", deny(
+    // Turn all warn-class lints to denies
+    clippy,
+))]
+
+#![cfg_attr(feature = "cargo-clippy", warn(
+    // Additional warns about numeric casts
+    cast_possible_truncation,
+    cast_possible_wrap,
+    cast_precision_loss,
+    cast_sign_loss,
+    invalid_upcast_comparisons,
+
+    // Other lints we consider useful to use as warns in this crate
+    empty_enum,
+    enum_glob_use,
+    float_arithmetic,
+    indexing_slicing,
+    invalid_upcast_comparisons,
+    mem_forget,
+    mut_mut,
+    print_stdout,
+    result_unwrap_used,
+    used_underscore_binding,
+    wrong_pub_self_convention,
+))]
+
 
 extern crate byteorder;
 #[macro_use]
