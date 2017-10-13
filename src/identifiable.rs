@@ -1,23 +1,22 @@
 //! `Identifiable` trait for any Rust data structure that can have an id.
 
-#![allow(overflowing_literals)]
 #![cfg_attr(feature = "cargo-clippy", allow(unreadable_literal))]  // To match the look & feel from TL schema
 
 
 /// Type id of the bool true value.
-pub const BOOL_TRUE_ID: i32 = 0x997275b5;
+pub const BOOL_TRUE_ID: u32 = 0x997275b5;
 /// Type id of the bool false value.
-pub const BOOL_FALSE_ID: i32 = 0xbc799737;
+pub const BOOL_FALSE_ID: u32 = 0xbc799737;
 /// Type id of the int type.
-pub const INT_ID: i32 = 0xa8509bda;
+pub const INT_ID: u32 = 0xa8509bda;
 /// Type id of the long type.
-pub const LONG_ID: i32 = 0x22076cba;
+pub const LONG_ID: u32 = 0x22076cba;
 /// Type id of the double type.
-pub const DOUBLE_ID: i32 = 0x2210c154;
+pub const DOUBLE_ID: u32 = 0x2210c154;
 /// Type id of the string type.
-pub const STRING_ID: i32 = 0xb5286e24;
+pub const STRING_ID: u32 = 0xb5286e24;
 /// Type id of the vector type.
-pub const VECTOR_ID: i32 = 0x1cb5c415;
+pub const VECTOR_ID: u32 = 0x1cb5c415;
 
 
 /// A trait for a Rust data structure that can have an id.
@@ -26,7 +25,7 @@ pub trait Identifiable {
     ///
     /// Its signature is made `(&self) -> i32`, not `() -> i32` because of enum
     /// types where different enum variants can have different ids.
-    fn type_id(&self) -> i32;
+    fn type_id(&self) -> u32;
 
     /// Get enum variant_hint for a value of an identifiable type.
     ///
@@ -39,7 +38,7 @@ pub trait Identifiable {
 
 
 impl<'a, T: Identifiable> Identifiable for &'a T {
-    fn type_id(&self) -> i32 {
+    fn type_id(&self) -> u32 {
         (*self).type_id()
     }
 
@@ -50,7 +49,7 @@ impl<'a, T: Identifiable> Identifiable for &'a T {
 
 #[cfg_attr(feature = "cargo-clippy", allow(match_bool))]  // match looks better here
 impl Identifiable for bool {
-    fn type_id(&self) -> i32 {
+    fn type_id(&self) -> u32 {
         match *self {
             false => BOOL_FALSE_ID,
             true => BOOL_TRUE_ID,
@@ -71,7 +70,7 @@ macro_rules! impl_identifiable_for_primitives {
     ($($type:ty => $id_value:expr,)*) => {
         $(
             impl Identifiable for $type {
-                fn type_id(&self) -> i32 {
+                fn type_id(&self) -> u32 {
                     $id_value
                 }
 
@@ -101,7 +100,7 @@ impl_identifiable_for_primitives! {
 }
 
 impl<'a> Identifiable for &'a str {
-    fn type_id(&self) -> i32 {
+    fn type_id(&self) -> u32 {
         STRING_ID
     }
 
@@ -111,7 +110,7 @@ impl<'a> Identifiable for &'a str {
 }
 
 impl<T> Identifiable for Vec<T> {
-    fn type_id(&self) -> i32 {
+    fn type_id(&self) -> u32 {
         VECTOR_ID
     }
 

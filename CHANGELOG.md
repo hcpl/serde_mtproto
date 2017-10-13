@@ -27,6 +27,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- `Identifiable::type_id()` now returns `u32` instead of `i32`.
 - Move `boxed` module to `wrappers`.
 - Use shorter method names in `Identifiable` and `MtProtoSized` traits.
 - Documentation covers all public items as enforced by `#[deny(missing_docs)]`

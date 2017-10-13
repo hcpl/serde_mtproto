@@ -73,7 +73,7 @@ pub fn impl_mt_proto_identifiable(ast: &syn::DeriveInput) -> quote::Tokens {
             impl #item_impl_generics _serde_mtproto::Identifiable for #item_name #item_ty_generics
                 #item_where_clause
             {
-                fn type_id(&self) -> i32 {
+                fn type_id(&self) -> u32 {
                     #type_id_body
                 }
 
@@ -85,7 +85,7 @@ pub fn impl_mt_proto_identifiable(ast: &syn::DeriveInput) -> quote::Tokens {
     }
 }
 
-fn get_id_from_attrs(attrs: &[syn::Attribute]) -> i32 {
+fn get_id_from_attrs(attrs: &[syn::Attribute]) -> u32 {
     for attr in attrs {
         match attr.value {
             syn::MetaItem::NameValue(ref name, ref value) => {
@@ -94,7 +94,7 @@ fn get_id_from_attrs(attrs: &[syn::Attribute]) -> i32 {
                         // Found an identifier
                         let value = u32::from_str_radix(&value[2..], 16).unwrap();
 
-                        return value as i32; // u32 and i32 have the same size, must be OK
+                        return value;
                     }
                 }
             }

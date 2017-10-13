@@ -29,7 +29,7 @@ use utils::safe_int_cast;
 /// underlying data (in this order), see `BoxedWithSize`.
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Boxed<T> {
-    id: i32,
+    id: u32,
     inner: T,
 }
 
@@ -126,7 +126,7 @@ impl<T: MtProtoSized> MtProtoSized for WithSize<T> {
 /// made on purpose).
 #[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct BoxedWithSize<T> {
-    id: i32,
+    id: u32,
     size: u32,
     inner: T,
 }

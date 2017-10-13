@@ -134,7 +134,7 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
     fn deserialize_bool<V>(self, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
-        let id_value = self.reader.read_i32::<LittleEndian>()?;
+        let id_value = self.reader.read_u32::<LittleEndian>()?;
 
         let value = match id_value {
             BOOL_FALSE_ID => false,
