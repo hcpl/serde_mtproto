@@ -47,6 +47,16 @@ impl<'a, T: Identifiable> Identifiable for &'a T {
     }
 }
 
+impl<T: Identifiable> Identifiable for Box<T> {
+    fn type_id(&self) -> u32 {
+        (**self).type_id()
+    }
+
+    fn enum_variant_id(&self) -> Option<&'static str> {
+        (**self).enum_variant_id()
+    }
+}
+
 #[cfg_attr(feature = "cargo-clippy", allow(match_bool))]  // match looks better here
 impl Identifiable for bool {
     fn type_id(&self) -> u32 {

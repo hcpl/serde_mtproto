@@ -8,6 +8,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- `Box<T>` now is `Identifiable` for any `T: Identifiable`.
+- `impl<T: Identifiable> Identifiable for Boxed<T>` which returns id of the inner value.
 - Type aliases for `Boxed` (`WithId`) and `BoxedWithSize` (`WithIdAndSize`).
 - `WithSize` wrapper type which attaches size hint of a `T: MtProtoSized` type.
 - `BoxedWithSize` wrapper type which attaches id and size hint of a `T: Identifiable + MtProtoSized` type.
