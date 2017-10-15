@@ -9,7 +9,10 @@ rust:
 cache: cargo
 
 install:
-  - cargo install --force clippy
+  - |
+    if [ "${TRAVIS_RUST_VERSION}" = nightly ]; then
+        cargo install --force clippy
+    fi
 
 script:
   - |
