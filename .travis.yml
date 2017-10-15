@@ -8,6 +8,9 @@ rust:
 
 cache: cargo
 
+install:
+  - cargo install --force clippy
+
 script:
   - |
     cargo build --verbose --all --lib --features "${FEATURES}" &&
