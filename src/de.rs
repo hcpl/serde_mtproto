@@ -11,6 +11,7 @@ use utils::{safe_float_cast, safe_int_cast};
 
 
 /// A structure that deserializes  MTProto binary representation into Rust values.
+#[derive(Debug)]
 pub struct Deserializer<R: io::Read> {
     reader: R,
     enum_variant_id: Option<&'static str>,
@@ -310,6 +311,7 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
 }
 
 
+#[derive(Debug)]
 struct SeqAccess<'a, R: 'a + io::Read> {
     de: &'a mut Deserializer<R>,
     len: u32,
@@ -351,6 +353,7 @@ impl<'de, 'a, R> de::SeqAccess<'de> for SeqAccess<'a, R>
 }
 
 
+#[derive(Debug)]
 struct MapAccess<'a, R: 'a + io::Read> {
     de: &'a mut Deserializer<R>,
     len: u32,
@@ -399,6 +402,7 @@ impl<'de, 'a, R> de::MapAccess<'de> for MapAccess<'a, R>
 }
 
 
+#[derive(Debug)]
 struct EnumVariantAccess<'a, R: 'a + io::Read> {
     de: &'a mut Deserializer<R>,
 }

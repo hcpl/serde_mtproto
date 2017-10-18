@@ -27,7 +27,7 @@ use utils::safe_int_cast;
 ///
 /// Note: if you want to attach both id and serialized size to the
 /// underlying data (in this order), see `BoxedWithSize`.
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Boxed<T> {
     id: u32,
     inner: T,
@@ -84,7 +84,7 @@ impl<T: MtProtoSized> MtProtoSized for Boxed<T> {
 /// A struct that wraps a `MtProtoSized` type value to serialize and
 /// deserialize as a MTProto data type with the size of its serialized
 /// value.
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct WithSize<T> {
     size: u32,
     inner: T,
@@ -134,7 +134,7 @@ impl<T: MtProtoSized> MtProtoSized for WithSize<T> {
 /// This struct exists because `Boxed<WithSize<T>>` cannot be created
 /// due to `WithSize<T>` not being `Identifiable` (this restriction is
 /// made on purpose).
-#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct BoxedWithSize<T> {
     id: u32,
     size: u32,

@@ -58,7 +58,7 @@ error_chain! {
 
 
 /// Serialization error kinds.
-#[derive(Debug)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum SerErrorKind {
     /// A convenient variant for String.
     Msg(String),
@@ -105,7 +105,7 @@ impl fmt::Display for SerErrorKind {
 }
 
 /// Serde serialization data types that are not supported by `serde_mtproto`.
-#[derive(Debug)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum SerSerdeType {
     /// Single character type.
     Char,
@@ -138,7 +138,7 @@ impl From<SerErrorKind> for Error {
 
 
 /// Deserialization error kinds.
-#[derive(Debug)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum DeErrorKind {
     /// A convenient variant for String.
     Msg(String),
@@ -160,7 +160,7 @@ impl fmt::Display for DeErrorKind {
 }
 
 /// Serde deserialization data types that are not supported by `serde_mtproto`.
-#[derive(Debug)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum DeSerdeType {
     /// `serde_mtproto` doesn't support `*_any` hint.
     Any,

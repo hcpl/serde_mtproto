@@ -11,6 +11,7 @@ use utils::safe_int_cast;
 
 
 /// A structure for serializing Rust values into MTProto binary representation.
+#[derive(Debug)]
 pub struct Serializer<W: io::Write> {
     writer: W,
 }
@@ -259,6 +260,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
 
 /// Helper structure for serializing fixed-length sequences.
+#[derive(Debug)]
 pub struct SerializeFixedLengthSeq<'a, W: 'a + io::Write> {
     ser: &'a mut Serializer<W>,
     len: u32,
@@ -423,6 +425,7 @@ impl<'a, W> ser::SerializeStructVariant for SerializeFixedLengthSeq<'a, W>
 
 
 /// Helper structure for serializing maps.
+#[derive(Debug)]
 pub struct SerializeFixedLengthMap<'a, W: 'a + io::Write> {
     ser: &'a mut Serializer<W>,
     len: u32,

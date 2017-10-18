@@ -12,7 +12,7 @@ use utils::safe_int_cast;
 
 
 /// A byte buffer which doesn'y write its length when serialized.
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct UnsizedByteBuf {
     inner: Vec<u8>,
 }
@@ -72,6 +72,7 @@ impl Serialize for UnsizedByteBuf {
 }
 
 /// An unsized byte buffer seed with the length of the byte sequence to be deserialized.
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct UnsizedByteBufSeed {
     inner_len: u32,
 }
