@@ -71,7 +71,7 @@
 
 use std::cmp;
 use std::collections::{HashMap, BTreeMap};
-use std::hash::Hash;
+use std::hash::{BuildHasher, Hash};
 use std::mem;
 
 use serde_bytes::{ByteBuf, Bytes};
@@ -208,9 +208,10 @@ impl<T: MtProtoSized> MtProtoSized for Vec<T> {
     }
 }
 
-impl<K, V> MtProtoSized for HashMap<K, V>
+impl<K, V, S> MtProtoSized for HashMap<K, V, S>
     where K: Eq + Hash + MtProtoSized,
           V: MtProtoSized,
+          S: BuildHasher,
 {
     fn size_hint(&self) -> error::Result<usize> {
         // If len >= 2 ** 32, it's not serializable at all.

@@ -8,7 +8,7 @@
 //! * `Boxed<T>`/`BoxedWithSize<T>` mean "not a bare `T`/`T` with size"
 //!   respectively where boxed/bare types distinction is drawn from the
 //!   MTProto official documentation about serialization:
-//!   https://core.telegram.org/mtproto/serialize.
+//!   <https://core.telegram.org/mtproto/serialize>.
 //! * `WithId<T>`/`WithIdAndSize<T>` mean "`T` with an id/an id and a
 //!   size attached" repectively which explains *how* this type is
 //!   representing data.
