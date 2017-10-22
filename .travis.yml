@@ -39,21 +39,22 @@ script:
 
 after_success:
   - |
+    # Run benchmarks against master and PR branch
     # Adapted from https://beachape.com/blog/2016/11/02/rust-performance-testing-on-travis-ci/
-    [ "${TRAVIS_PULL_REQUEST_BRANCH:~${TRAVIS_BRANCH}}" != master ] &&
-    [ "${TRAVIS_RUST_VERSION}" = nightly ] &&
-    cd "${TRAVIS_BUILD_DIR}"/.. &&
-    git clone "${REMOTE_URL}" "${TRAVIS_REPO_SLUG}-bench" &&
-    cd  "${TRAVIS_REPO_SLUG}-bench" &&
-    # Bench master
-    git checkout master &&
-    cargo bench > before &&
-    # Bench PR'ing branch
-    git checkout "${TRAVIS_COMMIT}" &&
-    cargo bench > after &&
-    # Compare results
-    cargo install --force cargo-benchcmp &&
-    cargo benchcmp --include-missing before after
+    if [ "${TRAVIS_PULL_REQUEST}" = true ] && [ "${TRAVIS_RUST_VERSION}" = nightly ]; then
+        cd "${TRAVIS_BUILD_DIR}"/.. &&
+        git clone "${REMOTE_URL}" "${TRAVIS_REPO_SLUG}-bench" &&
+        cd "${TRAVIS_REPO_SLUG}-bench" &&
+        # Bench master
+        git checkout master &&
+        cargo bench > before &&
+        # Bench PR'ing branch
+        git checkout "${TRAVIS_COMMIT}" &&
+        cargo bench > after &&
+        # Compare results
+        cargo install --force cargo-benchcmp &&
+        cargo benchcmp --include-missing before after
+    fi
 
 env:
   global:
