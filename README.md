@@ -2,11 +2,13 @@
 
 [![Travis Build Status]][travis]
 [![Latest Version]][crates.io]
+![License]
 
 [Travis Build Status]: https://api.travis-ci.org/hcpl/serde\_mtproto.svg?branch=master
 [travis]: https://travis-ci.org/hcpl/serde\_mtproto
 [Latest Version]: https://img.shields.io/crates/v/serde\_mtproto.svg
 [crates.io]: https://crates.io/crates/serde\_mtproto
+[License]: https://img.shields.io/crates/l/serde\_mtproto.svg
 
 [MTProto](https://core.telegram.org/mtproto) [de]serialization for Rust which
 utilizes [Serde](https://serde.rs) framework.
@@ -22,6 +24,9 @@ You may be looking for:
 - [Serde API documentation](https://docs.serde.rs/serde/)
 - [Detailed documentation about Serde](https://serde.rs/)
 - [Setting up `#[derive(Serialize, Deserialize)]`](https://serde.rs/codegen.html)
+
+Supports Rust 1.17 or newer.
+Older versions may work, but not guaranteed to.
 
 
 ## Changelog
