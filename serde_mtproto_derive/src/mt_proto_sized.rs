@@ -16,6 +16,10 @@ pub fn impl_mt_proto_sized(ast: &mut syn::DeriveInput) -> quote::Tokens {
             match *data {
                 syn::VariantData::Struct(ref fields) => {
                     for field in fields {
+                        if is_skippable_field(field) {
+                            continue;
+                        }
+
                         let field_name = &field.ident;
 
                         fields_quoted.append(quote! {
@@ -25,7 +29,11 @@ pub fn impl_mt_proto_sized(ast: &mut syn::DeriveInput) -> quote::Tokens {
                 }
 
                 syn::VariantData::Tuple(ref fields) => {
-                    for (i, _) in fields.iter().enumerate() {
+                    for (i, field) in fields.iter().enumerate() {
+                        if is_skippable_field(field) {
+                            continue;
+                        }
+
                         fields_quoted.append(quote! {
                             + _serde_mtproto::MtProtoSized::size_hint(&self.#i)?
                         });
@@ -54,6 +62,10 @@ pub fn impl_mt_proto_sized(ast: &mut syn::DeriveInput) -> quote::Tokens {
                         let mut pattern_matches = Vec::new();
 
                         for field in fields {
+                            if is_skippable_field(field) {
+                                continue;
+                            }
+
                             let field_name = &field.ident;
 
                             pattern_matches.push(quote! { ref #field_name });
@@ -71,7 +83,11 @@ pub fn impl_mt_proto_sized(ast: &mut syn::DeriveInput) -> quote::Tokens {
                     syn::VariantData::Tuple(ref fields) => {
                         let mut pattern_matches = Vec::new();
 
-                        for (i, _) in fields.iter().enumerate() {
+                        for (i, field) in fields.iter().enumerate() {
+                            if is_skippable_field(field) {
+                                continue;
+                            }
+
                             let field_name = syn::Ident::new(format!("__field_{}", i));
 
                             pattern_matches.push(quote! { ref #field_name });
@@ -156,4 +172,28 @@ fn add_mt_proto_sized_trait_bound_if_missing(ast: &mut syn::DeriveInput) {
             syn::TraitBoundModifier::None,
         ));
     }
+}
+
+fn is_skippable_field(field: &syn::Field) -> bool {
+    for attr in &field.attrs {
+        if let syn::Attribute {
+            style: syn::AttrStyle::Outer,
+            value: syn::MetaItem::List(ref namespace_ident, ref nested_meta_items),
+            is_sugared_doc: false,
+        } = *attr {
+            if namespace_ident.as_ref() == "mtproto_sized" {
+                for nested_mi in nested_meta_items {
+                    if let syn::NestedMetaItem::MetaItem(ref meta_item) = *nested_mi {
+                        if let syn::MetaItem::Word(ref flag_ident) = *meta_item {
+                            if flag_ident == "skip" {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    false
 }

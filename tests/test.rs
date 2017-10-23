@@ -1,6 +1,8 @@
 //#[cfg(feature = "extprim")]
 //extern crate extprim;
 #[macro_use]
+extern crate derivative;
+#[macro_use]
 extern crate lazy_static;
 #[macro_use]
 extern crate maplit;
@@ -24,12 +26,18 @@ use serde_bytes::ByteBuf;
 use serde_mtproto_other_name::{Boxed, MtProtoSized, UnsizedByteBuf, UnsizedByteBufSeed, to_bytes, to_writer, from_bytes, from_reader};
 
 
-#[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
+#[derive(Debug, Derivative, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
+#[derivative(PartialEq)]
 #[id = "0xdeadbeef"]
 struct Foo {
     has_receiver: bool,
     size: usize,
     raw_info: ByteBuf,
+
+    #[derivative(PartialEq="ignore")]
+    #[serde(skip)]
+    #[mtproto_sized(skip)]
+    to_be_skipped: i8,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
@@ -92,6 +100,7 @@ lazy_static! {
         has_receiver: true,
         size: 57,
         raw_info: ByteBuf::from(vec![56, 114, 200, 1]),
+        to_be_skipped: -117,
     };
 
     static ref FOO_SERIALIZED_BARE: Vec<u8> = vec![

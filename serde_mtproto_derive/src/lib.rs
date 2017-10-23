@@ -72,7 +72,7 @@ pub fn mt_proto_identifiable(input: TokenStream) -> TokenStream {
     gen.parse().unwrap()
 }
 
-#[proc_macro_derive(MtProtoSized)]
+#[proc_macro_derive(MtProtoSized, attributes(mtproto_sized))]
 pub fn mt_proto_sized(input: TokenStream) -> TokenStream {
     // Construct a string representation of the type definition
     let s = input.to_string();

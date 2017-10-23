@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- You can skip taking a field into account for `#[derive(MtProtoSized)]` by placing `#[mtproto_sized(skip)]` before the field.
 - `Box<T>` now is `Identifiable` for any `T: Identifiable`.
 - `impl<T: Identifiable> Identifiable for Boxed<T>` which returns id of the inner value.
 - Type aliases for `Boxed` (`WithId`) and `BoxedWithSize` (`WithIdAndSize`).
