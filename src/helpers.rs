@@ -11,22 +11,21 @@ use sized::MtProtoSized;
 use utils::safe_int_cast;
 
 
-/// A byte buffer which doesn'y write its length when serialized.
+/// A byte buffer which doesn't write its length when serialized.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct UnsizedByteBuf {
     inner: Vec<u8>,
 }
 
 impl UnsizedByteBuf {
-    /// Construct a new unsized byte buffer seed with the length of the byte sequence to be
-    /// deserialized.
+    /// Wrap a byte buffer.
     pub fn new(inner: Vec<u8>) -> UnsizedByteBuf {
         UnsizedByteBuf {
             inner: inner,
         }
     }
 
-    /// Consumes the `UnsizedByteBuf` and returns the underlying byte buffer.
+    /// Consume the `UnsizedByteBuf` and return the underlying byte buffer.
     pub fn into_inner(self) -> Vec<u8> {
         self.inner
     }
@@ -68,6 +67,12 @@ impl Serialize for UnsizedByteBuf {
         }
 
         serialize_tuple.end()
+    }
+}
+
+impl MtProtoSized for UnsizedByteBuf {
+    fn size_hint(&self) -> error::Result<usize> {
+        size_hint_from_unsized_byte_seq_len(self.inner.len())
     }
 }
 
@@ -128,8 +133,41 @@ impl<'de> DeserializeSeed<'de> for UnsizedByteBufSeed {
     }
 }
 
-impl MtProtoSized for UnsizedByteBuf {
-    fn size_hint(&self) -> error::Result<usize> {
-        Ok(self.inner.len() + (16 - self.inner.len() % 16) % 16)
+
+/// A bytes slice which doesn't write its length when serialized.
+pub struct UnsizedBytes<'a> {
+    inner: &'a [u8],
+}
+
+impl<'a> UnsizedBytes<'a> {
+    /// Wrap a bytes slice.
+    pub fn new(inner: &'a [u8]) -> UnsizedBytes<'a> {
+        UnsizedBytes {
+            inner: inner,
+        }
     }
+
+    /// View the `UnsizedBytes` as the underlying bytes slice.
+    pub fn as_inner(&'a self) -> &'a [u8] {
+        self.inner
+    }
+}
+
+impl<'a> MtProtoSized for UnsizedBytes<'a> {
+    fn size_hint(&self) -> error::Result<usize> {
+        size_hint_from_unsized_byte_seq_len(self.inner.len())
+    }
+}
+
+
+/// Helper function for everything naturally representable as a byte sequence.
+///
+/// This version **doesn't take** into account the byte sequence length since it is not contained
+/// in the serialized representation of the byte sequence.
+#[cfg_attr(feature = "cargo-clippy", allow(should_assert_eq))]  // `==` is more visible in source code though
+pub fn size_hint_from_unsized_byte_seq_len(len: usize) -> error::Result<usize> {
+    let size = len + (16 - len % 16) % 16;
+    assert!(size % 16 == 0);
+
+    Ok(size)
 }

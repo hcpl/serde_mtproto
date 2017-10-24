@@ -86,7 +86,7 @@ pub const BOOL_SIZE: usize = 4;
 pub const INT_SIZE: usize = 4;
 /// Size of a long MtProto value.
 pub const LONG_SIZE: usize = 8;
-/// Size of a dobule MtProto value.
+/// Size of a double MtProto value.
 pub const DOUBLE_SIZE: usize = 8;
 /// Size of an int128 MtProto value.
 pub const INT128_SIZE: usize = 16;
@@ -144,11 +144,12 @@ impl_mt_proto_sized_for_primitives! {
 }
 
 
-/// Helper function for everything natually representable as a byte sequence.
+/// Helper function for everything naturally representable as a byte sequence.
+///
+/// This version **does take** into account the byte sequence length, which is prepended to the
+/// serialized representation of the byte sequence.
 #[cfg_attr(feature = "cargo-clippy", allow(should_assert_eq))]  // `==` is more visible in source code though
-fn byte_seq_size_hint(b: &[u8]) -> error::Result<usize> {
-    let len = b.len();
-
+pub fn size_hint_from_byte_seq_len(len: usize) -> error::Result<usize> {
     let (len_info, data, padding) = if len <= 253 {
         (1, len, (4 - (len + 1) % 4) % 4)
     } else if len <= 0xff_ff_ff {
@@ -165,13 +166,13 @@ fn byte_seq_size_hint(b: &[u8]) -> error::Result<usize> {
 
 impl<'a> MtProtoSized for &'a str {
     fn size_hint(&self) -> error::Result<usize> {
-        byte_seq_size_hint(self.as_bytes())
+        size_hint_from_byte_seq_len(self.as_bytes().len())
     }
 }
 
 impl MtProtoSized for String {
     fn size_hint(&self) -> error::Result<usize> {
-        byte_seq_size_hint(self.as_bytes())
+        size_hint_from_byte_seq_len(self.as_bytes().len())
     }
 }
 
@@ -228,7 +229,10 @@ impl<K, V, S> MtProtoSized for HashMap<K, V, S>
     }
 }
 
-impl<K: MtProtoSized, V: MtProtoSized> MtProtoSized for BTreeMap<K, V> {
+impl<K, V> MtProtoSized for BTreeMap<K, V>
+    where K: MtProtoSized,
+          V: MtProtoSized,
+{
     fn size_hint(&self) -> error::Result<usize> {
         // If len >= 2 ** 32, it's not serializable at all.
         check_seq_len(self.len())?;
@@ -252,19 +256,21 @@ impl MtProtoSized for () {
 
 impl<'a> MtProtoSized for Bytes<'a> {
     fn size_hint(&self) -> error::Result<usize> {
-        byte_seq_size_hint(self)
+        size_hint_from_byte_seq_len(self.len())
     }
 }
 
 impl MtProtoSized for ByteBuf {
     fn size_hint(&self) -> error::Result<usize> {
-        byte_seq_size_hint(self)
+        size_hint_from_byte_seq_len(self.len())
     }
 }
 
 macro_rules! impl_mt_proto_sized_for_tuple {
     ($($ident:ident : $ty:ident ,)*) => {
-        impl<$($ty: MtProtoSized),*> MtProtoSized for ($($ty,)*) {
+        impl<$($ty),*> MtProtoSized for ($($ty,)*)
+            where $($ty: MtProtoSized),*
+        {
             fn size_hint(&self) -> error::Result<usize> {
                 let mut result = 0;
                 let &($(ref $ident,)*) = self;

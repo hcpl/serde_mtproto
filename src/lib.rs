@@ -70,7 +70,7 @@ pub use de::{Deserializer, from_bytes, from_bytes_reuse, from_reader, from_reade
 pub use error::{Error, ErrorKind, Result, ResultExt};
 
 // Other items generally useful for MTProto [de]serialization
-pub use helpers::{UnsizedByteBuf, UnsizedByteBufSeed};
+pub use helpers::{UnsizedByteBuf, UnsizedByteBufSeed, UnsizedBytes, size_hint_from_unsized_byte_seq_len};
 pub use identifiable::Identifiable;
-pub use sized::MtProtoSized;
+pub use sized::{MtProtoSized, size_hint_from_byte_seq_len};
 pub use wrappers::{Boxed, BoxedWithSize, WithSize};
