@@ -6,15 +6,44 @@ rust:
   - beta
   - nightly
 
+matrix:
+  allow_failures:
+    - rust: nightly
+
 cache: cargo
+
+env:
+  global:
+    - RUST_BACKTRACE=1
+  matrix:
+    - FEATURES=""
+    - FEATURES="extprim"
 
 install:
   - |
     if [ "${TRAVIS_RUST_VERSION}" = nightly ]; then
         # Use <https://crates.io/crates/cargo-update> to ensure that we
         # don't waste cloud resources if clippy doesn't need an update
-        cargo install cargo-update
-        cargo install-update clippy
+        if which cargo-install-update; then
+            # Use cargo-update itself to further reduce build time
+            cargo install-update cargo-update
+        else
+            # Probably doesn't exist yet, install it with usual means
+            cargo install cargo-update
+        fi
+
+        # Did nightly get updated already?
+        # Uses ./target/ because it is cached between runs
+        if ["$(rustc --version)" == "$(cat ./target/rustc_version_for_clippy)"]; then
+            # Perfect case, only install if clippy updates
+            cargo install-update clippy
+        else
+            # Yep, nightly got updated, throw the old binary out
+            # (versions of rustc used to compile clippy and rustc dynamically-linked runtime
+            # libraries must match exactly)
+            cargo install --force clippy
+            rustc --version > ./target/rustc_version_for_clippy
+        fi
     fi
 
 script:
@@ -58,14 +87,3 @@ after_success:
         cargo install --force cargo-benchcmp &&
         cargo benchcmp --include-missing before after
     fi
-
-env:
-  global:
-    - RUST_BACKTRACE=1
-  matrix:
-    - FEATURES=""
-    - FEATURES="extprim"
-
-matrix:
-  allow_failures:
-    - rust: nightly
