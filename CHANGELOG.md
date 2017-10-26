@@ -44,6 +44,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- `#[derive(MtProtoSized)]` for tuple structs which produced suffixed integers for tuple field accessors.
 - Size prediction for strings and byte sequences.
 - A bug in `#[derive(MtProtoSized)]`
 - Size prediction for 2-tuples.

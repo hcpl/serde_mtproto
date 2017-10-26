@@ -34,6 +34,9 @@ pub fn impl_mt_proto_sized(ast: &mut syn::DeriveInput) -> quote::Tokens {
                             continue;
                         }
 
+                        // Integers are rendered with type suffixes. We don't want this.
+                        let i = quote::Ident::new(i.to_string());
+
                         fields_quoted.append(quote! {
                             + _serde_mtproto::MtProtoSized::size_hint(&self.#i)?
                         });

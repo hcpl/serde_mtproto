@@ -267,9 +267,9 @@ impl MtProtoSized for ByteBuf {
 }
 
 macro_rules! impl_mt_proto_sized_for_tuple {
-    ($($ident:ident : $ty:ident ,)*) => {
+    ($($ident:ident : $ty:ident ,)+) => {
         impl<$($ty),*> MtProtoSized for ($($ty,)*)
-            where $($ty: MtProtoSized),*
+            where $($ty: MtProtoSized,)*
         {
             fn size_hint(&self) -> error::Result<usize> {
                 let mut result = 0;
