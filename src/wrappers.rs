@@ -16,6 +16,9 @@
 //! This crate uses `Boxed*` family as the default, whereas `WithId*`
 //! are type aliases.
 
+#[cfg(feature = "quickcheck")]
+use quickcheck::{Arbitrary, Gen};
+
 use error;
 use identifiable::Identifiable;
 use sized::MtProtoSized;
@@ -77,6 +80,19 @@ impl<T: MtProtoSized> MtProtoSized for Boxed<T> {
         let inner_size_hint = self.inner.size_hint()?;
 
         Ok(id_size_hint + inner_size_hint)
+    }
+}
+
+#[cfg(feature = "quickcheck")]
+impl<T> Arbitrary for Boxed<T>
+    where T: Arbitrary + Identifiable
+{
+    fn arbitrary<G: Gen>(g: &mut G) -> Boxed<T> {
+        Boxed::new(T::arbitrary(g))
+    }
+
+    fn shrink(&self) -> Box<Iterator<Item=Boxed<T>>> {
+        Box::new(self.inner.shrink().map(Boxed::new))
     }
 }
 

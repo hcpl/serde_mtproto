@@ -42,6 +42,8 @@ extern crate extprim;
 #[macro_use]
 extern crate log;
 extern crate num_traits;
+#[cfg(feature = "quickcheck")]
+extern crate quickcheck;
 extern crate serde;
 extern crate serde_bytes;
 #[macro_use]
