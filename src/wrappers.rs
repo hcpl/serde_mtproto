@@ -142,6 +142,21 @@ impl<T: MtProtoSized> MtProtoSized for WithSize<T> {
     }
 }
 
+#[cfg(feature = "quickcheck")]
+impl<T> Arbitrary for WithSize<T>
+    where T: Arbitrary + MtProtoSized
+{
+    fn arbitrary<G: Gen>(g: &mut G) -> WithSize<T> {
+        WithSize::new(T::arbitrary(g))
+            .expect("failed to wrap a generated random value using `WithSize`")
+    }
+
+    fn shrink(&self) -> Box<Iterator<Item=WithSize<T>>> {
+        Box::new(self.inner.shrink().map(|x| WithSize::new(x)
+            .expect("failed to wrap a shrinked value using `WithSize`")))
+    }
+}
+
 
 /// A struct that wraps an `Identifiable` and `MtProtoSized` type value
 /// to serialize and deserialize as a boxed MTProto data type with the
@@ -195,5 +210,20 @@ impl<T: MtProtoSized> MtProtoSized for BoxedWithSize<T> {
         let inner_size_hint = self.inner.size_hint()?;
 
         Ok(id_size_hint + size_size_hint + inner_size_hint)
+    }
+}
+
+#[cfg(feature = "quickcheck")]
+impl<T> Arbitrary for BoxedWithSize<T>
+    where T: Arbitrary + Identifiable + MtProtoSized
+{
+    fn arbitrary<G: Gen>(g: &mut G) -> BoxedWithSize<T> {
+        BoxedWithSize::new(T::arbitrary(g))
+            .expect("failed to wrap a generated random value using `BoxedWithSize`")
+    }
+
+    fn shrink(&self) -> Box<Iterator<Item=BoxedWithSize<T>>> {
+        Box::new(self.inner.shrink().map(|x| BoxedWithSize::new(x)
+            .expect("failed to wrap a shrinked value using `BoxedWithSize`")))
     }
 }

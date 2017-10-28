@@ -14,7 +14,7 @@ use std::collections::BTreeMap;
 
 use quickcheck::TestResult;
 //use serde_mtproto::ByteBuf;
-use serde_mtproto::Boxed;
+use serde_mtproto::{Boxed, BoxedWithSize, WithSize};
 
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Arbitrary, MtProtoIdentifiable, MtProtoSized)]
@@ -34,7 +34,7 @@ struct SimpleStruct {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Arbitrary, MtProtoIdentifiable, MtProtoSized)]
 #[id = "0x341b1c93"]
-struct SimpleStruct2((i8,), PhantomStruct, (isize, u16));
+struct SimpleStruct2((i8,), PhantomStruct, WithSize<(isize, u16)>);
 
 #[cfg_attr(feature = "cargo-clippy", allow(enum_variant_names))]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Arbitrary, MtProtoIdentifiable, MtProtoSized)]
@@ -45,8 +45,8 @@ enum SimpleEnum {
     Variant2,
     #[id = "0xb5a92a28"]
     Variant3 {
-        variant3_field1: Vec<u8>,  // replace by ByteBuf
-        variant3_field2: u32,      // replace by [u32; 4]
+        variant3_field1: Vec<u8>, // replace by ByteBuf
+        variant3_field2: BoxedWithSize<u32>, // replace by [u32; 4]
     },
     #[id = "0x8d72c9e1"]
     Variant4(((u64, i32), f32, BTreeMap<i8, String>, f64)), // replace <i8, String> by <i8, [String; 0]>
