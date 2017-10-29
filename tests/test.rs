@@ -1,3 +1,5 @@
+//! Integration & regression tests.
+
 //#[cfg(feature = "extprim")]
 //extern crate extprim;
 #[macro_use]
@@ -68,8 +70,26 @@ fn pad(bytes: &[u8]) -> Vec<u8> {
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
+#[id = "0xb01dface"]
+struct Point3I(i32, i32, i32);
+
+#[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
+#[id = "0xca11ab1e"]
+struct Wrapper(i16);
+
+#[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
 #[id = "0xd15ea5e0"]
 struct Nothing;
+
+#[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
+enum CLike {
+    #[id = "0x5ca1ab1e"]
+    A,
+    #[id = "0xca55e77e"]
+    B,
+    #[id = "0xf007ba11"]
+    C,
+}
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
 enum Cafebabe<T> {
@@ -93,6 +113,8 @@ enum Cafebabe<T> {
     },
     #[id = "0x0d00d1e0"]
     Blob,
+    #[id = "0x7e1eca57"]
+    Quux(CLike),
 }
 
 
@@ -142,12 +164,44 @@ lazy_static! {
         16, 17, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     ];
 
+    static ref POINT_3I: Point3I = Point3I(-35_000, 846, 1_029_748);
+
+    static ref POINT_3I_SERIALIZED_BARE: Vec<u8> = vec![
+        72, 119, 255, 255,    // -35000 as little-endian 32-bit int
+        78, 3, 0, 0,          // 846 as little-endian 32-bit int
+        116, 182, 15, 0,      // 1029748 as little-endian 32-bit int
+    ];
+
+    static ref POINT_3I_SERIALIZED_BOXED: Vec<u8> = vec![
+        0xce, 0xfa, 0x1d, 0xb0,    // id of Point3I in little-endian
+        72, 119, 255, 255,         // -35000 as little-endian 32-bit int
+        78, 3, 0, 0,               // 846 as little-endian 32-bit int
+        116, 182, 15, 0,           // 1029748 as little-endian 32-bit int
+    ];
+
+    static ref WRAPPER: Wrapper = Wrapper(-32_768);
+
+    static ref WRAPPER_SERIALIZED_BARE: Vec<u8> = vec![
+        0, 128, 255, 255,          // -32768 as 32-bit int (MTProto doesn't support less than 32-bit)
+    ];
+
+    static ref WRAPPER_SERIALIZED_BOXED: Vec<u8> = vec![
+        0x1e, 0xab, 0x11, 0xca,    // id of Wrapper in little-endian
+        0, 128, 255, 255,          // -32768 as 32-bit int (MTProto doesn't support less than 32-bit)
+    ];
+
     static ref NOTHING: Nothing = Nothing;
 
     static ref NOTHING_SERIALIZED_BARE: Vec<u8> = vec![];
 
     static ref NOTHING_SERIALIZED_BOXED: Vec<u8> = vec![
         0xe0, 0xa5, 0x5e, 0xd1,    // id of Nothing in little-endian
+    ];
+
+    static ref C_LIKE_B: CLike = CLike::B;
+
+    static ref C_LIKE_B_SERIALIZED_BOXED: Vec<u8> = vec![
+        0x7e, 0xe7, 0x55, 0xca,    // id of CLike::B in little-endian
     ];
 
     static ref CAFEBABE_BAR: Cafebabe<u32> = Cafebabe::Bar {
@@ -212,6 +266,12 @@ lazy_static! {
 
     static ref CAFEBABE_BLOB_SERIALIZED_BOXED: Vec<u8> = vec![
         0xe0, 0xd1, 0x00, 0x0d,    // id of Cafebabe::Blob in little-endian
+    ];
+
+    static ref CAFEBABE_QUUX: Cafebabe<u16> = Cafebabe::Quux(CLike::C);
+
+    static ref CAFEBABE_QUUX_SERIALIZED_BOXED: Vec<u8> = vec![
+        0x57, 0xca, 0x1e, 0x7e,    // id of Cafebabe::Quux in little-endian
     ];
 }
 
@@ -323,6 +383,44 @@ test_suite_boxed! {
 
 
 test_suite_bare! {
+    test_tuple_struct_to_bytes_bare,
+    test_tuple_struct_to_writer_bare,
+    test_tuple_struct_from_bytes_bare,
+    test_tuple_struct_from_reader_bare,
+    test_tuple_struct_size_prediction_bare =>
+    Point3I: (POINT_3I, POINT_3I_SERIALIZED_BARE, point_3i_deserialized_bare, None)
+}
+
+test_suite_boxed! {
+    test_tuple_struct_to_bytes_boxed,
+    test_tuple_struct_to_writer_boxed,
+    test_tuple_struct_from_bytes_boxed,
+    test_tuple_struct_from_reader_boxed,
+    test_tuple_struct_size_prediction_boxed =>
+    Point3I: (POINT_3I, POINT_3I_SERIALIZED_BOXED, point_3i_deserialized_boxed, None)
+}
+
+
+test_suite_bare! {
+    test_newtype_struct_to_bytes_bare,
+    test_newtype_struct_to_writer_bare,
+    test_newtype_struct_from_bytes_bare,
+    test_newtype_struct_from_reader_bare,
+    test_newtype_struct_size_prediction_bare =>
+    Wrapper: (WRAPPER, WRAPPER_SERIALIZED_BARE, wrapper_deserialized_bare, None)
+}
+
+test_suite_boxed! {
+    test_newtype_struct_to_bytes_boxed,
+    test_newtype_struct_to_writer_boxed,
+    test_newtype_struct_from_bytes_boxed,
+    test_newtype_struct_from_reader_boxed,
+    test_newtype_struct_size_prediction_boxed =>
+    Wrapper: (WRAPPER, WRAPPER_SERIALIZED_BOXED, wrapper_deserialized_boxed, None)
+}
+
+
+test_suite_bare! {
     test_unit_struct_to_bytes_bare,
     test_unit_struct_to_writer_bare,
     test_unit_struct_from_bytes_bare,
@@ -338,6 +436,16 @@ test_suite_boxed! {
     test_unit_struct_from_reader_boxed,
     test_unit_struct_size_prediction_boxed =>
     Nothing: (NOTHING, NOTHING_SERIALIZED_BOXED, nothing_deserialized_boxed, None)
+}
+
+
+test_suite_boxed! {
+    test_c_like_enum_variant_to_bytes_boxed,
+    test_c_like_enum_variant_to_writer_boxed,
+    test_c_like_enum_variant_from_bytes_boxed,
+    test_c_like_enum_variant_from_reader_boxed,
+    test_c_like_enum_variant_size_prediction_boxed =>
+    CLike: (C_LIKE_B, C_LIKE_B_SERIALIZED_BOXED, c_like_b_deserialized_boxed, Some("B"))
 }
 
 
@@ -371,17 +479,33 @@ test_suite_boxed! {
 }
 
 
+test_suite_boxed! {
+    test_newtype_enum_variant_to_bytes_boxed,
+    test_newtype_enum_variant_to_writer_boxed,
+    test_newtype_enum_variant_from_bytes_boxed,
+    test_newtype_enum_variant_from_reader_boxed,
+    test_newtype_enum_variant_size_prediction_boxed =>
+    Cafebabe<u16>: (CAFEBABE_QUUX, CAFEBABE_QUUX_SERIALIZED_BOXED, cafebabe_quux_deserialized_boxed, Some("Quux"))
+}
+
+
 /// MTProto-serialized data must be aligned by 4 bytes.
 #[cfg_attr(feature = "cargo-clippy", allow(should_assert_eq))]  // `==` is more visible in source code though
 #[test]
 fn test_serialization_alignment() {
     assert!(FOO_SERIALIZED_BARE.len() % 4 == 0);
     assert!(FOO_SERIALIZED_BOXED.len() % 4 == 0);
-    assert!(NOTHING_SERIALIZED_BARE.len() % 4 == 0);
-    assert!(NOTHING_SERIALIZED_BOXED.len() % 4 == 0);
     assert!(MESSAGE_SERIALIZED_BARE.len() % 4 == 0);
     assert!(MESSAGE_SERIALIZED_BOXED.len() % 4 == 0);
+    assert!(POINT_3I_SERIALIZED_BARE.len() % 4 == 0);
+    assert!(POINT_3I_SERIALIZED_BOXED.len() % 4 == 0);
+    assert!(WRAPPER_SERIALIZED_BARE.len() % 4 == 0);
+    assert!(WRAPPER_SERIALIZED_BOXED.len() % 4 == 0);
+    assert!(NOTHING_SERIALIZED_BARE.len() % 4 == 0);
+    assert!(NOTHING_SERIALIZED_BOXED.len() % 4 == 0);
+    assert!(C_LIKE_B_SERIALIZED_BOXED.len() % 4 == 0);
     assert!(CAFEBABE_BAR_SERIALIZED_BOXED.len() % 4 == 0);
     assert!(CAFEBABE_BAZ_SERIALIZED_BOXED.len() % 4 == 0);
     assert!(CAFEBABE_BLOB_SERIALIZED_BOXED.len() % 4 == 0);
+    assert!(CAFEBABE_QUUX_SERIALIZED_BOXED.len() % 4 == 0);
 }
