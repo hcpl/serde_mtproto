@@ -7,6 +7,27 @@ pub fn impl_mt_proto_identifiable(ast: &syn::DeriveInput) -> quote::Tokens {
 
     let item_name = &ast.ident;
     let dummy_const = syn::Ident::new(format!("_IMPL_MT_PROTO_IDENTIFIABLE_FOR_{}", item_name));
+    let all_type_ids_const = syn::Ident::new(format!("_ALL_TYPE_IDS_OF_{}", item_name));
+
+    let all_type_ids_value = match ast.body {
+        syn::Body::Struct(_) => {
+            let id = get_id_from_attrs(&ast.attrs);
+
+            quote! {
+                &[#id]
+            }
+        }
+
+        syn::Body::Enum(ref variants) => {
+            let ids = variants.iter()
+                .map(|v| get_id_from_attrs(&v.attrs))
+                .collect::<Vec<_>>();
+
+            quote! {
+                &[#(#ids),*]
+            }
+        }
+    };
 
     let type_id_body = match ast.body {
         syn::Body::Struct(_) => {
@@ -65,14 +86,21 @@ pub fn impl_mt_proto_identifiable(ast: &syn::DeriveInput) -> quote::Tokens {
         }
     };
 
+    // Use rvalue static promotion syntax after bumping minimum supported Rust version to 1.21
     quote! {
         #[allow(non_upper_case_globals)]
         const #dummy_const: () = {
             extern crate serde_mtproto as _serde_mtproto;
 
+            const #all_type_ids_const: &'static [u32] = #all_type_ids_value;
+
             impl #item_impl_generics _serde_mtproto::Identifiable for #item_name #item_ty_generics
                 #item_where_clause
             {
+                fn all_type_ids() -> &'static [u32] {
+                    #all_type_ids_const
+                }
+
                 fn type_id(&self) -> u32 {
                     #type_id_body
                 }

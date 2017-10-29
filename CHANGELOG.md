@@ -8,6 +8,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Add a new method to `Identifiable` trait: `all_type_ids()` which returns all possible ids of an identifiable type which are known at compile-time.
 - `quickcheck::Arbitrary` implementations for `Boxed`, `WithSize` and `BoxedWithSize`.
 - Helper functions for calculating size hints `size_hint_from_byte_seq_len` and `size_hint_from_unsized_byte_seq_len` are now exported for public usage.
 - You can skip taking a field into account for `#[derive(MtProtoSized)]` by placing `#[mtproto_sized(skip)]` before the field.
