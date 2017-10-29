@@ -21,7 +21,8 @@ use std::marker::PhantomData;
 
 #[cfg(feature = "quickcheck")]
 use quickcheck::{Arbitrary, Gen};
-use serde::de::{Deserialize, Deserializer, Error as DeError, MapAccess, SeqAccess, Visitor};
+use serde::de::{Deserialize, DeserializeSeed, Deserializer,
+                Error as DeError, MapAccess, SeqAccess, Visitor};
 
 use error::{self, DeErrorKind};
 use identifiable::Identifiable;
@@ -80,25 +81,6 @@ impl<'de, T> Deserialize<'de> for Boxed<T>
 
         struct BoxedVisitor<T>(PhantomData<T>);
 
-        fn check_type_id<T: Identifiable>(type_id: u32) -> error::Result<()> {
-            let expected_type_ids = T::all_type_ids();
-            if expected_type_ids.iter().find(|&id| *id == type_id).is_none() {
-                bail!(DeErrorKind::InvalidTypeId(type_id, expected_type_ids));
-            }
-
-            Ok(())
-        }
-
-        fn checked_boxed_value<T: Identifiable>(type_id: u32, value: T) -> error::Result<Boxed<T>> {
-            let boxed_value = Boxed::new(value);
-
-            if type_id != boxed_value.id {
-                bail!(DeErrorKind::TypeIdMismatch(type_id, boxed_value.id));
-            }
-
-            Ok(boxed_value)
-        }
-
         impl<'de, T> Visitor<'de> for BoxedVisitor<T>
             where T: Deserialize<'de> + Identifiable
         {
@@ -111,42 +93,32 @@ impl<'de, T> Deserialize<'de> for Boxed<T>
             fn visit_seq<A>(self, mut seq: A) -> Result<Boxed<T>, A::Error>
                 where A: SeqAccess<'de>
             {
-                let errconv = |kind: DeErrorKind| A::Error::custom(error::Error::from(kind));
-
-                let type_id = seq.next_element()?
-                    .ok_or(errconv(DeErrorKind::NotEnoughElements(0, 2)))?;
-
+                let type_id = next_seq_element(&mut seq, 0, 2)?;
                 check_type_id::<T>(type_id).map_err(A::Error::custom)?;
 
-                let value = seq.next_element()?
-                    .ok_or(errconv(DeErrorKind::NotEnoughElements(1, 2)))?;
-
+                let value = next_seq_element(&mut seq, 1, 2)?;
                 checked_boxed_value::<T>(type_id, value).map_err(A::Error::custom)
             }
 
             fn visit_map<A>(self, mut map: A) -> Result<Boxed<T>, A::Error>
                 where A: MapAccess<'de>
             {
-                let errconv = |kind: DeErrorKind| A::Error::custom(error::Error::from(kind));
-
-                let type_id = match map.next_key()?
-                    .ok_or(errconv(DeErrorKind::NotEnoughElements(0, 2)))?
-                {
-                    "id" => map.next_value()?,
-                    key => bail!(errconv(DeErrorKind::InvalidMapKey(key.to_owned(), "id"))),
-                };
-
+                let type_id = next_struct_element(&mut map, "id", 0, 2)?;
                 check_type_id::<T>(type_id).map_err(A::Error::custom)?;
 
-                let value = match map.next_key()?
-                    .ok_or(errconv(DeErrorKind::NotEnoughElements(1, 2)))?
-                {
-                    "inner" => map.next_value()?,
-                    key => bail!(errconv(DeErrorKind::InvalidMapKey(key.to_owned(), "inner"))),
-                };
-
+                let value = next_struct_element(&mut map, "inner", 1, 2)?;
                 checked_boxed_value::<T>(type_id, value).map_err(A::Error::custom)
             }
+        }
+
+        fn checked_boxed_value<T: Identifiable>(type_id: u32, value: T) -> error::Result<Boxed<T>> {
+            let boxed_value = Boxed::new(value);
+
+            if type_id != boxed_value.id {
+                bail!(DeErrorKind::TypeIdMismatch(type_id, boxed_value.id));
+            }
+
+            Ok(boxed_value)
         }
 
         deserializer.deserialize_struct("Boxed", &["id", "inner"], BoxedVisitor(PhantomData))
@@ -234,8 +206,11 @@ impl<'de, T> Deserialize<'de> for WithSize<T>
     fn deserialize<D>(deserializer: D) -> Result<WithSize<T>, D::Error>
         where D: Deserializer<'de>
     {
-        let errconv = |kind: DeErrorKind| D::Error::custom(error::Error::from(kind));
-
+        // Here we only implement through a helper struct because fully manual implementation
+        // (like what is present for `Boxed` and `BoxedWithSize`) won't provide us eny benefits
+        // over this solution - we can obtain a deserialized size beforehand, but we can't apply it
+        // since neither Serde deserializable types, nor Serde deserializers in general have any
+        // means to limit the amount of raw data to be processed.
         #[derive(Deserialize)]
         #[serde(rename = "WithSize")]
         struct WithSizeHelper<T> {
@@ -247,7 +222,7 @@ impl<'de, T> Deserialize<'de> for WithSize<T>
         let helper_size_hint = helper.inner.size_hint().map_err(D::Error::custom)?;
 
         if !safe_uint_cmp(helper.size, helper_size_hint) {
-            bail!(errconv(DeErrorKind::SizeMismatch(
+            bail!(errconv::<D::Error>(DeErrorKind::SizeMismatch(
                 helper.size,
                 safe_int_cast(helper_size_hint).map_err(D::Error::custom)?,
             )));
@@ -344,68 +319,6 @@ impl<'de, T> Deserialize<'de> for BoxedWithSize<T>
 
         struct BoxedWithSizeVisitor<T>(PhantomData<T>);
 
-        fn check_type_id<T: Identifiable>(type_id: u32) -> error::Result<()> {
-            let expected_type_ids = T::all_type_ids();
-            if expected_type_ids.iter().find(|&id| *id == type_id).is_none() {
-                bail!(DeErrorKind::InvalidTypeId(type_id, expected_type_ids));
-            }
-
-            Ok(())
-        }
-
-        fn checked_boxed_with_size_value<T>(type_id: u32,
-                                            size: u32,
-                                            value: T)
-                                           -> error::Result<BoxedWithSize<T>>
-            where T: Identifiable + MtProtoSized
-        {
-            let boxed_with_size_value = BoxedWithSize::new(value)?;
-
-            if type_id != boxed_with_size_value.id {
-                bail!(DeErrorKind::TypeIdMismatch(type_id, boxed_with_size_value.id));
-            }
-
-            let boxed_with_size_size_hint = boxed_with_size_value.size_hint()?;
-            if !safe_uint_cmp(size, boxed_with_size_size_hint) {
-                bail!(DeErrorKind::SizeMismatch(size, safe_int_cast(boxed_with_size_size_hint)?));
-            }
-
-            Ok(boxed_with_size_value)
-        }
-
-        fn next_seq_element<'de, T, A>(seq: &mut A,
-                                       deserialized_count: u32,
-                                       expected_count: u32)
-                                      -> Result<T, A::Error>
-            where T: Deserialize<'de>,
-                  A: SeqAccess<'de>,
-        {
-            let errconv = |kind: DeErrorKind| A::Error::custom(error::Error::from(kind));
-
-            seq.next_element()?
-                .ok_or(errconv(DeErrorKind::NotEnoughElements(deserialized_count, expected_count)))
-        }
-
-        fn next_map_element<'de, T, A>(map: &mut A,
-                                       expected_key: &'static str,
-                                       deserialized_count: u32,
-                                       expected_count: u32)
-                                      -> Result<T, A::Error>
-            where T: Deserialize<'de>,
-                  A: MapAccess<'de>,
-        {
-            let errconv = |kind: DeErrorKind| A::Error::custom(error::Error::from(kind));
-
-            let next_key: String = map.next_key()?
-                .ok_or(errconv(DeErrorKind::NotEnoughElements(deserialized_count, expected_count)))?;
-
-            if &next_key != expected_key {
-                bail!(errconv(DeErrorKind::InvalidMapKey(next_key, expected_key)));
-            }
-
-            map.next_value()
-        }
-
         impl<'de, T> Visitor<'de> for BoxedWithSizeVisitor<T>
             where T: Deserialize<'de> + Identifiable + MtProtoSized
         {
@@ -429,13 +342,37 @@ impl<'de, T> Deserialize<'de> for BoxedWithSize<T>
             fn visit_map<A>(self, mut map: A) -> Result<BoxedWithSize<T>, A::Error>
                 where A: MapAccess<'de>
             {
-                let type_id = next_map_element(&mut map, "id", 0, 3)?;
+                let type_id = next_struct_element(&mut map, "id", 0, 3)?;
                 check_type_id::<T>(type_id).map_err(A::Error::custom)?;
 
-                let size = next_map_element(&mut map, "size", 0, 3)?;
-                let value = next_map_element(&mut map, "inner", 0, 3)?;
+                let size = next_struct_element(&mut map, "size", 0, 3)?;
+                let value = next_struct_element(&mut map, "inner", 0, 3)?;
                 checked_boxed_with_size_value::<T>(type_id, size, value).map_err(A::Error::custom)
             }
+        }
+
+        fn checked_boxed_with_size_value<T>(type_id: u32,
+                                            size: u32,
+                                            value: T)
+                                           -> error::Result<BoxedWithSize<T>>
+            where T: Identifiable + MtProtoSized
+        {
+            let boxed_with_size_value = BoxedWithSize::new(value)?;
+
+            // Proritize type id mismatch errors over size mismatch ones since type id being
+            // incorrect will likely lead to a wrong size too.
+            // Also, without correct type information matching sizes don't mean anything anymore.
+            // Data is corrupt. Period.
+            if type_id != boxed_with_size_value.id {
+                bail!(DeErrorKind::TypeIdMismatch(type_id, boxed_with_size_value.id));
+            }
+
+            let boxed_with_size_size_hint = boxed_with_size_value.size_hint()?;
+            if !safe_uint_cmp(size, boxed_with_size_size_hint) {
+                bail!(DeErrorKind::SizeMismatch(size, safe_int_cast(boxed_with_size_size_hint)?));
+            }
+
+            Ok(boxed_with_size_value)
         }
 
         deserializer.deserialize_struct(
@@ -466,4 +403,82 @@ impl<T> Arbitrary for BoxedWithSize<T>
         Box::new(self.inner.shrink().map(|x| BoxedWithSize::new(x)
             .expect("failed to wrap a shrinked value using `BoxedWithSize`")))
     }
+}
+
+
+// ========== UTILS ========== //
+
+fn check_type_id<T: Identifiable>(type_id: u32) -> error::Result<()> {
+    let expected_type_ids = T::all_type_ids();
+    if expected_type_ids.iter().find(|&id| *id == type_id).is_none() {
+        bail!(DeErrorKind::InvalidTypeId(type_id, expected_type_ids));
+    }
+
+    Ok(())
+}
+
+
+fn next_seq_element<'de, T, A>(seq: &mut A,
+                               deserialized_count: u32,
+                               expected_count: u32)
+                              -> Result<T, A::Error>
+    where T: Deserialize<'de>,
+          A: SeqAccess<'de>,
+{
+    next_seq_element_seed(seq, PhantomData, deserialized_count, expected_count)
+}
+
+fn next_seq_element_seed<'de, S, A>(seq: &mut A,
+                                    seed: S,
+                                    deserialized_count: u32,
+                                    expected_count: u32)
+                                   -> Result<S::Value, A::Error>
+    where S: DeserializeSeed<'de>,
+          A: SeqAccess<'de>,
+{
+    seq.next_element_seed(seed)?
+        .ok_or(errconv(DeErrorKind::NotEnoughElements(deserialized_count, expected_count)))
+}
+
+
+fn next_struct_element<'de, T, A>(map: &mut A,
+                                  expected_key: &'static str,
+                                  deserialized_count: u32,
+                                  expected_count: u32)
+                                 -> Result<T, A::Error>
+    where T: Deserialize<'de>,
+          A: MapAccess<'de>,
+{
+    next_struct_element_seed(
+        map, PhantomData, PhantomData, expected_key, deserialized_count, expected_count)
+}
+
+fn next_struct_element_seed<'de, K, V, A>(map: &mut A,
+                                          string_key_seed: K,
+                                          value_seed: V,
+                                          expected_key: &'static str,
+                                          deserialized_count: u32,
+                                          expected_count: u32)
+                                         -> Result<V::Value, A::Error>
+    where K: DeserializeSeed<'de, Value=String>,
+          V: DeserializeSeed<'de>,
+          A: MapAccess<'de>,
+{
+    let next_key = map.next_key_seed(string_key_seed)?
+        .ok_or(errconv(DeErrorKind::NotEnoughElements(deserialized_count, expected_count)))?;
+
+    // Don't even try to deserialize value if keys don't match
+    // (the reason behind not using `.next_entry_seed()`)
+    if &next_key != expected_key {
+        bail!(errconv::<A::Error>(DeErrorKind::InvalidMapKey(next_key, expected_key)));
+    }
+
+    map.next_value_seed(value_seed)
+}
+
+
+fn errconv<E>(kind: DeErrorKind) -> E
+    where E: DeError
+{
+    E::custom(error::Error::from(kind))
 }
