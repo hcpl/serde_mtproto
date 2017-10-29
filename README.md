@@ -26,7 +26,7 @@ You may be looking for:
 - [Setting up `#[derive(Serialize, Deserialize)]`](https://serde.rs/codegen.html)
 
 Supports Rust 1.17 and newer.
-Older versions may work, but not guaranteed to.
+Older versions may work, but are not guaranteed to.
 
 
 ## Changelog

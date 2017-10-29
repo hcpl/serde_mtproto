@@ -33,20 +33,25 @@ pub trait Identifiable {
     ///
     /// This is most useful for enums where each variant has its own id.
     ///
-    /// __Implementation note__: this method **should** return a slice of
-    /// **non-duplicate** values, i.e. the slice must effectively be a set with
-    /// contents known at compile-time.
+    /// # Implementation note
+    ///
+    /// This method **should** return a slice of **non-duplicate** values, i.e.
+    /// the slice must effectively be a set with contents known at compile-time.
     /// Currently, there is no way to enforce this restriction using the
     /// language itself.
+    ///
     /// This restriction is marked as **should** because it potentially only
-    /// alters the behavior of counting all ids a type is question has, but not
+    /// alters the behavior of counting all ids a type in question has, but not
     /// checking if an arbitrary id is in this set - in this case, a reliable
     /// counting routine must traverse the whole slice to eliminate duplicates.
+    ///
     /// Unfortunately, this worsens the time complexity from O(*1*) to O(*n*),
     /// but for everyday use-case this is fine since product types we usually
     /// use are relatively small to make this a big concern.
     ///
-    /// Compatibility note: will probably be replaced by an associated constant
+    /// # Compatibility note
+    ///
+    /// Will probably be replaced by an associated constant
     /// after bumping minimum supported Rust version to 1.20.
     fn all_type_ids() -> &'static [u32];
 
@@ -54,6 +59,13 @@ pub trait Identifiable {
     ///
     /// Its signature is made `(&self) -> i32`, not `() -> i32` because of enum
     /// types where different enum variants can have different ids.
+    ///
+    /// # Implementation note
+    ///
+    /// This method **should** return a value contained in the slice returned by
+    /// `all_type_ids()` method.
+    /// Currently, there is no way to enforce this restriction using the
+    /// language itself.
     fn type_id(&self) -> u32;
 
     /// Get enum variant_hint for a value of an identifiable type.

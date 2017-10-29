@@ -334,8 +334,8 @@ impl<'de, T> Deserialize<'de> for BoxedWithSize<T>
                 let type_id = next_seq_element(&mut seq, 0, 3)?;
                 check_type_id::<T>(type_id).map_err(A::Error::custom)?;
 
-                let value = next_seq_element(&mut seq, 1, 3)?;
-                let size = next_seq_element(&mut seq, 2, 3)?;
+                let size = next_seq_element(&mut seq, 1, 3)?;
+                let value = next_seq_element(&mut seq, 2, 3)?;
                 checked_boxed_with_size_value::<T>(type_id, size, value).map_err(A::Error::custom)
             }
 
@@ -345,8 +345,8 @@ impl<'de, T> Deserialize<'de> for BoxedWithSize<T>
                 let type_id = next_struct_element(&mut map, "id", 0, 3)?;
                 check_type_id::<T>(type_id).map_err(A::Error::custom)?;
 
-                let size = next_struct_element(&mut map, "size", 0, 3)?;
-                let value = next_struct_element(&mut map, "inner", 0, 3)?;
+                let size = next_struct_element(&mut map, "size", 1, 3)?;
+                let value = next_struct_element(&mut map, "inner", 2, 3)?;
                 checked_boxed_with_size_value::<T>(type_id, size, value).map_err(A::Error::custom)
             }
         }
