@@ -77,6 +77,7 @@ enum Cafebabe<T> {
     Bar {
         byte_id: i8,
         position: (u64, u32),
+        #[serde(bound(deserialize = "T: ::serde_mtproto_other_name::Identifiable"))]
         data: Boxed<T>,
         //#[cfg(feature = "extprim")]
         //bignum: i128,
@@ -207,7 +208,7 @@ lazy_static! {
         75, 92, 132, 103, 76, 7, 0, 0,             // 8024735636555 as little-endian 64-bit int
     ];
 
-    static ref CAFEBABE_BLOB: Cafebabe<()> = Cafebabe::Blob;
+    static ref CAFEBABE_BLOB: Cafebabe<i16> = Cafebabe::Blob;
 
     static ref CAFEBABE_BLOB_SERIALIZED_BOXED: Vec<u8> = vec![
         0xe0, 0xd1, 0x00, 0x0d,    // id of Cafebabe::Blob in little-endian
@@ -366,7 +367,7 @@ test_suite_boxed! {
     test_unit_enum_variant_from_bytes_boxed,
     test_unit_enum_variant_from_reader_boxed,
     test_unit_enum_variant_size_prediction_boxed =>
-    Cafebabe<()>: (CAFEBABE_BLOB, CAFEBABE_BLOB_SERIALIZED_BOXED, cafebabe_blob_deserialized_boxed, Some("Blob"))
+    Cafebabe<i16>: (CAFEBABE_BLOB, CAFEBABE_BLOB_SERIALIZED_BOXED, cafebabe_blob_deserialized_boxed, Some("Blob"))
 }
 
 

@@ -144,6 +144,16 @@ pub enum DeErrorKind {
     Msg(String),
     /// This `serde` data format doesn't support several types in the Serde data model.
     UnsupportedSerdeType(DeSerdeType),
+    /// Not enough elements, stores the already deserialized and expected count.
+    NotEnoughElements(u32, u32),
+    /// A wrong map key found while deserializing.
+    InvalidMapKey(String, &'static str),
+    /// A wrong type id found while deserializing.
+    InvalidTypeId(u32, &'static [u32]),
+    /// The deserialized type id and the one known from value aren't the same.
+    TypeIdMismatch(u32, u32),
+    /// The deserialized size and the predicted one aren't the same.
+    SizeMismatch(u32, u32),
 }
 
 impl fmt::Display for DeErrorKind {
@@ -154,6 +164,23 @@ impl fmt::Display for DeErrorKind {
             },
             DeErrorKind::UnsupportedSerdeType(ref type_) => {
                 write!(f, "{} type is not supported for deserialization", type_)
+            },
+            DeErrorKind::NotEnoughElements(deserialized_count, expected_count) => {
+                write!(f, "not enough elements: have {}, need {}", deserialized_count, expected_count)
+            },
+            DeErrorKind::InvalidMapKey(ref found_key, expected_key) => {
+                write!(f, "invalid map key {:?}, expected {:?}", found_key, expected_key)
+            },
+            DeErrorKind::InvalidTypeId(found_type_id, valid_type_ids) => {
+                write!(f, "invalid type id {}, expected {:?}", found_type_id, valid_type_ids)
+            },
+            DeErrorKind::TypeIdMismatch(deserialized_type_id, static_type_id) => {
+                write!(f, "type id mismatch: deserialized {}, but {} found from value",
+                    deserialized_type_id, static_type_id)
+            },
+            DeErrorKind::SizeMismatch(deserialized_size, static_size_hint) => {
+                write!(f, "size mismatch: deserialized {}, predicted {}",
+                    deserialized_size, static_size_hint)
             },
         }
     }

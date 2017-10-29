@@ -33,6 +33,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- `Deserialize` impl for `Boxed<T>`, `WithSize<T>` and `BoxedWithSize<T>` - now they have custom implementations instead of derived ones to enforce type constraints such as id and size validity at deserialization time (otherwise this could introduce memory safety issues which lead to security holes).
 - `Identifiable::type_id()` now returns `u32` instead of `i32`.
 - Move `boxed` module to `wrappers`.
 - Use shorter method names in `Identifiable` and `MtProtoSized` traits.
