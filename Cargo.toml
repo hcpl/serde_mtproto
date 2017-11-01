@@ -45,7 +45,7 @@ version-sync = "0.3.1"
 
 
 [[test]]
-name = "test"
+name = "regression_tests"
 
 [[test]]
 name = "serde_interop"

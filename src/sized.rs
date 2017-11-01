@@ -148,7 +148,6 @@ impl_mt_proto_sized_for_primitives! {
 ///
 /// This version **does take** into account the byte sequence length, which is prepended to the
 /// serialized representation of the byte sequence.
-#[cfg_attr(feature = "cargo-clippy", allow(should_assert_eq))]  // `==` is more visible in source code though
 pub fn size_hint_from_byte_seq_len(len: usize) -> error::Result<usize> {
     let (len_info, data, padding) = if len <= 253 {
         (1, len, (4 - (len + 1) % 4) % 4)

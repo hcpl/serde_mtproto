@@ -9,6 +9,12 @@ rust:
 matrix:
   allow_failures:
     - rust: nightly
+  include:
+    # Run QuickCheck only on limited amount of configurations - we don't need more
+    - rust: stable
+      env: FEATURES="extprim,quickcheck"
+    - rust: nightly
+      env: FEATURES="extprim,quickcheck"
 
 cache: cargo
 
@@ -72,7 +78,7 @@ script:
 after_success:
   - |
     # Run benchmarks against master and PR branch
-    # Adapted from https://beachape.com/blog/2016/11/02/rust-performance-testing-on-travis-ci/
+    # Adapted from <https://beachape.com/blog/2016/11/02/rust-performance-testing-on-travis-ci/>
     if [ "${TRAVIS_PULL_REQUEST}" = true ] && [ "${TRAVIS_RUST_VERSION}" = nightly ]; then
         cd "${TRAVIS_BUILD_DIR}"/.. &&
         git clone "${REMOTE_URL}" "${TRAVIS_REPO_SLUG}-bench" &&

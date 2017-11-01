@@ -36,7 +36,7 @@ struct Foo {
     size: usize,
     raw_info: ByteBuf,
 
-    #[derivative(PartialEq="ignore")]
+    #[derivative(PartialEq = "ignore")]
     #[serde(skip)]
     #[mtproto_sized(skip)]
     to_be_skipped: i8,
@@ -490,7 +490,6 @@ test_suite_boxed! {
 
 
 /// MTProto-serialized data must be aligned by 4 bytes.
-#[cfg_attr(feature = "cargo-clippy", allow(should_assert_eq))]  // `==` is more visible in source code though
 #[test]
 fn test_serialization_alignment() {
     assert!(FOO_SERIALIZED_BARE.len() % 4 == 0);

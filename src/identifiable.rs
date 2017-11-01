@@ -149,6 +149,8 @@ macro_rules! impl_identifiable_for_primitives {
     };
 }
 
+// Not implemented for `usize` and `isize` because of their machine-dependent nature:
+// on 32-bit machine they would have int id, but on 64-bit - long id.
 impl_identifiable_for_primitives! {
     i8  => (INT_IDS,  INT_ID),
     i16 => (INT_IDS,  INT_ID),

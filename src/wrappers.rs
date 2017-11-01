@@ -121,7 +121,9 @@ impl<'de, T> Deserialize<'de> for Boxed<T>
             Ok(boxed_value)
         }
 
-        deserializer.deserialize_struct("Boxed", &["id", "inner"], BoxedVisitor(PhantomData))
+        // Use rvalue static promotion after bumping minimal Rust version to 1.21
+        const FIELDS: &[&str] = &["id", "inner"];
+        deserializer.deserialize_struct("Boxed", FIELDS, BoxedVisitor(PhantomData))
     }
 }
 
@@ -375,8 +377,9 @@ impl<'de, T> Deserialize<'de> for BoxedWithSize<T>
             Ok(boxed_with_size_value)
         }
 
-        deserializer.deserialize_struct(
-            "BoxedWithSize", &["id", "size", "inner"], BoxedWithSizeVisitor(PhantomData))
+        // Use rvalue static promotion after bumping minimal Rust version to 1.21
+        const FIELDS: &[&str] = &["id", "size", "inner"];
+        deserializer.deserialize_struct("BoxedWithSize", FIELDS, BoxedWithSizeVisitor(PhantomData))
     }
 }
 
@@ -437,7 +440,7 @@ fn next_seq_element_seed<'de, S, A>(seq: &mut A,
           A: SeqAccess<'de>,
 {
     seq.next_element_seed(seed)?
-        .ok_or(errconv(DeErrorKind::NotEnoughElements(deserialized_count, expected_count)))
+        .ok_or_else(|| errconv(DeErrorKind::NotEnoughElements(deserialized_count, expected_count)))
 }
 
 
@@ -465,11 +468,11 @@ fn next_struct_element_seed<'de, K, V, A>(map: &mut A,
           A: MapAccess<'de>,
 {
     let next_key = map.next_key_seed(string_key_seed)?
-        .ok_or(errconv(DeErrorKind::NotEnoughElements(deserialized_count, expected_count)))?;
+        .ok_or_else(|| errconv(DeErrorKind::NotEnoughElements(deserialized_count, expected_count)))?;
 
     // Don't even try to deserialize value if keys don't match
     // (the reason behind not using `.next_entry_seed()`)
-    if &next_key != expected_key {
+    if next_key != expected_key {
         bail!(errconv::<A::Error>(DeErrorKind::InvalidMapKey(next_key, expected_key)));
     }
 

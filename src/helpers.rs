@@ -164,7 +164,6 @@ impl<'a> MtProtoSized for UnsizedBytes<'a> {
 ///
 /// This version **doesn't take** into account the byte sequence length since it is not contained
 /// in the serialized representation of the byte sequence.
-#[cfg_attr(feature = "cargo-clippy", allow(should_assert_eq))]  // `==` is more visible in source code though
 pub fn size_hint_from_unsized_byte_seq_len(len: usize) -> error::Result<usize> {
     let size = len + (16 - len % 16) % 16;
     assert!(size % 16 == 0);
