@@ -115,6 +115,8 @@ enum Cafebabe<T> {
     Blob,
     #[id = "0x7e1eca57"]
     Quux(CLike),
+    #[id = "0xf01dab1e"]
+    Spam(Boxed<CLike>),
 }
 
 
@@ -272,6 +274,13 @@ lazy_static! {
 
     static ref CAFEBABE_QUUX_SERIALIZED_BOXED: Vec<u8> = vec![
         0x57, 0xca, 0x1e, 0x7e,    // id of Cafebabe::Quux in little-endian
+    ];
+
+    static ref CAFEBABE_SPAM: Cafebabe<Vec<String>> = Cafebabe::Spam(Boxed::new(CLike::A));
+
+    static ref CAFEBABE_SPAM_SERIALIZED_BOXED: Vec<u8> = vec![
+        0x1e, 0xab, 0x1d, 0xf0,    // id of Cafebabe::Spam in little-endian
+        0x1e, 0xab, 0xa1, 0x5c,    // id of CLike::A in little-endian
     ];
 }
 
@@ -480,12 +489,22 @@ test_suite_boxed! {
 
 
 test_suite_boxed! {
-    test_newtype_enum_variant_to_bytes_boxed,
-    test_newtype_enum_variant_to_writer_boxed,
-    test_newtype_enum_variant_from_bytes_boxed,
-    test_newtype_enum_variant_from_reader_boxed,
-    test_newtype_enum_variant_size_prediction_boxed =>
+    test_newtype_enum_variant_with_bare_to_bytes_boxed,
+    test_newtype_enum_variant_with_bare_to_writer_boxed,
+    test_newtype_enum_variant_with_bare_from_bytes_boxed,
+    test_newtype_enum_variant_with_bare_from_reader_boxed,
+    test_newtype_enum_variant_with_bare_size_prediction_boxed =>
     Cafebabe<u16>: (CAFEBABE_QUUX, CAFEBABE_QUUX_SERIALIZED_BOXED, cafebabe_quux_deserialized_boxed, Some("Quux"))
+}
+
+
+test_suite_boxed! {
+    test_newtype_enum_variant_with_boxed_to_bytes_boxed,
+    test_newtype_enum_variant_with_boxed_to_writer_boxed,
+    test_newtype_enum_variant_with_boxed_from_bytes_boxed,
+    test_newtype_enum_variant_with_boxed_from_reader_boxed,
+    test_newtype_enum_variant_with_boxed_size_prediction_boxed =>
+    Cafebabe<Vec<String>>: (CAFEBABE_SPAM, CAFEBABE_SPAM_SERIALIZED_BOXED, cafebabe_spam_deserialized_boxed, Some("Spam"))
 }
 
 
@@ -507,4 +526,5 @@ fn test_serialization_alignment() {
     assert!(CAFEBABE_BAZ_SERIALIZED_BOXED.len() % 4 == 0);
     assert!(CAFEBABE_BLOB_SERIALIZED_BOXED.len() % 4 == 0);
     assert!(CAFEBABE_QUUX_SERIALIZED_BOXED.len() % 4 == 0);
+    assert!(CAFEBABE_SPAM_SERIALIZED_BOXED.len() % 4 == 0);
 }
