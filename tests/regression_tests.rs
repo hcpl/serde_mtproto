@@ -25,7 +25,8 @@ use std::collections::BTreeMap;
 //use extprim::i128::i128;
 use serde::de::{Deserializer, DeserializeSeed};
 use serde_bytes::ByteBuf;
-use serde_mtproto_other_name::{Boxed, MtProtoSized, UnsizedByteBuf, UnsizedByteBufSeed, to_bytes, to_writer, from_bytes, from_reader};
+use serde_mtproto_other_name::{Boxed, MtProtoSized, UnsizedByteBuf, UnsizedByteBufSeed,
+                               to_bytes, to_writer, from_bytes, from_reader};
 
 
 #[derive(Debug, Derivative, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]

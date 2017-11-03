@@ -40,9 +40,9 @@ install:
 
         # Did nightly get updated already?
         # Uses ./target/ because it is cached between runs
-        if ["$(rustc --version)" == "$(cat ./target/rustc_version_for_clippy)"]; then
+        if ["$(rustc --version)" = "$(cat ./target/rustc_version_for_clippy)"]; then
             # Perfect case, only install if clippy updates
-            cargo install-update clippy
+            cargo install-update --allow-no-update clippy
         else
             # Yep, nightly got updated, throw the old binary out
             # (versions of rustc used to compile clippy and rustc dynamically-linked runtime

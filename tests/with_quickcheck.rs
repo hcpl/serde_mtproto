@@ -55,7 +55,7 @@ enum SimpleEnum {
 
 quickcheck! {
     fn ser_de_reversible(data: SimpleStruct) -> bool {
-        println!("Data: {:?}", &data);
+        println!("Received random data: {:?}", &data);
         let ser = serde_mtproto::to_bytes(&data).unwrap();
         println!("Serialized bytes: {:?}", &ser);
         let de = serde_mtproto::from_bytes::<SimpleStruct>(&ser, None).unwrap();
@@ -65,8 +65,11 @@ quickcheck! {
     }
 
     fn de_ser_reversible(byte_buf: Vec<u8>) -> TestResult {
+        println!("Received random byte sequence: {:?}", &byte_buf);
         if let Ok(de) = serde_mtproto::from_bytes::<SimpleStruct>(&byte_buf, None) {
+            println!("Deserialized data: {:?}", &de);
             let ser = serde_mtproto::to_bytes(&de).unwrap();
+            println!("Serailized bytes: {:?}", &ser);
 
             TestResult::from_bool(ser == byte_buf)
         } else {
