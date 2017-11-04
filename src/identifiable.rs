@@ -53,7 +53,8 @@ pub trait Identifiable {
     ///
     /// Will probably be replaced by an associated constant
     /// after bumping minimum supported Rust version to 1.20.
-    fn all_type_ids() -> &'static [u32];
+    fn all_type_ids() -> &'static [u32]
+        where Self: Sized;
 
     /// Get id of a value of an identifiable type.
     ///
