@@ -95,7 +95,7 @@ fn random_struct_deserialize(b: &mut Bencher) {
 
 
 #[derive(Rand, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
-#[id = "200c5e59"]
+#[id = "0x200c5e59"]
 struct Nothing;
 
 #[bench]

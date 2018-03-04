@@ -46,7 +46,7 @@ bench_primitive! {
     i16,   i16_serialize   => [u8; 4],  i16_deserialize;
     i32,   i32_serialize   => [u8; 4],  i32_deserialize;
     i64,   i64_serialize   => [u8; 8],  i64_deserialize;
-    isize, isize_serialize => [u8; 16], isize_deserialize;    // 16 just to be safe
+    isize, isize_serialize => [u8; 16], isize_deserialize;    // 16 just in case of 128-bit machine
 
     u8,    u8_serialize    => [u8; 4],  u8_deserialize;
     u16,   u16_serialize   => [u8; 4],  u16_deserialize;
@@ -61,9 +61,10 @@ bench_primitive! {
     (u8, i16, f32, usize, f64, i64, u64, u32, i32, i8, isize, u16),    // <- truly random!
         all_numeric_primitives_tuple_serialize => [u8; 92], all_numeric_primitives_tuple_deserialize;
 
-    [i32; 32], u8_array32_serialize => [u8; 128], u8_array32_deserialize;
+    [u8; 32],    u8_array32_serialize    => [u8; 128], u8_array32_deserialize;
+    [i32; 32],   i32_array32_serialize   => [u8; 128], i32_array32_deserialize;
     [usize; 32], usize_array32_serialize => [u8; 512], usize_array32_deserialize;
-    [f64; 32], f64_array32_serialize => [u8; 256], f64_array32_deserialize;
+    [f64; 32],   f64_array32_serialize   => [u8; 256], f64_array32_deserialize;
 }
 
 

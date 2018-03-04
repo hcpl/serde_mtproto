@@ -42,6 +42,8 @@
 //! ```
 
 extern crate proc_macro;
+
+extern crate proc_macro2;
 #[macro_use]
 extern crate quote;
 extern crate syn;
@@ -59,30 +61,18 @@ use mt_proto_sized::impl_mt_proto_sized;
 
 #[proc_macro_derive(MtProtoIdentifiable, attributes(id))]
 pub fn mt_proto_identifiable(input: TokenStream) -> TokenStream {
-    // Construct a string representation of the type definition
-    let s = input.to_string();
+    let ast = syn::parse(input).unwrap();
 
-    // Parse the string representation
-    let ast = syn::parse_derive_input(&s).unwrap();
+    let res = impl_mt_proto_identifiable(&ast);
 
-    // Build the impl
-    let gen = impl_mt_proto_identifiable(&ast);
-
-    // Return the generated impl
-    gen.parse().unwrap()
+    res.into()
 }
 
 #[proc_macro_derive(MtProtoSized, attributes(mtproto_sized))]
 pub fn mt_proto_sized(input: TokenStream) -> TokenStream {
-    // Construct a string representation of the type definition
-    let s = input.to_string();
+    let mut ast = syn::parse(input).unwrap();
 
-    // Parse the string representation
-    let mut ast = syn::parse_derive_input(&s).unwrap();
+    let res = impl_mt_proto_sized(&mut ast);
 
-    // Build the impl
-    let gen = impl_mt_proto_sized(&mut ast);
-
-    // Return the generated impl
-    gen.parse().unwrap()
+    res.into()
 }
