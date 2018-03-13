@@ -297,7 +297,9 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
         where V: Visitor<'de>
     {
         debug!("Deserializing identifier");
-        let variant_id = self.enum_variant_id.unwrap();
+        let variant_id = self.enum_variant_id.take()
+            .ok_or_else(|| error::Error::from(DeErrorKind::NoEnumVariantId))?;
+
         debug!("Deserialized variant_id {}", variant_id);
 
         visitor.visit_str(variant_id)

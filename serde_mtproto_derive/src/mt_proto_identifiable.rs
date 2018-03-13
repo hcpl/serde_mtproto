@@ -121,7 +121,6 @@ fn get_id_from_attrs(attrs: &[Attribute]) -> u32 {
                     if let Lit::Str(ref lit_str) = meta_name_value.lit {
                         // Found an identifier
                         let str_value = lit_str.value();
-                        println!("{}", str_value);
 
                         let value = if str_value.starts_with("0x") {
                             u32::from_str_radix(&str_value[2..], 16).unwrap()

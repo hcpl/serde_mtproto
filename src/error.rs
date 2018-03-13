@@ -152,6 +152,8 @@ pub enum DeErrorKind {
     InvalidTypeId(u32, &'static [u32]),
     /// The deserialized type id and the one known from value aren't the same.
     TypeIdMismatch(u32, u32),
+    /// No enum variant id found in the deserializer to continue deserialization.
+    NoEnumVariantId,
     /// The deserialized size and the predicted one aren't the same.
     SizeMismatch(u32, u32),
 }
@@ -177,6 +179,9 @@ impl fmt::Display for DeErrorKind {
             DeErrorKind::TypeIdMismatch(deserialized_type_id, static_type_id) => {
                 write!(f, "type id mismatch: deserialized {}, but {} found from value",
                     deserialized_type_id, static_type_id)
+            },
+            DeErrorKind::NoEnumVariantId => {
+                write!(f, "no enum variant id found in deserializer")
             },
             DeErrorKind::SizeMismatch(deserialized_size, static_size_hint) => {
                 write!(f, "size mismatch: deserialized {}, predicted {}",
