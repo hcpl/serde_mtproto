@@ -20,9 +20,7 @@ pub struct UnsizedByteBuf {
 impl UnsizedByteBuf {
     /// Wrap a byte buffer.
     pub fn new(inner: Vec<u8>) -> UnsizedByteBuf {
-        UnsizedByteBuf {
-            inner: inner,
-        }
+        UnsizedByteBuf { inner }
     }
 
     /// Consume the `UnsizedByteBuf` and return the underlying byte buffer.
@@ -86,9 +84,7 @@ impl UnsizedByteBufSeed {
     /// Construct a new unsized byte buffer seed with the length of the byte sequence to be
     /// deserialized.
     pub fn new(inner_len: u32) -> UnsizedByteBufSeed {
-        UnsizedByteBufSeed {
-            inner_len: inner_len,
-        }
+        UnsizedByteBufSeed { inner_len }
     }
 }
 
@@ -142,9 +138,7 @@ pub struct UnsizedBytes<'a> {
 impl<'a> UnsizedBytes<'a> {
     /// Wrap a bytes slice.
     pub fn new(inner: &'a [u8]) -> UnsizedBytes<'a> {
-        UnsizedBytes {
-            inner: inner,
-        }
+        UnsizedBytes { inner }
     }
 
     /// View the `UnsizedBytes` as the underlying bytes slice.

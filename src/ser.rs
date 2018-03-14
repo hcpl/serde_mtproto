@@ -19,7 +19,7 @@ pub struct Serializer<W: io::Write> {
 impl<W: io::Write> Serializer<W> {
     /// Create a MTProto serializer from an `io::Write`.
     pub fn new(writer: W) -> Serializer<W> {
-        Serializer { writer: writer }
+        Serializer { writer }
     }
 
     /// Unwraps the `Serializer` and returns the underlying `io::Write`.

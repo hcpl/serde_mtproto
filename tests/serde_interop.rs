@@ -60,7 +60,7 @@ fn json_to_mtproto() {
 
 #[test]
 fn mtproto_to_json() {
-    let data: Data = serde_mtproto::from_bytes(&*DATA_MTPROTO, None).unwrap();
+    let data: Data = serde_mtproto::from_bytes(&*DATA_MTPROTO, &[]).unwrap();
     let data_json = serde_json::to_vec(&data).unwrap();
 
     assert_eq!(data_json, *DATA_JSON);
@@ -76,7 +76,7 @@ fn yaml_to_mtproto() {
 
 #[test]
 fn mtproto_to_yaml() {
-    let data: Data = serde_mtproto::from_bytes(&*DATA_MTPROTO, None).unwrap();
+    let data: Data = serde_mtproto::from_bytes(&*DATA_MTPROTO, &[]).unwrap();
     let data_yaml = serde_yaml::to_vec(&data).unwrap();
 
     assert_eq!(data_yaml, *DATA_YAML);
@@ -92,7 +92,7 @@ fn toml_to_mtproto() {
 
 #[test]
 fn mtproto_to_toml() {
-    let data: Data = serde_mtproto::from_bytes(&*DATA_MTPROTO, None).unwrap();
+    let data: Data = serde_mtproto::from_bytes(&*DATA_MTPROTO, &[]).unwrap();
     let data_toml = toml::to_vec(&data).unwrap();
 
     assert_eq!(data_toml, *DATA_TOML);

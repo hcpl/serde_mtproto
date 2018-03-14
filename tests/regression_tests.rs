@@ -360,7 +360,7 @@ test_suite_bare! {
     test_struct_from_bytes_bare,
     test_struct_from_reader_bare,
     test_struct_size_prediction_bare =>
-    Foo: (FOO, FOO_SERIALIZED_BARE, foo_deserialized_bare, None)
+    Foo: (FOO, FOO_SERIALIZED_BARE, foo_deserialized_bare, &[])
 }
 
 test_suite_boxed! {
@@ -369,7 +369,7 @@ test_suite_boxed! {
     test_struct_from_bytes_boxed,
     test_struct_from_reader_boxed,
     test_struct_size_prediction_boxed =>
-    Foo: (FOO, FOO_SERIALIZED_BOXED, foo_deserialized_boxed, None)
+    Foo: (FOO, FOO_SERIALIZED_BOXED, foo_deserialized_boxed, &[])
 }
 
 
@@ -379,7 +379,7 @@ test_suite_bare! {
     test_struct_from_bytes_bare2,
     test_struct_from_reader_bare2,
     test_struct_size_prediction_bare2 =>
-    Message: (MESSAGE, MESSAGE_SERIALIZED_BARE, message_deserialized_bare, None)
+    Message: (MESSAGE, MESSAGE_SERIALIZED_BARE, message_deserialized_bare, &[])
 }
 
 test_suite_boxed! {
@@ -388,7 +388,7 @@ test_suite_boxed! {
     test_struct_from_bytes_boxed2,
     test_struct_from_reader_boxed2,
     test_struct_size_prediction_boxed2 =>
-    Message: (MESSAGE, MESSAGE_SERIALIZED_BOXED, message_deserialized_boxed, None)
+    Message: (MESSAGE, MESSAGE_SERIALIZED_BOXED, message_deserialized_boxed, &[])
 }
 
 
@@ -398,7 +398,7 @@ test_suite_bare! {
     test_tuple_struct_from_bytes_bare,
     test_tuple_struct_from_reader_bare,
     test_tuple_struct_size_prediction_bare =>
-    Point3I: (POINT_3I, POINT_3I_SERIALIZED_BARE, point_3i_deserialized_bare, None)
+    Point3I: (POINT_3I, POINT_3I_SERIALIZED_BARE, point_3i_deserialized_bare, &[])
 }
 
 test_suite_boxed! {
@@ -407,7 +407,7 @@ test_suite_boxed! {
     test_tuple_struct_from_bytes_boxed,
     test_tuple_struct_from_reader_boxed,
     test_tuple_struct_size_prediction_boxed =>
-    Point3I: (POINT_3I, POINT_3I_SERIALIZED_BOXED, point_3i_deserialized_boxed, None)
+    Point3I: (POINT_3I, POINT_3I_SERIALIZED_BOXED, point_3i_deserialized_boxed, &[])
 }
 
 
@@ -417,7 +417,7 @@ test_suite_bare! {
     test_newtype_struct_from_bytes_bare,
     test_newtype_struct_from_reader_bare,
     test_newtype_struct_size_prediction_bare =>
-    Wrapper: (WRAPPER, WRAPPER_SERIALIZED_BARE, wrapper_deserialized_bare, None)
+    Wrapper: (WRAPPER, WRAPPER_SERIALIZED_BARE, wrapper_deserialized_bare, &[])
 }
 
 test_suite_boxed! {
@@ -426,7 +426,7 @@ test_suite_boxed! {
     test_newtype_struct_from_bytes_boxed,
     test_newtype_struct_from_reader_boxed,
     test_newtype_struct_size_prediction_boxed =>
-    Wrapper: (WRAPPER, WRAPPER_SERIALIZED_BOXED, wrapper_deserialized_boxed, None)
+    Wrapper: (WRAPPER, WRAPPER_SERIALIZED_BOXED, wrapper_deserialized_boxed, &[])
 }
 
 
@@ -436,7 +436,7 @@ test_suite_bare! {
     test_unit_struct_from_bytes_bare,
     test_unit_struct_from_reader_bare,
     test_unit_struct_size_prediction_bare =>
-    Nothing: (NOTHING, NOTHING_SERIALIZED_BARE, nothing_deserialized_bare, None)
+    Nothing: (NOTHING, NOTHING_SERIALIZED_BARE, nothing_deserialized_bare, &[])
 }
 
 test_suite_boxed! {
@@ -445,7 +445,7 @@ test_suite_boxed! {
     test_unit_struct_from_bytes_boxed,
     test_unit_struct_from_reader_boxed,
     test_unit_struct_size_prediction_boxed =>
-    Nothing: (NOTHING, NOTHING_SERIALIZED_BOXED, nothing_deserialized_boxed, None)
+    Nothing: (NOTHING, NOTHING_SERIALIZED_BOXED, nothing_deserialized_boxed, &[])
 }
 
 
@@ -455,7 +455,7 @@ test_suite_boxed! {
     test_c_like_enum_variant_from_bytes_boxed,
     test_c_like_enum_variant_from_reader_boxed,
     test_c_like_enum_variant_size_prediction_boxed =>
-    CLike: (C_LIKE_B, C_LIKE_B_SERIALIZED_BOXED, c_like_b_deserialized_boxed, Some("B"))
+    CLike: (C_LIKE_B, C_LIKE_B_SERIALIZED_BOXED, c_like_b_deserialized_boxed, &["B"])
 }
 
 
@@ -465,7 +465,7 @@ test_suite_boxed! {
     test_enum_variant_from_bytes_boxed,
     test_enum_variant_from_reader_boxed,
     test_enum_variant_size_prediction_boxed =>
-    Cafebabe<u32>: (CAFEBABE_BAR, CAFEBABE_BAR_SERIALIZED_BOXED, cafebabe_bar_deserialized_boxed, Some("Bar"))
+    Cafebabe<u32>: (CAFEBABE_BAR, CAFEBABE_BAR_SERIALIZED_BOXED, cafebabe_bar_deserialized_boxed, &["Bar"])
 }
 
 
@@ -475,7 +475,7 @@ test_suite_boxed! {
     test_enum_variant_from_bytes_boxed2,
     test_enum_variant_from_reader_boxed2,
     test_enum_variant_size_prediction_boxed2 =>
-    Cafebabe<Vec<bool>>: (CAFEBABE_BAZ, CAFEBABE_BAZ_SERIALIZED_BOXED, cafebabe_baz_deserialized_boxed, Some("Baz"))
+    Cafebabe<Vec<bool>>: (CAFEBABE_BAZ, CAFEBABE_BAZ_SERIALIZED_BOXED, cafebabe_baz_deserialized_boxed, &["Baz"])
 }
 
 
@@ -485,7 +485,7 @@ test_suite_boxed! {
     test_unit_enum_variant_from_bytes_boxed,
     test_unit_enum_variant_from_reader_boxed,
     test_unit_enum_variant_size_prediction_boxed =>
-    Cafebabe<i16>: (CAFEBABE_BLOB, CAFEBABE_BLOB_SERIALIZED_BOXED, cafebabe_blob_deserialized_boxed, Some("Blob"))
+    Cafebabe<i16>: (CAFEBABE_BLOB, CAFEBABE_BLOB_SERIALIZED_BOXED, cafebabe_blob_deserialized_boxed, &["Blob"])
 }
 
 
@@ -495,7 +495,7 @@ test_suite_boxed! {
     test_newtype_enum_variant_with_bare_from_bytes_boxed,
     test_newtype_enum_variant_with_bare_from_reader_boxed,
     test_newtype_enum_variant_with_bare_size_prediction_boxed =>
-    Cafebabe<u16>: (CAFEBABE_QUUX, CAFEBABE_QUUX_SERIALIZED_BOXED, cafebabe_quux_deserialized_boxed, Some("Quux"))
+    Cafebabe<u16>: (CAFEBABE_QUUX, CAFEBABE_QUUX_SERIALIZED_BOXED, cafebabe_quux_deserialized_boxed, &["Quux", "C"])
 }
 
 
@@ -505,7 +505,7 @@ test_suite_boxed! {
     test_newtype_enum_variant_with_boxed_from_bytes_boxed,
     test_newtype_enum_variant_with_boxed_from_reader_boxed,
     test_newtype_enum_variant_with_boxed_size_prediction_boxed =>
-    Cafebabe<Vec<String>>: (CAFEBABE_SPAM, CAFEBABE_SPAM_SERIALIZED_BOXED, cafebabe_spam_deserialized_boxed, Some("Spam"))
+    Cafebabe<Vec<String>>: (CAFEBABE_SPAM, CAFEBABE_SPAM_SERIALIZED_BOXED, cafebabe_spam_deserialized_boxed, &["Spam", "A"])
 }
 
 

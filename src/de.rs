@@ -12,18 +12,15 @@ use utils::{safe_float_cast, safe_int_cast};
 
 /// A structure that deserializes  MTProto binary representation into Rust values.
 #[derive(Debug)]
-pub struct Deserializer<R: io::Read> {
+pub struct Deserializer<'ids, R: io::Read> {
     reader: R,
-    enum_variant_id: Option<&'static str>,
+    enum_variant_ids: &'ids [&'static str],
 }
 
-impl<R: io::Read> Deserializer<R> {
+impl<'ids, R: io::Read> Deserializer<'ids, R> {
     /// Create a MTProto deserializer from an `io::Read` and enum variant hint.
-    pub fn new(reader: R, enum_variant_id: Option<&'static str>) -> Deserializer<R> {
-        Deserializer {
-            reader: reader,
-            enum_variant_id: enum_variant_id,
-        }
+    pub fn new(reader: R, enum_variant_ids: &'ids [&'static str]) -> Deserializer<'ids, R> {
+        Deserializer { reader, enum_variant_ids }
     }
 
     /// Unwraps the `Deserializer` and returns the underlying `io::Read`.
@@ -83,7 +80,7 @@ impl<R: io::Read> Deserializer<R> {
     }
 }
 
-impl<'a> Deserializer<&'a [u8]> {
+impl<'ids, 'a> Deserializer<'ids, &'a [u8]> {
     /// Length of unprocessed data in the byte buffer.
     pub fn remaining_length(&self) -> usize {
         self.reader.len()
@@ -121,7 +118,7 @@ macro_rules! impl_deserialize_big_int {
     };
 }
 
-impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
+impl<'de, 'a, 'ids, R> de::Deserializer<'de> for &'a mut Deserializer<'ids, R>
     where R: io::Read
 {
     type Error = error::Error;
@@ -297,10 +294,13 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
         where V: Visitor<'de>
     {
         debug!("Deserializing identifier");
-        let variant_id = self.enum_variant_id.take()
+        let variant_id = self.enum_variant_ids.first()
             .ok_or_else(|| error::Error::from(DeErrorKind::NoEnumVariantId))?;
 
         debug!("Deserialized variant_id {}", variant_id);
+
+        assert!(self.enum_variant_ids.len() >= 1);
+        self.enum_variant_ids = &self.enum_variant_ids[1..];
 
         visitor.visit_str(variant_id)
     }
@@ -314,14 +314,14 @@ impl<'de, 'a, R> de::Deserializer<'de> for &'a mut Deserializer<R>
 
 
 #[derive(Debug)]
-struct SeqAccess<'a, R: 'a + io::Read> {
-    de: &'a mut Deserializer<R>,
+struct SeqAccess<'a, 'ids: 'a, R: 'a + io::Read> {
+    de: &'a mut Deserializer<'ids, R>,
     len: u32,
     next_index: u32,
 }
 
-impl<'a, R: io::Read> SeqAccess<'a, R> {
-    fn new(de: &'a mut Deserializer<R>, len: u32) -> SeqAccess<'a, R> {
+impl<'a, 'ids, R: io::Read> SeqAccess<'a, 'ids, R> {
+    fn new(de: &'a mut Deserializer<'ids, R>, len: u32) -> SeqAccess<'a, 'ids, R> {
         SeqAccess {
             de: de,
             next_index: 0,
@@ -330,7 +330,7 @@ impl<'a, R: io::Read> SeqAccess<'a, R> {
     }
 }
 
-impl<'de, 'a, R> de::SeqAccess<'de> for SeqAccess<'a, R>
+impl<'de, 'a, 'ids, R> de::SeqAccess<'de> for SeqAccess<'a, 'ids, R>
     where R: 'a + io::Read
 {
     type Error = error::Error;
@@ -356,14 +356,14 @@ impl<'de, 'a, R> de::SeqAccess<'de> for SeqAccess<'a, R>
 
 
 #[derive(Debug)]
-struct MapAccess<'a, R: 'a + io::Read> {
-    de: &'a mut Deserializer<R>,
+struct MapAccess<'a, 'ids: 'a, R: 'a + io::Read> {
+    de: &'a mut Deserializer<'ids, R>,
     len: u32,
     next_index: u32,
 }
 
-impl<'a, R: io::Read> MapAccess<'a, R> {
-    fn new(de: &'a mut Deserializer<R>, len: u32) -> MapAccess<'a, R> {
+impl<'a, 'ids, R: io::Read> MapAccess<'a, 'ids, R> {
+    fn new(de: &'a mut Deserializer<'ids, R>, len: u32) -> MapAccess<'a, 'ids, R> {
         MapAccess {
             de: de,
             next_index: 0,
@@ -372,7 +372,7 @@ impl<'a, R: io::Read> MapAccess<'a, R> {
     }
 }
 
-impl<'de, 'a, R> de::MapAccess<'de> for MapAccess<'a, R>
+impl<'de, 'a, 'ids, R> de::MapAccess<'de> for MapAccess<'a, 'ids, R>
     where R: 'a + io::Read
 {
     type Error = error::Error;
@@ -405,17 +405,17 @@ impl<'de, 'a, R> de::MapAccess<'de> for MapAccess<'a, R>
 
 
 #[derive(Debug)]
-struct EnumVariantAccess<'a, R: 'a + io::Read> {
-    de: &'a mut Deserializer<R>,
+struct EnumVariantAccess<'a, 'ids: 'a, R: 'a + io::Read> {
+    de: &'a mut Deserializer<'ids, R>,
 }
 
-impl<'a, R: io::Read> EnumVariantAccess<'a, R> {
-    fn new(de: &'a mut Deserializer<R>) -> EnumVariantAccess<'a, R> {
+impl<'a, 'ids, R: io::Read> EnumVariantAccess<'a, 'ids, R> {
+    fn new(de: &'a mut Deserializer<'ids, R>) -> EnumVariantAccess<'a, 'ids, R> {
         EnumVariantAccess { de: de }
     }
 }
 
-impl<'de, 'a, R> de::EnumAccess<'de> for EnumVariantAccess<'a, R>
+impl<'de, 'a, 'ids, R> de::EnumAccess<'de> for EnumVariantAccess<'a, 'ids, R>
     where R: 'a + io::Read
 {
     type Error = error::Error;
@@ -431,7 +431,7 @@ impl<'de, 'a, R> de::EnumAccess<'de> for EnumVariantAccess<'a, R>
     }
 }
 
-impl<'de, 'a, R> de::VariantAccess<'de> for EnumVariantAccess<'a, R>
+impl<'de, 'a, 'ids, R> de::VariantAccess<'de> for EnumVariantAccess<'a, 'ids, R>
     where R: 'a + io::Read
 {
     type Error = error::Error;
@@ -465,33 +465,33 @@ impl<'de, 'a, R> de::VariantAccess<'de> for EnumVariantAccess<'a, R>
 
 
 /// Deserialize an instance of type `T` from bytes of binary MTProto.
-pub fn from_bytes<'a, T>(bytes: &'a [u8], enum_variant_id: Option<&'static str>) -> error::Result<T>
-    where T: Deserialize<'a>
+pub fn from_bytes<'de, T>(bytes: &'de [u8], enum_variant_ids: &[&'static str]) -> error::Result<T>
+    where T: Deserialize<'de>
 {
-    let mut de = Deserializer::new(bytes, enum_variant_id);
+    let mut de = Deserializer::new(bytes, enum_variant_ids);
     let value: T = Deserialize::deserialize(&mut de)?;
 
     Ok(value)
 }
 
 /// Deserialize an instance of type `T` from bytes of binary MTProto and return unused bytes.
-pub fn from_bytes_reuse<'a, T>(bytes: &'a [u8],
-                               enum_variant_id: Option<&'static str>)
-                              -> error::Result<(T, &'a [u8])>
-    where T: Deserialize<'a>
+pub fn from_bytes_reuse<'de, T>(bytes: &'de [u8],
+                               enum_variant_ids: &[&'static str])
+                              -> error::Result<(T, &'de [u8])>
+    where T: Deserialize<'de>
 {
-    let mut de = Deserializer::new(bytes, enum_variant_id);
+    let mut de = Deserializer::new(bytes, enum_variant_ids);
     let value: T = Deserialize::deserialize(&mut de)?;
 
     Ok((value, de.reader))
 }
 
 /// Deserialize an instance of type `T` from an IO stream of binary MTProto.
-pub fn from_reader<R, T>(reader: R, enum_variant_id: Option<&'static str>) -> error::Result<T>
+pub fn from_reader<R, T>(reader: R, enum_variant_ids: &[&'static str]) -> error::Result<T>
     where R: io::Read,
           T: DeserializeOwned,
 {
-    let mut de = Deserializer::new(reader, enum_variant_id);
+    let mut de = Deserializer::new(reader, enum_variant_ids);
     let value: T = Deserialize::deserialize(&mut de)?;
 
     Ok(value)
@@ -500,12 +500,12 @@ pub fn from_reader<R, T>(reader: R, enum_variant_id: Option<&'static str>) -> er
 /// Deserialize an instance of type `T` from an IO stream of binary MTProto and return unused part
 /// of IO stream.
 pub fn from_reader_reuse<R, T>(reader: R,
-                               enum_variant_id: Option<&'static str>)
+                               enum_variant_ids: &[&'static str])
                               -> error::Result<(T, R)>
     where R: io::Read,
           T: DeserializeOwned,
 {
-    let mut de = Deserializer::new(reader, enum_variant_id);
+    let mut de = Deserializer::new(reader, enum_variant_ids);
     let value: T = Deserialize::deserialize(&mut de)?;
 
     Ok((value, de.reader))
