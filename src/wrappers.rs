@@ -49,7 +49,7 @@ impl<T: Identifiable> Boxed<T> {
     pub fn new(inner: T) -> Boxed<T> {
         Boxed {
             id: inner.type_id(),
-            inner: inner,
+            inner,
         }
     }
 
@@ -178,7 +178,7 @@ impl<T: MtProtoSized> WithSize<T> {
     pub fn new(inner: T) -> error::Result<WithSize<T>> {
         let with_size = WithSize {
             size: safe_int_cast(inner.size_hint()?)?,
-            inner: inner,
+            inner,
         };
 
         Ok(with_size)
@@ -285,7 +285,7 @@ impl<T: Identifiable + MtProtoSized> BoxedWithSize<T> {
         let boxed_with_size = BoxedWithSize {
             id: inner.type_id(),
             size: safe_int_cast(inner.size_hint()?)?,
-            inner: inner,
+            inner,
         };
 
         Ok(boxed_with_size)

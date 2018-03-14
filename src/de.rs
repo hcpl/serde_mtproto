@@ -299,8 +299,11 @@ impl<'de, 'a, 'ids, R> de::Deserializer<'de> for &'a mut Deserializer<'ids, R>
 
         debug!("Deserialized variant_id {}", variant_id);
 
-        assert!(self.enum_variant_ids.len() >= 1);
-        self.enum_variant_ids = &self.enum_variant_ids[1..];
+        #[cfg_attr(feature = "cargo-clippy", allow(indexing_slicing))]
+        {
+            assert!(self.enum_variant_ids.len() >= 1);
+            self.enum_variant_ids = &self.enum_variant_ids[1..];
+        }
 
         visitor.visit_str(variant_id)
     }
@@ -322,11 +325,7 @@ struct SeqAccess<'a, 'ids: 'a, R: 'a + io::Read> {
 
 impl<'a, 'ids, R: io::Read> SeqAccess<'a, 'ids, R> {
     fn new(de: &'a mut Deserializer<'ids, R>, len: u32) -> SeqAccess<'a, 'ids, R> {
-        SeqAccess {
-            de: de,
-            next_index: 0,
-            len: len,
-        }
+        SeqAccess { de, len, next_index: 0 }
     }
 }
 
@@ -364,11 +363,7 @@ struct MapAccess<'a, 'ids: 'a, R: 'a + io::Read> {
 
 impl<'a, 'ids, R: io::Read> MapAccess<'a, 'ids, R> {
     fn new(de: &'a mut Deserializer<'ids, R>, len: u32) -> MapAccess<'a, 'ids, R> {
-        MapAccess {
-            de: de,
-            next_index: 0,
-            len: len,
-        }
+        MapAccess { de, len, next_index: 0 }
     }
 }
 
@@ -411,7 +406,7 @@ struct EnumVariantAccess<'a, 'ids: 'a, R: 'a + io::Read> {
 
 impl<'a, 'ids, R: io::Read> EnumVariantAccess<'a, 'ids, R> {
     fn new(de: &'a mut Deserializer<'ids, R>) -> EnumVariantAccess<'a, 'ids, R> {
-        EnumVariantAccess { de: de }
+        EnumVariantAccess { de }
     }
 }
 

@@ -116,9 +116,7 @@ impl<'de> DeserializeSeed<'de> for UnsizedByteBufSeed {
                     }
                 }
 
-                Ok(UnsizedByteBuf {
-                    inner: inner,
-                })
+                Ok(UnsizedByteBuf { inner })
             }
         }
 

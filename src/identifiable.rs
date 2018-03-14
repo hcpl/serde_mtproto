@@ -19,12 +19,12 @@ pub const STRING_ID: u32 = 0xb5286e24;
 pub const VECTOR_ID: u32 = 0x1cb5c415;
 
 
-const BOOL_IDS: &'static [u32] = &[BOOL_TRUE_ID, BOOL_FALSE_ID];
-const INT_IDS: &'static [u32] = &[INT_ID];
-const LONG_IDS: &'static [u32] = &[LONG_ID];
-const DOUBLE_IDS: &'static [u32] = &[DOUBLE_ID];
-const STRING_IDS: &'static [u32] = &[STRING_ID];
-const VECTOR_IDS: &'static [u32] = &[VECTOR_ID];
+const BOOL_IDS: &[u32] = &[BOOL_TRUE_ID, BOOL_FALSE_ID];
+const INT_IDS: &[u32] = &[INT_ID];
+const LONG_IDS: &[u32] = &[LONG_ID];
+const DOUBLE_IDS: &[u32] = &[DOUBLE_ID];
+const STRING_IDS: &[u32] = &[STRING_ID];
+const VECTOR_IDS: &[u32] = &[VECTOR_ID];
 
 
 /// A trait for a Rust data structure that can have an id.

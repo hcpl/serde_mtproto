@@ -269,11 +269,7 @@ pub struct SerializeFixedLengthSeq<'a, W: 'a + io::Write> {
 
 impl<'a, W: io::Write> SerializeFixedLengthSeq<'a, W> {
     fn new(ser: &'a mut Serializer<W>, len: u32) -> SerializeFixedLengthSeq<'a, W> {
-        SerializeFixedLengthSeq {
-            ser: ser,
-            len: len,
-            next_index: 0,
-        }
+        SerializeFixedLengthSeq { ser, len, next_index: 0 }
     }
 
     fn with_serialize_len(ser: &'a mut Serializer<W>, len: u32) -> error::Result<SerializeFixedLengthSeq<'a, W>> {
@@ -438,11 +434,7 @@ impl<'a, W: io::Write> SerializeFixedLengthMap<'a, W> {
                          -> error::Result<SerializeFixedLengthMap<'a, W>> {
         ser::Serializer::serialize_u32(&mut *ser, len)?;
 
-        Ok(SerializeFixedLengthMap {
-            ser: ser,
-            len: len,
-            next_index: 0,
-        })
+        Ok(SerializeFixedLengthMap { ser, len, next_index: 0 })
     }
 }
 
