@@ -55,22 +55,17 @@ enum SimpleEnum {
 
 quickcheck! {
     fn ser_de_reversible(data: SimpleStruct) -> bool {
-        println!("Received random data: {:?}", &data);
         let enum_variant_id = data.field4.inner().enum_variant_id().unwrap();
+
         let ser = serde_mtproto::to_bytes(&data).unwrap();
-        println!("Serialized bytes: {:?}", &ser);
         let de = serde_mtproto::from_bytes::<SimpleStruct>(&ser, &[enum_variant_id]).unwrap();
-        println!("Deserialized data: {:?}", &de);
 
         de == data
     }
 
     fn de_ser_reversible(byte_buf: Vec<u8>) -> TestResult {
-        println!("Received random byte sequence: {:?}", &byte_buf);
         if let Ok(de) = serde_mtproto::from_bytes::<SimpleStruct>(&byte_buf, &[]) {
-            println!("Deserialized data: {:?}", &de);
             let ser = serde_mtproto::to_bytes(&de).unwrap();
-            println!("Serailized bytes: {:?}", &ser);
 
             TestResult::from_bool(ser == byte_buf)
         } else {

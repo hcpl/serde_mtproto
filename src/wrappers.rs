@@ -370,8 +370,10 @@ impl<'de, T> Deserialize<'de> for BoxedWithSize<T>
             }
 
             let boxed_with_size_size_hint = boxed_with_size_value.size_hint()?;
-            if !safe_uint_eq(size, boxed_with_size_size_hint) {
-                bail!(DeErrorKind::SizeMismatch(size, safe_int_cast(boxed_with_size_size_hint)?));
+            let inner_size_hint = boxed_with_size_size_hint - type_id.size_hint()? - size.size_hint()?;
+
+            if !safe_uint_eq(size, inner_size_hint) {
+                bail!(DeErrorKind::SizeMismatch(size, safe_int_cast(inner_size_hint)?));
             }
 
             Ok(boxed_with_size_value)
