@@ -14,7 +14,7 @@ use std::collections::BTreeMap;
 
 use quickcheck::TestResult;
 //use serde_mtproto::ByteBuf;
-use serde_mtproto::{Boxed, BoxedWithSize, WithSize};
+use serde_mtproto::{Boxed, BoxedWithSize, Identifiable, WithSize};
 
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Arbitrary, MtProtoIdentifiable, MtProtoSized)]
@@ -56,9 +56,10 @@ enum SimpleEnum {
 quickcheck! {
     fn ser_de_reversible(data: SimpleStruct) -> bool {
         println!("Received random data: {:?}", &data);
+        let enum_variant_id = data.field4.inner().enum_variant_id().unwrap();
         let ser = serde_mtproto::to_bytes(&data).unwrap();
         println!("Serialized bytes: {:?}", &ser);
-        let de = serde_mtproto::from_bytes::<SimpleStruct>(&ser, None).unwrap();
+        let de = serde_mtproto::from_bytes::<SimpleStruct>(&ser, &[enum_variant_id]).unwrap();
         println!("Deserialized data: {:?}", &de);
 
         de == data
@@ -66,7 +67,7 @@ quickcheck! {
 
     fn de_ser_reversible(byte_buf: Vec<u8>) -> TestResult {
         println!("Received random byte sequence: {:?}", &byte_buf);
-        if let Ok(de) = serde_mtproto::from_bytes::<SimpleStruct>(&byte_buf, None) {
+        if let Ok(de) = serde_mtproto::from_bytes::<SimpleStruct>(&byte_buf, &[]) {
             println!("Deserialized data: {:?}", &de);
             let ser = serde_mtproto::to_bytes(&de).unwrap();
             println!("Serailized bytes: {:?}", &ser);

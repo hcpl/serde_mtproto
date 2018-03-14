@@ -69,7 +69,7 @@ fn struct_deserialize(b: &mut Bencher) {
     ];
 
     b.iter(|| {
-        from_bytes::<Struct>(&struct_serialized, None).unwrap();
+        from_bytes::<Struct>(&struct_serialized, &[]).unwrap();
     });
 }
 
@@ -89,7 +89,7 @@ fn random_struct_deserialize(b: &mut Bencher) {
     let random_struct_serialized = to_bytes(&random_struct).unwrap();
 
     b.iter(|| {
-        from_bytes::<Struct>(&random_struct_serialized, None).unwrap();
+        from_bytes::<Struct>(&random_struct_serialized, &[]).unwrap();
     });
 }
 
@@ -113,7 +113,7 @@ fn nothing_deserialize(b: &mut Bencher) {
     let nothing_serialized = [];
 
     b.iter(|| {
-        from_bytes::<Nothing>(&nothing_serialized, None).unwrap();
+        from_bytes::<Nothing>(&nothing_serialized, &[]).unwrap();
     });
 }
 
@@ -133,6 +133,6 @@ fn random_nothing_deserialize(b: &mut Bencher) {
     let random_nothing_serialized = to_bytes(&random_nothing).unwrap();
 
     b.iter(|| {
-        from_bytes::<Nothing>(&random_nothing_serialized, None).unwrap();
+        from_bytes::<Nothing>(&random_nothing_serialized, &[]).unwrap();
     });
 }

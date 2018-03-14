@@ -14,7 +14,12 @@ matrix:
     - rust: stable
       env: FEATURES="extprim,quickcheck"
     - rust: nightly
-      env: FEATURES="extprim,quickcheck"
+      env: FEATURES="extprim,nightly,quickcheck"
+    # Also test nightly-only functionality
+    - rust: nightly
+      env: FEATURES="nightly"
+    - rust: nightly
+      env: FEATURES="extprim,nightly"
 
 cache: cargo
 

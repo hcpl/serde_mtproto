@@ -137,6 +137,12 @@ impl_mt_proto_sized_for_primitives! {
     f64 => DOUBLE_SIZE,
 }
 
+#[cfg(feature = "nightly")]
+impl_mt_proto_sized_for_primitives! {
+    i128 => INT128_SIZE,
+    u128 => INT128_SIZE,
+}
+
 #[cfg(feature = "extprim")]
 impl_mt_proto_sized_for_primitives! {
     ::extprim::i128::i128 => INT128_SIZE,

@@ -30,7 +30,7 @@ macro_rules! bench_string {
                 let string_serialized = to_bytes(&$init_value).unwrap();
 
                 b.iter(|| {
-                    from_bytes::<String>(&string_serialized, None).unwrap();
+                    from_bytes::<String>(&string_serialized, &[]).unwrap();
                 });
             }
         )*

@@ -26,7 +26,7 @@ pub fn check_seq_len(len: usize) -> error::Result<()> {
         .chain_err(|| ErrorKind::SeqTooLong(len))
 }
 
-pub fn safe_uint_cmp<T, U>(x: T, y: U) -> bool
+pub fn safe_uint_eq<T, U>(x: T, y: U) -> bool
     where T: PrimInt + Unsigned,
           U: PrimInt + Unsigned,
 {

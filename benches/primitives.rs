@@ -1,5 +1,7 @@
 #![feature(test)]
 
+#![cfg_attr(feature = "nightly", feature(i128_type))]
+
 
 #[cfg(feature = "extprim")]
 extern crate extprim;
@@ -31,7 +33,7 @@ macro_rules! bench_primitive {
                 let random_value_serialized = to_bytes(&random_value).unwrap();
 
                 b.iter(|| {
-                    from_bytes::<$ty>(&random_value_serialized, None).unwrap();
+                    from_bytes::<$ty>(&random_value_serialized, &[]).unwrap();
                 });
             }
         )*
@@ -68,13 +70,23 @@ bench_primitive! {
 }
 
 
+// Uncomment when `serde` provides support for builtin `i128` and `u128` types.
+//#[cfg(feature = "nightly")]
+//bench_primitive! {
+//    i128, i128_serialize => [u8; 16], i128_deserialize;
+//    u128, u128_serialize => [u8; 16], u128_deserialize;
+//
+//    (i128, i128), two_i128_tuple_serialize => [u8; 32], two_i128_tuple_deserialize;
+//    (u128, u128), two_u128_tuple_serialize => [u8; 32], two_u128_tuple_deserialize;
+//}
+
 #[cfg(feature = "extprim")]
 bench_primitive! {
-    ::extprim::i128::i128, i128_serialize => [u8; 16], i128_deserialize;
-    ::extprim::u128::u128, u128_serialize => [u8; 16], u128_deserialize;
+    ::extprim::i128::i128, extprim_i128_serialize => [u8; 16], extprim_i128_deserialize;
+    ::extprim::u128::u128, extprim_u128_serialize => [u8; 16], extprim_u128_deserialize;
 
     (::extprim::i128::i128, ::extprim::i128::i128),
-        two_i128_tuple_serialize => [u8; 32], two_i128_tuple_deserialize;
+        two_extprim_i128_tuple_serialize => [u8; 32], two_extprim_i128_tuple_deserialize;
     (::extprim::u128::u128, ::extprim::u128::u128),
-        two_u128_tuple_serialize => [u8; 32], two_u128_tuple_deserialize;
+        two_extprim_u128_tuple_serialize => [u8; 32], two_extprim_u128_tuple_deserialize;
 }

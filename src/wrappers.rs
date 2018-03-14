@@ -27,7 +27,7 @@ use serde::de::{Deserialize, DeserializeSeed, Deserializer,
 use error::{self, DeErrorKind};
 use identifiable::Identifiable;
 use sized::MtProtoSized;
-use utils::{safe_int_cast, safe_uint_cmp};
+use utils::{safe_int_cast, safe_uint_eq};
 
 
 /// A struct that wraps an `Identifiable` type value to serialize and
@@ -223,7 +223,7 @@ impl<'de, T> Deserialize<'de> for WithSize<T>
         let helper = WithSizeHelper::<T>::deserialize(deserializer)?;
         let helper_size_hint = helper.inner.size_hint().map_err(D::Error::custom)?;
 
-        if !safe_uint_cmp(helper.size, helper_size_hint) {
+        if !safe_uint_eq(helper.size, helper_size_hint) {
             bail!(errconv::<D::Error>(DeErrorKind::SizeMismatch(
                 helper.size,
                 safe_int_cast(helper_size_hint).map_err(D::Error::custom)?,
@@ -370,7 +370,7 @@ impl<'de, T> Deserialize<'de> for BoxedWithSize<T>
             }
 
             let boxed_with_size_size_hint = boxed_with_size_value.size_hint()?;
-            if !safe_uint_cmp(size, boxed_with_size_size_hint) {
+            if !safe_uint_eq(size, boxed_with_size_size_hint) {
                 bail!(DeErrorKind::SizeMismatch(size, safe_int_cast(boxed_with_size_size_hint)?));
             }
 
