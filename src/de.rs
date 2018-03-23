@@ -378,7 +378,7 @@ impl<'de, 'a, 'ids, R> de::MapAccess<'de> for MapAccess<'a, 'ids, R>
         if self.next_index < self.len {
             self.next_index += 1;
         } else {
-            debug!("MapAccess::next_element_seed() is called when no elements is left to deserialize");
+            debug!("MapAccess::next_key_seed() is called when no elements is left to deserialize");
             return Ok(None);
         }
 

@@ -141,7 +141,12 @@ fn get_id_from_attrs(attrs: &[Attribute]) -> u32 {
         }
     }
 
-    panic!("#[derive(MtProtoIdentifiable)] requires an #[id = \"0x...\"] attribute:\n    \
+    panic!("#[derive(MtProtoIdentifiable)] requires an #[id = \"...\"] attribute:\n    \
             - on top of struct for structs;\n    \
-            - or on top of each enum variant for enums");
+            - or on top of each enum variant for enums.\n\
+            id can can be either:\n    \
+            - hexadecimal with 0x prefix,\n    \
+            - binary with 0b,\n    \
+            - octal with 0o\n    \
+            - or decimal with no prefix.");
 }
