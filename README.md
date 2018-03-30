@@ -36,7 +36,7 @@ Older versions may work, but are not guaranteed to.
 
 ## Changelog
 
-Maintained in [CHANGELOG.md](https://github.com/hcpl/serde_mtproto/CHANGELOG.md).
+Maintained in [CHANGELOG.md](CHANGELOG.md).
 
 
 ## License
