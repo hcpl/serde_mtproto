@@ -121,7 +121,7 @@ impl<'de, T> Deserialize<'de> for Boxed<T>
             Ok(boxed_value)
         }
 
-        // Use rvalue static promotion after bumping minimal Rust version to 1.21
+        // TODO: Use rvalue static promotion after bumping minimal Rust version to 1.21
         const FIELDS: &[&str] = &["id", "inner"];
         deserializer.deserialize_struct("Boxed", FIELDS, BoxedVisitor(PhantomData))
     }
@@ -379,7 +379,7 @@ impl<'de, T> Deserialize<'de> for BoxedWithSize<T>
             Ok(boxed_with_size_value)
         }
 
-        // Use rvalue static promotion after bumping minimal Rust version to 1.21
+        // TODO: Use rvalue static promotion after bumping minimal Rust version to 1.21
         const FIELDS: &[&str] = &["id", "size", "inner"];
         deserializer.deserialize_struct("BoxedWithSize", FIELDS, BoxedWithSizeVisitor(PhantomData))
     }

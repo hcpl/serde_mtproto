@@ -4,8 +4,6 @@
 extern crate lipsum;
 extern crate rand;
 #[macro_use]
-extern crate rand_derive;
-#[macro_use]
 extern crate serde_derive;
 extern crate serde_mtproto;
 #[macro_use]
@@ -94,9 +92,15 @@ fn random_struct_deserialize(b: &mut Bencher) {
 }
 
 
-#[derive(Rand, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
+#[derive(Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
 #[id = "0x200c5e59"]
 struct Nothing;
+
+impl Rand for Nothing {
+    fn rand<R: Rng>(_rng: &mut R) -> Nothing {
+        Nothing
+    }
+}
 
 #[bench]
 fn nothing_serialize(b: &mut Bencher) {

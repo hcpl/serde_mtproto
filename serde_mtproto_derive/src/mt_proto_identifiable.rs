@@ -81,7 +81,7 @@ pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> quote::Tokens {
         Data::Union(_) => panic!("Cannot derive `mtproto::Identifiable` for unions."),
     };
 
-    // Use rvalue static promotion syntax after bumping minimum supported Rust version to 1.21
+    // TODO: Use rvalue static promotion syntax after bumping minimum supported Rust version to 1.21
     quote! {
         #[allow(non_upper_case_globals)]
         const #dummy_const: () = {

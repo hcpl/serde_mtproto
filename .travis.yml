@@ -1,7 +1,8 @@
 language: rust
 
 rust:
-  - 1.17.0
+  - 1.17.0  # Minimum supported Rust
+  - 1.21.0  # Minimum Rust that works with the `version_numbers` test
   - stable
   - beta
   - nightly
@@ -63,10 +64,14 @@ script:
     cargo test --verbose --all --lib --features "${FEATURES}"
   - |
     # Prefer finer-grained commands
-    # Note: --tests flag only appeared in Rust 1.18:
+    # Note 1: --tests flag only appeared in Rust 1.18:
     #   * https://blog.rust-lang.org/2017/06/08/Rust-1.18.html
     #   * https://github.com/rust-lang/cargo/pull/3901
+    # Note 2: at the time of commiting these changes `version-sync` 0.5.0 depends on `url` 1.7.0
+    # which depends on `unicode-normalization` 0.1.6 which uses rvalue static promotion from Rust
+    # 1.21. Let's not run the `version_numbers` test under Rust 1.17!
     if [ "${TRAVIS_RUST_VERSION}" != 1.17.0 ]; then
+        FEATURES="version-sync,${FEATURES}"
         cargo build --verbose --all --tests --features "${FEATURES}" &&
         cargo test --verbose --all --tests --features "${FEATURES}"
     else

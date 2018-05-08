@@ -174,6 +174,7 @@ fn add_mt_proto_sized_trait_bound_if_missing(ast: &mut DeriveInput) {
             }
 
             type_param.bounds.push(TypeParamBound::Trait(TraitBound {
+                paren_token: None,
                 modifier: TraitBoundModifier::None,
                 lifetimes: None,
                 path: Path {
