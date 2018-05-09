@@ -8,19 +8,17 @@ rust:
   - nightly
 
 matrix:
-  allow_failures:
-    - rust: nightly
   include:
     # Run QuickCheck only on limited amount of configurations - we don't need more
     - rust: stable
-      env: FEATURES="extprim,quickcheck"
+      env: FEATURES="extprim,quickcheck"  # TODO: Use `i128` when stable becomes 1.26+
     - rust: nightly
-      env: FEATURES="extprim,nightly,quickcheck"
+      env: FEATURES="extprim,i128,quickcheck"
     # Also test nightly-only functionality
     - rust: nightly
-      env: FEATURES="nightly"
+      env: FEATURES="i128"
     - rust: nightly
-      env: FEATURES="extprim,nightly"
+      env: FEATURES="extprim,i128"
 
 cache: cargo
 
@@ -70,12 +68,17 @@ script:
     # Note 2: at the time of commiting these changes `version-sync` 0.5.0 depends on `url` 1.7.0
     # which depends on `unicode-normalization` 0.1.6 which uses rvalue static promotion from Rust
     # 1.21. Let's not run the `version_numbers` test under Rust 1.17!
-    if [ "${TRAVIS_RUST_VERSION}" != 1.17.0 ]; then
+    if [ "${TRAVIS_RUST_VERSION}" = 1.17.0 ]; then
+        cargo test --verbose --all --features "${FEATURES}"
+    else
+        # TODO: Use `i128` for stable too when it becomes 1.26+
+        if [ "${TRAVIS_RUST_VERSION}" = nightly ]; then
+            FEATURES="i128,${FEATURES}"
+        fi
+
         FEATURES="version-sync,${FEATURES}"
         cargo build --verbose --all --tests --features "${FEATURES}" &&
         cargo test --verbose --all --tests --features "${FEATURES}"
-    else
-        cargo test --verbose --all --features "${FEATURES}"
     fi
   - |
     if [ "${TRAVIS_RUST_VERSION}" = nightly ]; then
