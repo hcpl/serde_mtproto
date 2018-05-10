@@ -59,7 +59,7 @@ use mt_proto_identifiable::impl_mt_proto_identifiable;
 use mt_proto_sized::impl_mt_proto_sized;
 
 
-#[proc_macro_derive(MtProtoIdentifiable, attributes(id))]
+#[proc_macro_derive(MtProtoIdentifiable, attributes(id, check_type_id))]
 pub fn mt_proto_identifiable(input: TokenStream) -> TokenStream {
     let ast = syn::parse(input).unwrap();
 

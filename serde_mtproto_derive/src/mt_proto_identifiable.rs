@@ -1,6 +1,6 @@
 use proc_macro2::Span;
 use quote;
-use syn::{Attribute, AttrStyle, Data, DeriveInput, Ident, Lit, Meta};
+use syn::{Attribute, AttrStyle, Data, DeriveInput, Ident, Lit, Meta, NestedMeta};
 
 
 pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> quote::Tokens {
@@ -30,7 +30,7 @@ pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> quote::Tokens {
 
     let type_id_body = match ast.data {
         Data::Struct(_) => {
-            let id = get_id_from_attrs(&ast.attrs);
+            let id = get_asserted_id_from_attrs(&ast.attrs);
 
             quote! { #id }
         },
@@ -39,7 +39,7 @@ pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> quote::Tokens {
 
             for variant in &data_enum.variants {
                 let variant_name = &variant.ident;
-                let id = get_id_from_attrs(&variant.attrs);
+                let id = get_asserted_id_from_attrs(&variant.attrs);
 
                 variants_quoted.append_all(&[quote! {
                     #item_name::#variant_name { .. } => #id,
@@ -108,6 +108,53 @@ pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> quote::Tokens {
     }
 }
 
+
+fn get_asserted_id_from_attrs(attrs: &[Attribute]) -> quote::Tokens {
+    let id = get_id_from_attrs(attrs);
+    let check_expr = quote! {
+        Self::all_type_ids().contains(&#id)
+    };
+
+    for attr in attrs {
+        if let Attribute {
+            style: AttrStyle::Outer,
+            is_sugared_doc: false,
+            ..
+        } = *attr {
+            if let Some(Meta::List(ref meta_list)) = attr.interpret_meta() {
+                if meta_list.ident == "check_type_id" && meta_list.nested.len() == 1 {
+                    if let NestedMeta::Meta(Meta::Word(ref ident)) = meta_list.nested[0] {
+                        let res = match ident.as_ref() {
+                            "never" => quote! { #id },
+                            "debug_only" => quote! {
+                                {
+                                    debug_assert!(#check_expr);
+                                    #id
+                                }
+                            },
+                            "always" => quote! {
+                                {
+                                    assert!(#check_expr);
+                                    #id
+                                }
+                            },
+                            _ => continue,
+                        };
+
+                        return res;
+                    }
+                }
+            }
+        }
+    }
+
+    quote! {
+        {
+            assert!(#check_expr);
+            #id
+        }
+    }
+}
 
 fn get_id_from_attrs(attrs: &[Attribute]) -> u32 {
     for attr in attrs {
