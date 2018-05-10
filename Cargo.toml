@@ -19,7 +19,7 @@ members = ["serde_mtproto_derive"]
 [dependencies]
 byteorder = "1.0"
 error-chain = "0.11"
-extprim = { version = "1.5", optional = true }
+extprim = { version = "1.5", optional = true, default-features = false, features = ["use-std", "serde"] }
 log = "0.4"
 num-traits = "0.2"
 quickcheck = { version = "0.6", optional = true }
