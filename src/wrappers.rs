@@ -1,6 +1,38 @@
 //! Wrapper structs for attaching additional data to a type for
 //! [de]serialization purposes.
 //!
+//! ## Data and metadata layout
+//!
+//! | Wrapper type      | Layout           |
+//! |-------------------|------------------|
+//! | [`Boxed`]         | (id, data)       |
+//! | [`WithSize`]      | (size, data)     |
+//! | [`BoxedWithSize`] | (id, size, data) |
+//!
+//! ## Why the wrappers are not `Identifiable` when the type to be wrapped is one?
+//!
+//! Wrappers have never been found to be applicable in places where any
+//! `Identifiable` type can be used.
+//! The current setup enforces this relationship between wrappers and
+//! `Identifiable` trait at type level.
+//! This is a forward-compatible solution in case if wrappers will
+//! really need to implement `Identifiable` for some reason.
+//!
+//! ## Why does `BoxedWithSize` exist?
+//!
+//! Since `Boxed::new` requires `T` to be `Identifiable` and `WithSize`
+//! is not, `Boxed<WithSize<T>>` cannot be created.
+//! `BoxedWithSize` can be used for this purpose.
+//!
+//! ## `BoxedWithSize` arranges fields as (id, size, data). What if I want (size, id, data) instead?
+//!
+//! `WithSize<Boxed<T>>` can be used perfectly fine.
+//!
+//! Note: the size in this case will be the size of `Boxed<T>`, not `T`,
+//! i.e. it equals the size of the given instance of `T` + 4.
+//!
+//! ## `Boxed` vs `WithId`
+//!
 //! `Boxed` and `BoxedWithSize` types have aliases `WithId` and
 //! `WithIdAndSize` respectively to convey different meanings about
 //! them:
@@ -8,13 +40,13 @@
 //! * `Boxed<T>`/`BoxedWithSize<T>` mean "not a bare `T`/`T` with size"
 //!   respectively where boxed/bare types distinction is drawn from the
 //!   MTProto official documentation about serialization:
-//!   <https://core.telegram.org/mtproto/serialize>.
+//!   <https://core.telegram.org/mtproto/serialize#boxed-and-bare-types>.
 //! * `WithId<T>`/`WithIdAndSize<T>` mean "`T` with an id/an id and a
-//!   size attached" repectively which explains *how* this type is
-//!   representing data.
+//!   size attached" repectively which explains *how* this type arranges
+//!   data and metadata.
 //!
-//! This crate uses `Boxed*` family as the default, whereas `WithId*`
-//! are type aliases.
+//! This crate uses `Boxed*` as the main naming scheme, whereas
+//! `WithId*` are type aliases.
 
 use std::fmt;
 use std::marker::PhantomData;
@@ -30,18 +62,19 @@ use sized::MtProtoSized;
 use utils::{safe_int_cast, safe_uint_eq};
 
 
-/// A struct that wraps an `Identifiable` type value to serialize and
+/// A struct that wraps an [`Identifiable`] type value to serialize and
 /// deserialize as a boxed MTProto data type.
 ///
 /// Note: if you want to attach both id and serialized size to the
-/// underlying data (in this order), see `BoxedWithSize`.
+/// underlying data (in this order), see [`BoxedWithSize`] since
+/// [`WithSize`] is not `Identifiable`.
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct Boxed<T> {
     id: u32,
     inner: T,
 }
 
-/// Give `Boxed` an alias that is similar to `WithSize`.
+/// An alias for [`Boxed`] that is similar to [`WithSize`].
 pub type WithId<T> = Boxed<T>;
 
 impl<T: Identifiable> Boxed<T> {
@@ -164,7 +197,7 @@ impl<T> Arbitrary for Boxed<T>
 }
 
 
-/// A struct that wraps a `MtProtoSized` type value to serialize and
+/// A struct that wraps a [`MtProtoSized`] type value to serialize and
 /// deserialize as a MTProto data type with the size of its serialized
 /// value.
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
@@ -262,13 +295,13 @@ impl<T> Arbitrary for WithSize<T>
 }
 
 
-/// A struct that wraps an `Identifiable` and `MtProtoSized` type value
-/// to serialize and deserialize as a boxed MTProto data type with the
-/// size of its serialized value.
+/// A struct that wraps an [`Identifiable`] and [`MtProtoSized`] type
+/// value to serialize and deserialize as a boxed MTProto data type with
+/// the size of its serialized value.
 ///
 /// This struct exists because `Boxed<WithSize<T>>` cannot be created
-/// due to `WithSize<T>` not being `Identifiable` (this restriction is
-/// made on purpose).
+/// due to `WithSize<T>` not being `Identifiable` (for the reasoning
+/// behind this fact see the module-level docs).
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct BoxedWithSize<T> {
     id: u32,
@@ -276,7 +309,8 @@ pub struct BoxedWithSize<T> {
     inner: T,
 }
 
-/// Give `BoxedWithSize` an alias that is similar to `WithId` and `WithSize`.
+/// An alias for [`BoxedWithSize`] that is similar to [`WithId`] and
+/// [`WithSize`].
 pub type WithIdAndSize<T> = BoxedWithSize<T>;
 
 impl<T: Identifiable + MtProtoSized> BoxedWithSize<T> {

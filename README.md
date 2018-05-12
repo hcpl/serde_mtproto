@@ -18,9 +18,9 @@
 [MTProto](https://core.telegram.org/mtproto) [de]serialization for Rust which
 utilizes [Serde](https://serde.rs) framework.
 
-```toml
+```toml,no_sync
 [dependencies]
-serde_mtproto = "0.3"
+serde_mtproto = { git = "https://github.com/hcpl/serde_mtproto" }
 ```
 
 You may be looking for:
@@ -33,6 +33,16 @@ You may be looking for:
 Supports Rust 1.17 and newer.
 Older versions may work, but are not guaranteed to.
 
+### Optional Cargo features
+
+- **`extprim`** — `MtProtoSized` implementations for `extprim::i128::i128` and
+  `extprim::u128::u128`. Works on Rust 1.17+.
+- **`quickcheck`** — `quickcheck::Arbitrary` implmentations for several types
+  defined in `serde_mtproto`.
+  For now, those only include wrapper types `Boxed`, `WithSize` and
+  `BoxedWithSize`. Works on Rust 1.17+.
+- **`i128`** — `MtProtoSized` implementations for builtin `i128` and `u128`
+  primitives. Works on Rust 1.26+.
 
 ## Changelog
 

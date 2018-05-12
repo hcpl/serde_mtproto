@@ -130,7 +130,7 @@ impl Identifiable for bool {
 }
 
 
-macro_rules! impl_identifiable_for_primitives {
+macro_rules! impl_identifiable_for_simple_types {
     ($($type:ty => ($all_ids:expr, $id_of_value:expr),)*) => {
         $(
             impl Identifiable for $type {
@@ -152,7 +152,7 @@ macro_rules! impl_identifiable_for_primitives {
 
 // Not implemented for `usize` and `isize` because of their machine-dependent nature:
 // on 32-bit machine they would have int id, but on 64-bit - long id.
-impl_identifiable_for_primitives! {
+impl_identifiable_for_simple_types! {
     i8  => (INT_IDS,  INT_ID),
     i16 => (INT_IDS,  INT_ID),
     i32 => (INT_IDS,  INT_ID),
