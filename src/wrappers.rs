@@ -160,20 +160,6 @@ impl<'de, T> Deserialize<'de> for Boxed<T>
     }
 }
 
-impl<T: Identifiable> Identifiable for Boxed<T> {
-    fn all_type_ids() -> &'static [u32] {
-        T::all_type_ids()
-    }
-
-    fn type_id(&self) -> u32 {
-        self.id
-    }
-
-    fn enum_variant_id(&self) -> Option<&'static str> {
-        None
-    }
-}
-
 impl<T: MtProtoSized> MtProtoSized for Boxed<T> {
     fn size_hint(&self) -> error::Result<usize> {
         let id_size_hint = self.id.size_hint()?;
