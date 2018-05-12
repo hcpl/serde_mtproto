@@ -1,24 +1,41 @@
 language: rust
 
-rust:
-  - 1.17.0  # Minimum supported Rust
-  - 1.21.0  # Minimum Rust that works with the `version_numbers` test
-  - stable
-  - beta
-  - nightly
-
 matrix:
   include:
+    # Minimum supported Rust
+    - rust: 1.17.0
+      env: FEATURES=""
+    - rust: 1.17.0
+      env: FEATURES="extprim"
+
+    # Minimum Rust that works with the `version_numbers` test
+    # Specifically, at the time of commiting these changes `version-sync` 0.5.0 depends on `url`
+    # 1.7.0 which depends on `unicode-normalization` 0.1.6 which uses rvalue static promotion from
+    # Rust 1.21. Let's not run the `version_numbers` test under Rust 1.17!
+    - rust: 1.21.0
+      env: FEATURES="version-sync"
+
+    - rust: stable
+      env: FEATURES="i128,version-sync"
+    - rust: stable
+      env: FEATURES="extprim,i128,version-sync"
+
+    - rust: beta
+      env: FEATURES="i128,version-sync"
+    - rust: beta
+      env: FEATURES="extprim,i128,version-sync"
+
+    - rust: nightly
+      env: FEATURES="i128,version-sync"
+    - rust: nightly
+      env: FEATURES="extprim,i128,version-sync"
+
     # Run QuickCheck only on limited amount of configurations - we don't need more
     - rust: stable
-      env: FEATURES="extprim,quickcheck"  # TODO: Use `i128` when stable becomes 1.26+
+      env: FEATURES="extprim,i128,quickcheck"
     - rust: nightly
       env: FEATURES="extprim,i128,quickcheck"
-    # Also test nightly-only functionality
-    - rust: nightly
-      env: FEATURES="i128"
-    - rust: nightly
-      env: FEATURES="extprim,i128"
+
     # Host documentation on <https://hcpl.github.com/serde_mtproto>
     - rust: nightly
       install:
@@ -35,9 +52,6 @@ cache: cargo
 env:
   global:
     - RUST_BACKTRACE=1
-  matrix:
-    - FEATURES=""
-    - FEATURES="extprim"
 
 install:
   - |
@@ -72,20 +86,12 @@ script:
     cargo test --verbose --all --lib --features "${FEATURES}"
   - |
     # Prefer finer-grained commands
-    # Note 1: --tests flag only appeared in Rust 1.18:
+    # Note: --tests flag only appeared in Rust 1.18:
     #   * https://blog.rust-lang.org/2017/06/08/Rust-1.18.html
     #   * https://github.com/rust-lang/cargo/pull/3901
-    # Note 2: at the time of commiting these changes `version-sync` 0.5.0 depends on `url` 1.7.0
-    # which depends on `unicode-normalization` 0.1.6 which uses rvalue static promotion from Rust
-    # 1.21. Let's not run the `version_numbers` test under Rust 1.17!
     if [ "${TRAVIS_RUST_VERSION}" = 1.17.0 ]; then
         cargo test --verbose --all --features "${FEATURES}"
     else
-        if [ "${TRAVIS_RUST_VERSION}" = stable || "${TRAVIS_RUST_VERSION}" = nightly ]; then
-            FEATURES="i128,${FEATURES}"
-        fi
-
-        FEATURES="version-sync,${FEATURES}"
         cargo build --verbose --all --tests --features "${FEATURES}" &&
         cargo test --verbose --all --tests --features "${FEATURES}"
     fi
