@@ -36,13 +36,15 @@ Older versions may work, but are not guaranteed to.
 ### Optional Cargo features
 
 - **`extprim`** — `MtProtoSized` implementations for `extprim::i128::i128` and
-  `extprim::u128::u128`. Works on Rust 1.17+.
+  `extprim::u128::u128`.
+  Works on Rust 1.17+.
 - **`quickcheck`** — `quickcheck::Arbitrary` implmentations for several types
   defined in `serde_mtproto`.
-  For now, those only include wrapper types `Boxed`, `WithSize` and
-  `BoxedWithSize`. Works on Rust 1.17+.
+  For now, those only include wrapper types `Boxed`, `WithSize`.
+  Works on Rust 1.17+.
 - **`i128`** — `MtProtoSized` implementations for builtin `i128` and `u128`
-  primitives. Works on Rust 1.26+.
+  primitives.
+  Works on Rust 1.26+.
 
 ## Changelog
 

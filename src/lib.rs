@@ -79,4 +79,4 @@ pub use error::{Error, ErrorKind, Result, ResultExt};
 pub use helpers::{UnsizedByteBuf, UnsizedByteBufSeed, UnsizedBytes, size_hint_from_unsized_byte_seq_len};
 pub use identifiable::Identifiable;
 pub use sized::{MtProtoSized, size_hint_from_byte_seq_len};
-pub use wrappers::{Boxed, BoxedWithSize, WithSize};
+pub use wrappers::{Boxed, WithId, WithSize};

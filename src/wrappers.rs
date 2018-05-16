@@ -3,50 +3,35 @@
 //!
 //! ## Data and metadata layout
 //!
-//! | Wrapper type      | Layout           |
-//! |-------------------|------------------|
-//! | [`Boxed`]         | (id, data)       |
-//! | [`WithSize`]      | (size, data)     |
-//! | [`BoxedWithSize`] | (id, size, data) |
+//! | Wrapper type | Layout       |
+//! |--------------|--------------|
+//! | [`Boxed`]    | (id, data)   |
+//! | [`WithSize`] | (size, data) |
 //!
-//! ## Why the wrappers are not `Identifiable` when the type to be wrapped is one?
+//! ## How does `Boxed<WithSize<T>>` differ from `WithSize<Boxed<T>>`?
 //!
-//! Wrappers have never been found to be applicable in places where any
-//! `Identifiable` type can be used.
-//! The current setup enforces this relationship between wrappers and
-//! `Identifiable` trait at type level.
-//! This is a forward-compatible solution in case if wrappers will
-//! really need to implement `Identifiable` for some reason.
-//!
-//! ## Why does `BoxedWithSize` exist?
-//!
-//! Since `Boxed::new` requires `T` to be `Identifiable` and `WithSize`
-//! is not, `Boxed<WithSize<T>>` cannot be created.
-//! `BoxedWithSize` can be used for this purpose.
-//!
-//! ## `BoxedWithSize` arranges fields as (id, size, data). What if I want (size, id, data) instead?
-//!
-//! `WithSize<Boxed<T>>` can be used perfectly fine.
-//!
-//! Note: the size in this case will be the size of `Boxed<T>`, not `T`,
-//! i.e. it equals the size of the given instance of `T` + 4.
+//! The first is laid out as (id, size, data) while the second — as
+//! (size, id, data).
+//! While the `id` value in both cases represent the type id of `data`
+//! the `size` value in two layouts above are not the same thing: in the
+//! first one it equals `data.size_hint()?`, but in the second one it
+//! equals `data.size_hint()? + 4` because it also includes the size of
+//! the `id` value.
 //!
 //! ## `Boxed` vs `WithId`
 //!
-//! `Boxed` and `BoxedWithSize` types have aliases `WithId` and
-//! `WithIdAndSize` respectively to convey different meanings about
-//! them:
+//! `Boxed` type has an alias `WithId` to convey different meanings
+//! about it:
 //!
-//! * `Boxed<T>`/`BoxedWithSize<T>` mean "not a bare `T`/`T` with size"
-//!   respectively where boxed/bare types distinction is drawn from the
-//!   MTProto official documentation about serialization:
+//! * `Boxed<T>` means "not a bare `T`" where boxed/bare types
+//!   distinction is drawn from the MTProto official documentation about
+//!   serialization:
 //!   <https://core.telegram.org/mtproto/serialize#boxed-and-bare-types>.
-//! * `WithId<T>`/`WithIdAndSize<T>` mean "`T` with an id/an id and a
-//!   size attached" repectively which explains *how* this type arranges
-//!   data and metadata.
+//! * `WithId<T>` means "`T` with an id" which explains *how* this type
+//!   arranges data and metadata.
 //!
-//! This crate uses `Boxed*` as the main naming scheme, whereas
-//! `WithId*` are type aliases.
+//! This crate uses `Boxed` as the main naming scheme, whereas `WithId`
+//! is a type alias.
 
 use std::fmt;
 use std::marker::PhantomData;
@@ -64,10 +49,6 @@ use utils::{safe_int_cast, safe_uint_eq};
 
 /// A struct that wraps an [`Identifiable`] type value to serialize and
 /// deserialize as a boxed MTProto data type.
-///
-/// Note: if you want to attach both id and serialized size to the
-/// underlying data (in this order), see [`BoxedWithSize`] since
-/// [`WithSize`] is not `Identifiable`.
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 pub struct Boxed<T> {
     id: u32,
@@ -160,6 +141,20 @@ impl<'de, T> Deserialize<'de> for Boxed<T>
     }
 }
 
+impl<T: Identifiable> Identifiable for Boxed<T> {
+    fn all_type_ids() -> &'static [u32] {
+        T::all_type_ids()
+    }
+
+    fn type_id(&self) -> u32 {
+        T::type_id(&self.inner)
+    }
+
+    fn enum_variant_id(&self) -> Option<&'static str> {
+        T::enum_variant_id(&self.inner)
+    }
+}
+
 impl<T: MtProtoSized> MtProtoSized for Boxed<T> {
     fn size_hint(&self) -> error::Result<usize> {
         let id_size_hint = self.id.size_hint()?;
@@ -228,10 +223,10 @@ impl<'de, T> Deserialize<'de> for WithSize<T>
         where D: Deserializer<'de>
     {
         // Here we only implement through a helper struct because fully manual implementation
-        // (like what is present for `Boxed` and `BoxedWithSize`) won't provide us eny benefits
-        // over this solution - we can obtain a deserialized size beforehand, but we can't apply it
-        // since neither Serde deserializable types, nor Serde deserializers in general have any
-        // means to limit the amount of raw data to be processed.
+        // (like what is present for `Boxed`) won't provide us eny benefits over this solution - we
+        // can obtain a deserialized size beforehand, but we can't apply it since neither Serde
+        // deserializable types, nor Serde deserializers in general have any means to limit the
+        // amount of raw data to be processed.
         #[derive(Deserialize)]
         #[serde(rename = "WithSize")]
         struct WithSizeHelper<T> {
@@ -256,6 +251,20 @@ impl<'de, T> Deserialize<'de> for WithSize<T>
     }
 }
 
+impl<T: Identifiable> Identifiable for WithSize<T> {
+    fn all_type_ids() -> &'static [u32] {
+        T::all_type_ids()
+    }
+
+    fn type_id(&self) -> u32 {
+        T::type_id(&self.inner)
+    }
+
+    fn enum_variant_id(&self) -> Option<&'static str> {
+        T::enum_variant_id(&self.inner)
+    }
+}
+
 impl<T: MtProtoSized> MtProtoSized for WithSize<T> {
     fn size_hint(&self) -> error::Result<usize> {
         let size_size_hint = self.size.size_hint()?;
@@ -277,156 +286,6 @@ impl<T> Arbitrary for WithSize<T>
     fn shrink(&self) -> Box<Iterator<Item=WithSize<T>>> {
         Box::new(self.inner.shrink().map(|x| WithSize::new(x)
             .expect("failed to wrap a shrinked value using `WithSize`")))
-    }
-}
-
-
-/// A struct that wraps an [`Identifiable`] and [`MtProtoSized`] type
-/// value to serialize and deserialize as a boxed MTProto data type with
-/// the size of its serialized value.
-///
-/// This struct exists because `Boxed<WithSize<T>>` cannot be created
-/// due to `WithSize<T>` not being `Identifiable` (for the reasoning
-/// behind this fact see the module-level docs).
-#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
-pub struct BoxedWithSize<T> {
-    id: u32,
-    size: u32,
-    inner: T,
-}
-
-/// An alias for [`BoxedWithSize`] that is similar to [`WithId`] and
-/// [`WithSize`].
-pub type WithIdAndSize<T> = BoxedWithSize<T>;
-
-impl<T: Identifiable + MtProtoSized> BoxedWithSize<T> {
-    /// Wrap a value along with its id and serialized size.
-    pub fn new(inner: T) -> error::Result<BoxedWithSize<T>> {
-        let boxed_with_size = BoxedWithSize {
-            id: inner.type_id(),
-            size: safe_int_cast(inner.size_hint()?)?,
-            inner,
-        };
-
-        Ok(boxed_with_size)
-    }
-
-    /// Return an immutable reference to the underlying data.
-    pub fn inner(&self) -> &T {
-        &self.inner
-    }
-
-    /// Return a mutable reference to the underlying data.
-    pub fn inner_mut(&mut self) -> &mut T {
-        &mut self.inner
-    }
-
-    /// Unwrap the box and return the wrapped value.
-    pub fn into_inner(self) -> T {
-        self.inner
-    }
-}
-
-// Using a custom implementation instead of the derived one because we need to check validity
-// of the deserialized type id __before__ deserializing the value and also of the deserialized size
-// against the size hint of a deserialized value.
-impl<'de, T> Deserialize<'de> for BoxedWithSize<T>
-    where T: Deserialize<'de> + Identifiable + MtProtoSized
-{
-    fn deserialize<D>(deserializer: D) -> Result<BoxedWithSize<T>, D::Error>
-        where D: Deserializer<'de>
-    {
-        use identifiable::Identifiable;
-        use sized::MtProtoSized;
-
-        struct BoxedWithSizeVisitor<T>(PhantomData<T>);
-
-        impl<'de, T> Visitor<'de> for BoxedWithSizeVisitor<T>
-            where T: Deserialize<'de> + Identifiable + MtProtoSized
-        {
-            type Value = BoxedWithSize<T>;
-
-            fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
-                f.write_str("type id and an `Identifiable` value")
-            }
-
-            fn visit_seq<A>(self, mut seq: A) -> Result<BoxedWithSize<T>, A::Error>
-                where A: SeqAccess<'de>
-            {
-                let type_id = next_seq_element(&mut seq, 0, 3)?;
-                check_type_id::<T>(type_id).map_err(A::Error::custom)?;
-
-                let size = next_seq_element(&mut seq, 1, 3)?;
-                let value = next_seq_element(&mut seq, 2, 3)?;
-                checked_boxed_with_size_value::<T>(type_id, size, value).map_err(A::Error::custom)
-            }
-
-            fn visit_map<A>(self, mut map: A) -> Result<BoxedWithSize<T>, A::Error>
-                where A: MapAccess<'de>
-            {
-                let type_id = next_struct_element(&mut map, "id", 0, 3)?;
-                check_type_id::<T>(type_id).map_err(A::Error::custom)?;
-
-                let size = next_struct_element(&mut map, "size", 1, 3)?;
-                let value = next_struct_element(&mut map, "inner", 2, 3)?;
-                checked_boxed_with_size_value::<T>(type_id, size, value).map_err(A::Error::custom)
-            }
-        }
-
-        fn checked_boxed_with_size_value<T>(type_id: u32,
-                                            size: u32,
-                                            value: T)
-                                           -> error::Result<BoxedWithSize<T>>
-            where T: Identifiable + MtProtoSized
-        {
-            let boxed_with_size_value = BoxedWithSize::new(value)?;
-
-            // Proritize type id mismatch errors over size mismatch ones since type id being
-            // incorrect will likely lead to a wrong size too.
-            // Also, without correct type information matching sizes don't mean anything anymore.
-            // Data is corrupt. Period.
-            if type_id != boxed_with_size_value.id {
-                bail!(DeErrorKind::TypeIdMismatch(type_id, boxed_with_size_value.id));
-            }
-
-            let boxed_with_size_size_hint = boxed_with_size_value.size_hint()?;
-            let inner_size_hint = boxed_with_size_size_hint - type_id.size_hint()? - size.size_hint()?;
-
-            if !safe_uint_eq(size, inner_size_hint) {
-                bail!(DeErrorKind::SizeMismatch(size, safe_int_cast(inner_size_hint)?));
-            }
-
-            Ok(boxed_with_size_value)
-        }
-
-        // TODO: Use rvalue static promotion after bumping minimal Rust version to 1.21
-        const FIELDS: &[&str] = &["id", "size", "inner"];
-        deserializer.deserialize_struct("BoxedWithSize", FIELDS, BoxedWithSizeVisitor(PhantomData))
-    }
-}
-
-impl<T: MtProtoSized> MtProtoSized for BoxedWithSize<T> {
-    fn size_hint(&self) -> error::Result<usize> {
-        let id_size_hint = self.id.size_hint()?;
-        let size_size_hint = self.size.size_hint()?;
-        let inner_size_hint = self.inner.size_hint()?;
-
-        Ok(id_size_hint + size_size_hint + inner_size_hint)
-    }
-}
-
-#[cfg(feature = "quickcheck")]
-impl<T> Arbitrary for BoxedWithSize<T>
-    where T: Arbitrary + Identifiable + MtProtoSized
-{
-    fn arbitrary<G: Gen>(g: &mut G) -> BoxedWithSize<T> {
-        BoxedWithSize::new(T::arbitrary(g))
-            .expect("failed to wrap a generated random value using `BoxedWithSize`")
-    }
-
-    fn shrink(&self) -> Box<Iterator<Item=BoxedWithSize<T>>> {
-        Box::new(self.inner.shrink().map(|x| BoxedWithSize::new(x)
-            .expect("failed to wrap a shrinked value using `BoxedWithSize`")))
     }
 }
 

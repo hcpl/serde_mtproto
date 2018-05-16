@@ -14,7 +14,7 @@ use std::collections::BTreeMap;
 
 use quickcheck::TestResult;
 //use serde_mtproto::ByteBuf;
-use serde_mtproto::{Boxed, BoxedWithSize, Identifiable, WithSize};
+use serde_mtproto::{Boxed, Identifiable, WithSize};
 
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Arbitrary, MtProtoIdentifiable, MtProtoSized)]
@@ -46,7 +46,7 @@ enum SimpleEnum {
     #[id = "0xb5a92a28"]
     Variant3 {
         variant3_field1: Vec<u8>, // replace by ByteBuf
-        variant3_field2: BoxedWithSize<u32>, // replace by [u32; 4]
+        variant3_field2: Boxed<WithSize<u32>>, // replace by [u32; 4]
     },
     #[id = "0x8d72c9e1"]
     Variant4(((u64, i32), f32, BTreeMap<i8, String>, f64)), // replace <i8, String> by <i8, [String; 0]>

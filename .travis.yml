@@ -35,7 +35,7 @@ matrix:
     - rust: stable
       env: FEATURES="extprim,i128,quickcheck"
     - rust: nightly
-      env: FEATURES="extprim,i128,quickcheck"
+      env: FEATURES="extprim,i128,quickcheck,test-nightly-regressions"
 
     # Host documentation on <https://hcpl.github.com/serde_mtproto>
     - rust: nightly
