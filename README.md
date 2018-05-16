@@ -25,7 +25,8 @@ serde_mtproto = { git = "https://github.com/hcpl/serde_mtproto" }
 
 You may be looking for:
 
-- [Serde MTProto API documentation](https://docs.rs/serde_mtproto/)
+- [Serde MTProto API documentation (latest published)](https://docs.rs/serde_mtproto/)
+- [Serde MTProto API documentation (master)](https://hcpl.github.io/serde_mtproto/master/)
 - [Serde API documentation](https://docs.rs/serde/)
 - [Detailed documentation about Serde](https://serde.rs/)
 - [Setting up `#[derive(Serialize, Deserialize)]`](https://serde.rs/codegen.html)
