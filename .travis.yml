@@ -47,11 +47,15 @@ matrix:
       script:
         - cargo doc --features extprim,i128,quickcheck
         - |
-          cat > target/doc/index.html <<EOF
-          <!DOCTYPE html>
-          <meta http-equiv="refresh" content="0; url=serde_mtproto/">
-          <a href="serde_mtproto/">Redirect</a>
-          EOF
+          if git cat-file -e "origin/gh-pages:${TRAVIS_BRANCH}/index.html"; then
+              rm -f target/doc/index.html
+          else
+              cat > target/doc/index.html <<EOF
+              <!DOCTYPE html>
+              <meta http-equiv="refresh" content="0; url=serde_mtproto/">
+              <a href="serde_mtproto/">Redirect</a>
+              EOF
+          fi
       after_success:
         - cargo doc-upload
 
