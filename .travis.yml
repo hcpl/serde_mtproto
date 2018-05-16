@@ -46,6 +46,12 @@ matrix:
         - cargo install-update cargo-travis
       script:
         - cargo doc --features extprim,i128,quickcheck
+        - |
+          cat > target/doc/index.html <<EOF
+          <!DOCTYPE html>
+          <meta http-equiv="refresh" content="0; url=serde_mtproto/">
+          <a href="serde_mtproto/">Redirect</a>
+          EOF
       after_success:
         - cargo doc-upload
 
