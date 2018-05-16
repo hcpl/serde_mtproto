@@ -135,15 +135,38 @@ pub mod wrappers;
 // Extern crate re-export for convenience
 pub use serde_bytes::{ByteBuf, Bytes};
 
-// Serde essential re-exports
-pub use ser::{Serializer, to_bytes, to_writer, unsized_bytes_pad_to_bytes, unsized_bytes_pad_to_writer};
-pub use de::{Deserializer, from_bytes, from_bytes_reuse, from_reader, from_reader_reuse};
+macro_rules! doc_inline {
+    ($($i:item)*) => ($(#[doc(inline)] $i)*)
+}
 
-// Error types and typedefs
-pub use error::{Error, ErrorKind, Result, ResultExt};
+doc_inline! {
+    // Serde essential re-exports
+    pub use ser::{
+        Serializer,
+        to_bytes,
+        to_writer,
+        unsized_bytes_pad_to_bytes,
+        unsized_bytes_pad_to_writer,
+    };
+    pub use de::{
+        Deserializer,
+        from_bytes,
+        from_bytes_reuse,
+        from_reader,
+        from_reader_reuse,
+    };
 
-// Other items generally useful for MTProto [de]serialization
-pub use helpers::{UnsizedByteBuf, UnsizedByteBufSeed, UnsizedBytes, size_hint_from_unsized_byte_seq_len};
-pub use identifiable::Identifiable;
-pub use sized::{MtProtoSized, size_hint_from_byte_seq_len};
-pub use wrappers::{Boxed, WithId, WithSize};
+    // Error types and typedefs
+    pub use error::{Error, ErrorKind, Result, ResultExt};
+
+    // Other items generally useful for MTProto [de]serialization
+    pub use helpers::{
+        UnsizedByteBuf,
+        UnsizedByteBufSeed,
+        UnsizedBytes,
+        size_hint_from_unsized_byte_seq_len,
+    };
+    pub use identifiable::Identifiable;
+    pub use sized::{MtProtoSized, size_hint_from_byte_seq_len};
+    pub use wrappers::{Boxed, WithId, WithSize};
+}
