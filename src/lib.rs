@@ -8,6 +8,8 @@
 
 #![cfg_attr(all(not(stable_i128), feature = "i128"), feature(i128_type))]
 
+#![cfg_attr(feature = "test-nightly-regressions", feature(nll))]
+
 #![cfg_attr(feature = "cargo-clippy", deny(
     // Turn all warn-class lints to denies
     clippy,

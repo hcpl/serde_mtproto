@@ -1,3 +1,4 @@
+sudo: false
 language: rust
 
 matrix:
@@ -26,9 +27,9 @@ matrix:
       env: FEATURES="extprim,i128,version-sync"
 
     - rust: nightly
-      env: FEATURES="i128,version-sync"
+      env: FEATURES="i128,test-nightly-regressions,version-sync"
     - rust: nightly
-      env: FEATURES="extprim,i128,version-sync"
+      env: FEATURES="extprim,i128,test-nightly-regressions,version-sync"
 
     # Run QuickCheck only on limited amount of configurations - we don't need more
     - rust: stable
@@ -38,6 +39,7 @@ matrix:
 
     # Host documentation on <https://hcpl.github.com/serde_mtproto>
     - rust: nightly
+      env: DOC_UPLOAD  # Just a marker visible from Travis logs
       install:
         - cargo install cargo-update || echo "cargo-update already installed"
         - cargo install cargo-travis || echo "cargo-travis already installed"

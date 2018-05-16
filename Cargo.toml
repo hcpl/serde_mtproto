@@ -50,7 +50,11 @@ toml = "0.4"
 
 [features]
 default = []
-i128 = ["rand/i128_support"]
+i128 = []
+# WARNING: This Cargo feature is not intended for public usage!
+# Used to test `serde_mtproto` against new unstable features in Rust language
+# and Rust standard library.
+test-nightly-regressions = []
 
 
 [[test]]
