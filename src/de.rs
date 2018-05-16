@@ -294,16 +294,11 @@ impl<'de, 'a, 'ids, R> de::Deserializer<'de> for &'a mut Deserializer<'ids, R>
         where V: Visitor<'de>
     {
         debug!("Deserializing identifier");
-        let variant_id = self.enum_variant_ids.first()
+        let (variant_id, rest) = self.enum_variant_ids.split_first()
             .ok_or_else(|| error::Error::from(DeErrorKind::NoEnumVariantId))?;
 
         debug!("Deserialized variant_id {}", variant_id);
-
-        #[cfg_attr(feature = "cargo-clippy", allow(indexing_slicing))]
-        {
-            assert!(self.enum_variant_ids.len() >= 1);
-            self.enum_variant_ids = &self.enum_variant_ids[1..];
-        }
+        self.enum_variant_ids = rest;
 
         visitor.visit_str(variant_id)
     }
