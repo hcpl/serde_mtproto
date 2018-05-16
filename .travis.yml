@@ -46,14 +46,16 @@ matrix:
         - cargo install-update cargo-travis
       script:
         - cargo doc --features extprim,i128,quickcheck
+        - git clone --depth=1 --branch gh-pages "https://github.com/${TRAVIS_REPO_SLUG}" target/gh-pages
         - |
-          if git cat-file -e "origin/gh-pages:${TRAVIS_BRANCH}/index.html"; then
+          if [ -e "target/gh-pages/${TRAVIS_BRANCH}/index.html" ]; then
               rm -f target/doc/index.html
           else
               echo '<!DOCTYPE html>' > target/doc/index.html
               echo '<meta http-equiv="refresh" content="0; url=serde_mtproto/">' >> target/doc/index.html
               echo '<a href="serde_mtproto/">Redirect</a>' >> target/doc/index.html
           fi
+        - rm -rf target/gh-pages
       after_success:
         - cargo doc-upload
 
