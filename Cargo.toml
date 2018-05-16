@@ -50,8 +50,9 @@ serde_yaml = "0.7"
 toml = "0.4"
 
 [features]
-default = []
+default = ["aggressive-rustc-lints"]
 i128 = []
+aggressive-rustc-lints = []
 # WARNING: This Cargo feature is not intended for public usage!
 # Used to test `serde_mtproto` against new unstable features in Rust language
 # and Rust standard library.

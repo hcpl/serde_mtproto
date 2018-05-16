@@ -129,6 +129,7 @@ impl<'de> DeserializeSeed<'de> for UnsizedByteBufSeed {
 
 
 /// A bytes slice which doesn't write its length when serialized.
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct UnsizedBytes<'a> {
     inner: &'a [u8],
 }

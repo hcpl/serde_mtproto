@@ -31,7 +31,9 @@ impl<'ids, R: io::Read> Deserializer<'ids, R> {
     /// Consumes the `Deserializer` and returns remaining unprocessed bytes.
     pub fn remaining_bytes(mut self) -> error::Result<Vec<u8>> {
         let mut buf = Vec::new();
-        self.reader.read_to_end(&mut buf)?;
+        let bytes_read = self.reader.read_to_end(&mut buf)?;
+
+        debug!("Remaining bytes read of length {}: {:?}", bytes_read, buf);
 
         Ok(buf)
     }
