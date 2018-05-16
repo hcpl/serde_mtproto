@@ -500,6 +500,8 @@
 <span id="500">500</span>
 <span id="501">501</span>
 <span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! Deserialize MTProto binary representation to a Rust data structure.</span>
 
@@ -534,7 +536,9 @@
     <span class="doccomment">/// Consumes the `Deserializer` and returns remaining unprocessed bytes.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remaining_bytes</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">error</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="self">self</span>.<span class="ident">reader</span>.<span class="ident">read_to_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">bytes_read</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">reader</span>.<span class="ident">read_to_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buf</span>)<span class="question-mark">?</span>;
+
+        <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Remaining bytes read of length {}: {:?}&quot;</span>, <span class="ident">bytes_read</span>, <span class="ident">buf</span>);
 
         <span class="prelude-val">Ok</span>(<span class="ident">buf</span>)
     }

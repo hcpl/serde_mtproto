@@ -29,6 +29,7 @@ ALIASES['serde_derive'] = {};
 ALIASES['serde_mtproto'] = {};
 ALIASES['serde_mtproto'] = {};
 ALIASES['serde_mtproto'] = {};
+ALIASES['serde_mtproto'] = {};
 ALIASES['syn'] = {};
 ALIASES['termcolor'] = {};
 ALIASES['thread_local'] = {};
