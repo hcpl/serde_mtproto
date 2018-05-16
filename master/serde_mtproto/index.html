@@ -1,9 +1,8 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `serde_mtproto` crate."><meta name="keywords" content="rust, rustlang, rust-lang, serde_mtproto"><title>serde_mtproto - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../dark.css"><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script src="../storage.js"></script></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><p class='location'>Crate serde_mtproto</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#reexports">Re-exports</a></li><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'serde_mtproto', ty: 'mod', relpath: '../'};</script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><input class="search-input" name="search" autocomplete="off" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='in-band'>Crate <a class="mod" href=''>serde_mtproto</a></span><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../src/serde_mtproto/lib.rs.html#1-149' title='goto source code'>[src]</a></span></h1><div class='docblock'><h1 id="serde-mtproto" class="section-header"><a href="#serde-mtproto">Serde MTProto</a></h1>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `serde_mtproto` crate."><meta name="keywords" content="rust, rustlang, rust-lang, serde_mtproto"><title>serde_mtproto - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../dark.css"><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script src="../storage.js"></script></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><p class='location'>Crate serde_mtproto</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'serde_mtproto', ty: 'mod', relpath: '../'};</script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><input class="search-input" name="search" autocomplete="off" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='in-band'>Crate <a class="mod" href=''>serde_mtproto</a></span><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../src/serde_mtproto/lib.rs.html#1-172' title='goto source code'>[src]</a></span></h1><div class='docblock'><h1 id="serde-mtproto" class="section-header"><a href="#serde-mtproto">Serde MTProto</a></h1>
 <p>MTProto is a mobile-first protocol for access to a server API.
 This crate provides means to serialize Rust types to its binary
 representation and to deserialize from said representation.</p>
-</div><h2 id='reexports' class='section-header'><a href="#reexports">Re-exports</a></h2>
-<table><tr><td><code>pub use ser::<a class="struct" href="../serde_mtproto/ser/struct.Serializer.html" title="struct serde_mtproto::ser::Serializer">Serializer</a>;</code></td></tr><tr><td><code>pub use ser::<a class="fn" href="../serde_mtproto/ser/fn.to_bytes.html" title="fn serde_mtproto::ser::to_bytes">to_bytes</a>;</code></td></tr><tr><td><code>pub use ser::<a class="fn" href="../serde_mtproto/ser/fn.to_writer.html" title="fn serde_mtproto::ser::to_writer">to_writer</a>;</code></td></tr><tr><td><code>pub use ser::<a class="fn" href="../serde_mtproto/ser/fn.unsized_bytes_pad_to_bytes.html" title="fn serde_mtproto::ser::unsized_bytes_pad_to_bytes">unsized_bytes_pad_to_bytes</a>;</code></td></tr><tr><td><code>pub use ser::<a class="fn" href="../serde_mtproto/ser/fn.unsized_bytes_pad_to_writer.html" title="fn serde_mtproto::ser::unsized_bytes_pad_to_writer">unsized_bytes_pad_to_writer</a>;</code></td></tr><tr><td><code>pub use de::<a class="struct" href="../serde_mtproto/de/struct.Deserializer.html" title="struct serde_mtproto::de::Deserializer">Deserializer</a>;</code></td></tr><tr><td><code>pub use de::<a class="fn" href="../serde_mtproto/de/fn.from_bytes.html" title="fn serde_mtproto::de::from_bytes">from_bytes</a>;</code></td></tr><tr><td><code>pub use de::<a class="fn" href="../serde_mtproto/de/fn.from_bytes_reuse.html" title="fn serde_mtproto::de::from_bytes_reuse">from_bytes_reuse</a>;</code></td></tr><tr><td><code>pub use de::<a class="fn" href="../serde_mtproto/de/fn.from_reader.html" title="fn serde_mtproto::de::from_reader">from_reader</a>;</code></td></tr><tr><td><code>pub use de::<a class="fn" href="../serde_mtproto/de/fn.from_reader_reuse.html" title="fn serde_mtproto::de::from_reader_reuse">from_reader_reuse</a>;</code></td></tr><tr><td><code>pub use error::<a class="struct" href="../serde_mtproto/error/struct.Error.html" title="struct serde_mtproto::error::Error">Error</a>;</code></td></tr><tr><td><code>pub use error::<a class="enum" href="../serde_mtproto/error/enum.ErrorKind.html" title="enum serde_mtproto::error::ErrorKind">ErrorKind</a>;</code></td></tr><tr><td><code>pub use error::<a class="type" href="../serde_mtproto/error/type.Result.html" title="type serde_mtproto::error::Result">Result</a>;</code></td></tr><tr><td><code>pub use error::<a class="trait" href="../serde_mtproto/error/trait.ResultExt.html" title="trait serde_mtproto::error::ResultExt">ResultExt</a>;</code></td></tr><tr><td><code>pub use helpers::<a class="struct" href="../serde_mtproto/helpers/struct.UnsizedByteBuf.html" title="struct serde_mtproto::helpers::UnsizedByteBuf">UnsizedByteBuf</a>;</code></td></tr><tr><td><code>pub use helpers::<a class="struct" href="../serde_mtproto/helpers/struct.UnsizedByteBufSeed.html" title="struct serde_mtproto::helpers::UnsizedByteBufSeed">UnsizedByteBufSeed</a>;</code></td></tr><tr><td><code>pub use helpers::<a class="struct" href="../serde_mtproto/helpers/struct.UnsizedBytes.html" title="struct serde_mtproto::helpers::UnsizedBytes">UnsizedBytes</a>;</code></td></tr><tr><td><code>pub use helpers::<a class="fn" href="../serde_mtproto/helpers/fn.size_hint_from_unsized_byte_seq_len.html" title="fn serde_mtproto::helpers::size_hint_from_unsized_byte_seq_len">size_hint_from_unsized_byte_seq_len</a>;</code></td></tr><tr><td><code>pub use identifiable::<a class="trait" href="../serde_mtproto/identifiable/trait.Identifiable.html" title="trait serde_mtproto::identifiable::Identifiable">Identifiable</a>;</code></td></tr><tr><td><code>pub use sized::<a class="trait" href="../serde_mtproto/sized/trait.MtProtoSized.html" title="trait serde_mtproto::sized::MtProtoSized">MtProtoSized</a>;</code></td></tr><tr><td><code>pub use sized::<a class="fn" href="../serde_mtproto/sized/fn.size_hint_from_byte_seq_len.html" title="fn serde_mtproto::sized::size_hint_from_byte_seq_len">size_hint_from_byte_seq_len</a>;</code></td></tr><tr><td><code>pub use wrappers::<a class="struct" href="../serde_mtproto/wrappers/struct.Boxed.html" title="struct serde_mtproto::wrappers::Boxed">Boxed</a>;</code></td></tr><tr><td><code>pub use wrappers::<a class="type" href="../serde_mtproto/wrappers/type.WithId.html" title="type serde_mtproto::wrappers::WithId">WithId</a>;</code></td></tr><tr><td><code>pub use wrappers::<a class="struct" href="../serde_mtproto/wrappers/struct.WithSize.html" title="struct serde_mtproto::wrappers::WithSize">WithSize</a>;</code></td></tr></table><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
+</div><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
 <table>
                        <tr class=' module-item'>
                            <td><a class="mod" href="de/index.html"
@@ -65,6 +64,15 @@ representation can be computed.</p>
                        </tr></table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
                        <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Boxed.html"
+                                  title='struct serde_mtproto::Boxed'>Boxed</a></td>
+                           <td class='docblock-short'>
+                                <p>A struct that wraps an <a href="../serde_mtproto/trait.Identifiable.html" title="`Identifiable`"><code>Identifiable</code></a> type value to serialize and
+deserialize as a boxed MTProto data type.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
                            <td><a class="struct" href="struct.ByteBuf.html"
                                   title='struct serde_mtproto::ByteBuf'>ByteBuf</a></td>
                            <td class='docblock-short'>
@@ -77,6 +85,198 @@ representation can be computed.</p>
                                   title='struct serde_mtproto::Bytes'>Bytes</a></td>
                            <td class='docblock-short'>
                                 <p>Wrapper around <code>&amp;[u8]</code> to serialize and deserialize efficiently.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Deserializer.html"
+                                  title='struct serde_mtproto::Deserializer'>Deserializer</a></td>
+                           <td class='docblock-short'>
+                                <p>A structure that deserializes  MTProto binary representation into Rust values.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Error.html"
+                                  title='struct serde_mtproto::Error'>Error</a></td>
+                           <td class='docblock-short'>
+                                <p>The Error type.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Serializer.html"
+                                  title='struct serde_mtproto::Serializer'>Serializer</a></td>
+                           <td class='docblock-short'>
+                                <p>A structure for serializing Rust values into MTProto binary representation.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.UnsizedByteBuf.html"
+                                  title='struct serde_mtproto::UnsizedByteBuf'>UnsizedByteBuf</a></td>
+                           <td class='docblock-short'>
+                                <p>A byte buffer which doesn't write its length when serialized.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.UnsizedByteBufSeed.html"
+                                  title='struct serde_mtproto::UnsizedByteBufSeed'>UnsizedByteBufSeed</a></td>
+                           <td class='docblock-short'>
+                                <p>An unsized byte buffer seed with the length of the byte sequence to be deserialized.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.UnsizedBytes.html"
+                                  title='struct serde_mtproto::UnsizedBytes'>UnsizedBytes</a></td>
+                           <td class='docblock-short'>
+                                <p>A bytes slice which doesn't write its length when serialized.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.WithSize.html"
+                                  title='struct serde_mtproto::WithSize'>WithSize</a></td>
+                           <td class='docblock-short'>
+                                <p>A struct that wraps a <a href="../serde_mtproto/trait.MtProtoSized.html" title="`MtProtoSized`"><code>MtProtoSized</code></a> type value to serialize and
+deserialize as a MTProto data type with the size of its serialized
+value.</p>
+
+                           </td>
+                       </tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.ErrorKind.html"
+                                  title='enum serde_mtproto::ErrorKind'>ErrorKind</a></td>
+                           <td class='docblock-short'>
+                                <p>The kind of an error.</p>
+
+                           </td>
+                       </tr></table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="trait" href="trait.Identifiable.html"
+                                  title='trait serde_mtproto::Identifiable'>Identifiable</a></td>
+                           <td class='docblock-short'>
+                                <p>A trait for a Rust data structure that can have an id.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="trait" href="trait.MtProtoSized.html"
+                                  title='trait serde_mtproto::MtProtoSized'>MtProtoSized</a></td>
+                           <td class='docblock-short'>
+                                <p>A trait for a Rust data structure a predictable size of its MTProto binary representation
+can be computed.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="trait" href="trait.ResultExt.html"
+                                  title='trait serde_mtproto::ResultExt'>ResultExt</a></td>
+                           <td class='docblock-short'>
+                                <p>Additional methods for <code>Result</code>, for easy interaction with this crate.</p>
+
+                           </td>
+                       </tr></table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.from_bytes.html"
+                                  title='fn serde_mtproto::from_bytes'>from_bytes</a></td>
+                           <td class='docblock-short'>
+                                <p>Deserialize an instance of type <code>T</code> from bytes of binary MTProto.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.from_bytes_reuse.html"
+                                  title='fn serde_mtproto::from_bytes_reuse'>from_bytes_reuse</a></td>
+                           <td class='docblock-short'>
+                                <p>Deserialize an instance of type <code>T</code> from bytes of binary MTProto and return unused bytes.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.from_reader.html"
+                                  title='fn serde_mtproto::from_reader'>from_reader</a></td>
+                           <td class='docblock-short'>
+                                <p>Deserialize an instance of type <code>T</code> from an IO stream of binary MTProto.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.from_reader_reuse.html"
+                                  title='fn serde_mtproto::from_reader_reuse'>from_reader_reuse</a></td>
+                           <td class='docblock-short'>
+                                <p>Deserialize an instance of type <code>T</code> from an IO stream of binary MTProto and return unused part
+of IO stream.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.size_hint_from_byte_seq_len.html"
+                                  title='fn serde_mtproto::size_hint_from_byte_seq_len'>size_hint_from_byte_seq_len</a></td>
+                           <td class='docblock-short'>
+                                <p>Helper function for everything naturally representable as a byte sequence.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.size_hint_from_unsized_byte_seq_len.html"
+                                  title='fn serde_mtproto::size_hint_from_unsized_byte_seq_len'>size_hint_from_unsized_byte_seq_len</a></td>
+                           <td class='docblock-short'>
+                                <p>Helper function for everything naturally representable as a byte sequence.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.to_bytes.html"
+                                  title='fn serde_mtproto::to_bytes'>to_bytes</a></td>
+                           <td class='docblock-short'>
+                                <p>Serialize the given data structure as a byte vector of binary MTProto.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.to_writer.html"
+                                  title='fn serde_mtproto::to_writer'>to_writer</a></td>
+                           <td class='docblock-short'>
+                                <p>Serialize the given data structure as binary MTProto into the IO stream.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.unsized_bytes_pad_to_bytes.html"
+                                  title='fn serde_mtproto::unsized_bytes_pad_to_bytes'>unsized_bytes_pad_to_bytes</a></td>
+                           <td class='docblock-short'>
+                                <p>Serialize bytes with padding to 16 bytes as a byte vector of binary MTProto.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.unsized_bytes_pad_to_writer.html"
+                                  title='fn serde_mtproto::unsized_bytes_pad_to_writer'>unsized_bytes_pad_to_writer</a></td>
+                           <td class='docblock-short'>
+                                <p>Serialize bytes with padding to 16 bytes into the IO stream.</p>
+
+                           </td>
+                       </tr></table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="type" href="type.Result.html"
+                                  title='type serde_mtproto::Result'>Result</a></td>
+                           <td class='docblock-short'>
+                                <p>Convenient wrapper around <code>std::Result</code>.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="type" href="type.WithId.html"
+                                  title='type serde_mtproto::WithId'>WithId</a></td>
+                           <td class='docblock-short'>
+                                <p>An alias for <a href="../serde_mtproto/wrappers/struct.Boxed.html" title="`Boxed`"><code>Boxed</code></a> that is similar to <a href="../serde_mtproto/wrappers/struct.WithSize.html" title="`WithSize`"><code>WithSize</code></a>.</p>
 
                            </td>
                        </tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><aside id="help" class="hidden"><div><h1 class="hidden">Help</h1><div class="shortcuts"><h2>Keyboard Shortcuts</h2><dl><dt><kbd>?</kbd></dt><dd>Show this help dialog</dd><dt><kbd>S</kbd></dt><dd>Focus the search field</dd><dt><kbd>↑</kbd></dt><dd>Move up in search results</dd><dt><kbd>↓</kbd></dt><dd>Move down in search results</dd><dt><kbd>↹</kbd></dt><dd>Switch tab</dd><dt><kbd>&#9166;</kbd></dt><dd>Go to active search result</dd><dt><kbd>+</kbd></dt><dd>Expand all sections</dd><dt><kbd>-</kbd></dt><dd>Collapse all sections</dd></dl></div><div class="infos"><h2>Search Tricks</h2><p>Prefix searches with a type followed by a colon (e.g. <code>fn:</code>) to restrict the search to a given type.</p><p>Accepted types are: <code>fn</code>, <code>mod</code>, <code>struct</code>, <code>enum</code>, <code>trait</code>, <code>type</code>, <code>macro</code>, and <code>const</code>.</p><p>Search functions by type signature (e.g. <code>vec -> usize</code> or <code>* -> vec</code>)</p><p>Search multiple things at once by splitting your query with comma (e.g. <code>str,u8</code> or <code>String,struct:Vec,test</code>)</p></div></div></aside><script>window.rootPath = "../";window.currentCrate = "serde_mtproto";</script><script src="../aliases.js"></script><script src="../main.js"></script><script defer src="../search-index.js"></script></body></html>
