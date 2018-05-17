@@ -121,27 +121,37 @@ fn get_asserted_id_from_attrs(attrs: &[Attribute]) -> quote::Tokens {
             is_sugared_doc: false,
             ..
         } = *attr {
-            if let Some(Meta::List(ref meta_list)) = attr.interpret_meta() {
-                if meta_list.ident == "check_type_id" && meta_list.nested.len() == 1 {
-                    if let NestedMeta::Meta(Meta::Word(ref ident)) = meta_list.nested[0] {
-                        let res = match ident.as_ref() {
-                            "never" => quote! { #id },
-                            "debug_only" => quote! {
-                                {
-                                    debug_assert!(#check_expr);
-                                    #id
+            if let Some(Meta::List(list)) = attr.interpret_meta() {
+                if list.ident == "mtproto_identifiable" {
+                    for nested_meta in list.nested {
+                        if let NestedMeta::Meta(Meta::List(nested_list)) = nested_meta {
+                            if nested_list.ident == "check_type_id" {
+                                if nested_list.nested.len() != 1 {
+                                    panic!("check_type_id must have exactly 1 argument");
                                 }
-                            },
-                            "always" => quote! {
-                                {
-                                    assert!(#check_expr);
-                                    #id
-                                }
-                            },
-                            _ => continue,
-                        };
 
-                        return res;
+                                if let NestedMeta::Meta(Meta::Word(ident)) = nested_list.nested[0] {
+                                    let res = match ident.as_ref() {
+                                        "never" => quote! { #id },
+                                        "debug_only" => quote! {
+                                            {
+                                                debug_assert!(#check_expr);
+                                                #id
+                                            }
+                                        },
+                                        "always" => quote! {
+                                            {
+                                                assert!(#check_expr);
+                                                #id
+                                            }
+                                        },
+                                        _ => continue,
+                                    };
+
+                                    return res;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -163,32 +173,38 @@ fn get_id_from_attrs(attrs: &[Attribute]) -> u32 {
             is_sugared_doc: false,
             ..
         } = *attr {
-            if let Some(Meta::NameValue(ref meta_name_value)) = attr.interpret_meta() {
-                if meta_name_value.ident == "id" {
-                    if let Lit::Str(ref lit_str) = meta_name_value.lit {
-                        // Found an identifier
-                        let str_value = lit_str.value();
+            if let Some(Meta::List(list)) = attr.interpret_meta() {
+                if list.ident == "mtproto_identifiable" {
+                    for nested_meta in list.nested {
+                        if let NestedMeta::Meta(Meta::NameValue(name_value)) = nested_meta {
+                            if name_value.ident == "id" {
+                                if let Lit::Str(lit_str) = name_value.lit {
+                                    // Found an identifier
+                                    let str_value = lit_str.value();
 
-                        let value = if str_value.starts_with("0x") {
-                            u32::from_str_radix(&str_value[2..], 16).unwrap()
-                        } else if str_value.starts_with("0b") {
-                            u32::from_str_radix(&str_value[2..], 2).unwrap()
-                        } else if str_value.starts_with("0o") {
-                            u32::from_str_radix(&str_value[2..], 8).unwrap()
-                        } else {
-                            u32::from_str_radix(&str_value, 10).unwrap()
-                        };
+                                    let value = if str_value.starts_with("0x") {
+                                        u32::from_str_radix(&str_value[2..], 16).unwrap()
+                                    } else if str_value.starts_with("0b") {
+                                        u32::from_str_radix(&str_value[2..], 2).unwrap()
+                                    } else if str_value.starts_with("0o") {
+                                        u32::from_str_radix(&str_value[2..], 8).unwrap()
+                                    } else {
+                                        u32::from_str_radix(&str_value, 10).unwrap()
+                                    };
 
-                        return value;
-                    } else {
-                        panic!("`id` attribute must have a `str` value.");
+                                    return value;
+                                } else {
+                                    panic!("`id` attribute must have a `str` value.");
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
     }
 
-    panic!("#[derive(MtProtoIdentifiable)] requires an #[id = \"...\"] attribute:\n    \
+    panic!("#[derive(MtProtoIdentifiable)] requires an #[mtproto_identifiable(id = \"...\")] attribute:\n    \
             - on top of struct for structs;\n    \
             - or on top of each enum variant for enums.\n\
             id can can be either:\n    \

@@ -18,11 +18,11 @@ use serde_mtproto::{Boxed, Identifiable, WithSize};
 
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Arbitrary, MtProtoIdentifiable, MtProtoSized)]
-#[id = "0x02020202"]
+#[mtproto_identifiable(id = "0x02020202")]
 struct PhantomStruct;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Arbitrary, MtProtoIdentifiable, MtProtoSized)]
-#[id = "0xa821f7fe"]
+#[mtproto_identifiable(id = "0xa821f7fe")]
 struct SimpleStruct {
     field1: bool,
     field2: PhantomStruct,
@@ -33,22 +33,22 @@ struct SimpleStruct {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Arbitrary, MtProtoIdentifiable, MtProtoSized)]
-#[id = "0x341b1c93"]
+#[mtproto_identifiable(id = "0x341b1c93")]
 struct SimpleStruct2((i8,), PhantomStruct, WithSize<(isize, u16)>);
 
 #[cfg_attr(feature = "cargo-clippy", allow(enum_variant_names))]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Arbitrary, MtProtoIdentifiable, MtProtoSized)]
 enum SimpleEnum {
-    #[id = "0x2d893c40"]
+    #[mtproto_identifiable(id = "0x2d893c40")]
     Variant1,
-    #[id = "0x037cb665"]
+    #[mtproto_identifiable(id = "0x037cb665")]
     Variant2,
-    #[id = "0xb5a92a28"]
+    #[mtproto_identifiable(id = "0xb5a92a28")]
     Variant3 {
         variant3_field1: Vec<u8>, // replace by ByteBuf
         variant3_field2: Boxed<WithSize<u32>>, // replace by [u32; 4]
     },
-    #[id = "0x8d72c9e1"]
+    #[mtproto_identifiable(id = "0x8d72c9e1")]
     Variant4(((u64, i32), f32, BTreeMap<i8, String>, f64)), // replace <i8, String> by <i8, [String; 0]>
 }
 

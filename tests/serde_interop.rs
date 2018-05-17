@@ -16,7 +16,7 @@ use serde_bytes::ByteBuf;
 
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
-#[id = "0x7e298afc"]
+#[mtproto_identifiable(id = "0x7e298afc")]
 struct Data {
     id: u64,
     raw_data: ByteBuf,
@@ -24,7 +24,7 @@ struct Data {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
-#[id = "0xb3185db0"]
+#[mtproto_identifiable(id = "0xb3185db0")]
 struct Metadata {
     username: String,
     encrypted: bool,

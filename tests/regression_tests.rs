@@ -31,7 +31,7 @@ use serde_mtproto_other_name::{Boxed, MtProtoSized, UnsizedByteBuf, UnsizedByteB
 
 #[derive(Debug, Derivative, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
 #[derivative(PartialEq)]
-#[id = "0xdeadbeef"]
+#[mtproto_identifiable(id = "0xdeadbeef")]
 struct Foo {
     has_receiver: bool,
     size: usize,
@@ -44,7 +44,7 @@ struct Foo {
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
-#[id = "0x80808080"]
+#[mtproto_identifiable(id = "0x80808080")]
 struct Message {
     auth_key_id: i64,
     msg_key: [u32; 4],
@@ -71,30 +71,30 @@ fn pad(bytes: &[u8]) -> Vec<u8> {
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
-#[id = "0xb01dface"]
+#[mtproto_identifiable(id = "0xb01dface")]
 struct Point3I(i32, i32, i32);
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
-#[id = "0xca11ab1e"]
+#[mtproto_identifiable(id = "0xca11ab1e")]
 struct Wrapper(i16);
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
-#[id = "0xd15ea5e0"]
+#[mtproto_identifiable(id = "0xd15ea5e0")]
 struct Nothing;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
 enum CLike {
-    #[id = "0x5ca1ab1e"]
+    #[mtproto_identifiable(id = "0x5ca1ab1e")]
     A,
-    #[id = "0xca55e77e"]
+    #[mtproto_identifiable(id = "0xca55e77e")]
     B,
-    #[id = "0xf007ba11"]
+    #[mtproto_identifiable(id = "0xf007ba11")]
     C,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
 enum Cafebabe<T> {
-    #[id = "0x0badf00d"]
+    #[mtproto_identifiable(id = "0x0badf00d")]
     Bar {
         byte_id: i8,
         position: (u64, u32),
@@ -104,7 +104,7 @@ enum Cafebabe<T> {
         //bignum: i128,
         ratio: f32,
     },
-    #[id = "0xbaaaaaad"]
+    #[mtproto_identifiable(id = "0xbaaaaaad")]
     Baz {
         id: u64,
         name: String,
@@ -112,11 +112,11 @@ enum Cafebabe<T> {
         // not HashMap, because we need deterministic ordering for testing purposes
         mapping: BTreeMap<String, i64>,
     },
-    #[id = "0x0d00d1e0"]
+    #[mtproto_identifiable(id = "0x0d00d1e0")]
     Blob,
-    #[id = "0x7e1eca57"]
+    #[mtproto_identifiable(id = "0x7e1eca57")]
     Quux(CLike),
-    #[id = "0xf01dab1e"]
+    #[mtproto_identifiable(id = "0xf01dab1e")]
     Spam(Boxed<CLike>),
 }
 
