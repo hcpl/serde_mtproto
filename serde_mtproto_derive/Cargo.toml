@@ -16,9 +16,11 @@ travis-ci = { repository = "hcpl/serde_mtproto" }
 proc-macro = true
 
 [dependencies]
-proc-macro2 = "0.3"
-quote = "0.5"
-syn = "0.13"
+# Specify patch versions to use `TokenStream::new` both in the library and in
+# dependencies.
+proc-macro2 = "0.4.4"
+quote = "0.6.3"
+syn = "0.14.1"
 
 [dev-dependencies]
 serde_mtproto = { path = "..", version = "=0.3.1" }  # Update in lockstep

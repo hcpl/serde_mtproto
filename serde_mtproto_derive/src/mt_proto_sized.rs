@@ -1,14 +1,12 @@
-use std::iter::FromIterator;
-
-use proc_macro2::Span;
-use quote;
+use proc_macro2::{self, Span};
+use quote::TokenStreamExt;
 use syn::{
     Attribute, AttrStyle, Data, DeriveInput, Field, Fields, GenericParam, Ident, Index,
-    Meta, NestedMeta, Path, PathSegment, TraitBound, TraitBoundModifier, TypeParamBound,
+    Meta, NestedMeta, TraitBoundModifier, TypeParamBound,
 };
 
 
-pub fn impl_mt_proto_sized(ast: &mut DeriveInput) -> quote::Tokens {
+pub fn impl_mt_proto_sized(ast: &mut DeriveInput) -> proc_macro2::TokenStream {
     add_mt_proto_sized_trait_bound_if_missing(ast);
     let (item_impl_generics, item_ty_generics, item_where_clause) = ast.generics.split_for_impl();
 
@@ -59,7 +57,7 @@ pub fn impl_mt_proto_sized(ast: &mut DeriveInput) -> quote::Tokens {
             quote! { Ok(#fields_quoted) }
         },
         Data::Enum(ref data_enum) => {
-            let mut variants_quoted = quote::Tokens::new();
+            let mut variants_quoted = proc_macro2::TokenStream::new();
 
             for variant in &data_enum.variants {
                 let variant_name = &variant.ident;
@@ -164,7 +162,7 @@ fn add_mt_proto_sized_trait_bound_if_missing(ast: &mut DeriveInput) {
 
                     let trait_ref_segments = path.segments
                         .iter()
-                        .map(|s| s.ident.as_ref());
+                        .map(|s| s.ident.to_string());
                     let mt_proto_sized_segments = vec!["_serde_mtproto", "MtProtoSized"].into_iter();
 
                     if trait_ref_segments.eq(mt_proto_sized_segments) {
@@ -173,15 +171,7 @@ fn add_mt_proto_sized_trait_bound_if_missing(ast: &mut DeriveInput) {
                 }
             }
 
-            type_param.bounds.push(TypeParamBound::Trait(TraitBound {
-                paren_token: None,
-                modifier: TraitBoundModifier::None,
-                lifetimes: None,
-                path: Path {
-                    leading_colon: None,
-                    segments: FromIterator::<PathSegment>::from_iter(vec!["_serde_mtproto".into(), "MtProtoSized".into()]),
-                }
-            }));
+            type_param.bounds.push(parse_quote!(_serde_mtproto::MtProtoSized));
         }
     }
 }

@@ -1,9 +1,9 @@
-use proc_macro2::Span;
-use quote;
+use proc_macro2::{self, Span};
+use quote::TokenStreamExt;
 use syn::{Attribute, AttrStyle, Data, DeriveInput, Ident, Lit, Meta, NestedMeta};
 
 
-pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> quote::Tokens {
+pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> proc_macro2::TokenStream {
     let (item_impl_generics, item_ty_generics, item_where_clause) = ast.generics.split_for_impl();
 
     let item_name = &ast.ident;
@@ -35,7 +35,7 @@ pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> quote::Tokens {
             quote! { #id }
         },
         Data::Enum(ref data_enum) => {
-            let mut variants_quoted = quote::Tokens::new();
+            let mut variants_quoted = proc_macro2::TokenStream::new();
 
             for variant in &data_enum.variants {
                 let variant_name = &variant.ident;
@@ -60,7 +60,7 @@ pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> quote::Tokens {
             quote! { None }
         },
         Data::Enum(ref data_enum) => {
-            let mut variants_quoted = quote::Tokens::new();
+            let mut variants_quoted = proc_macro2::TokenStream::new();
 
             for variant in &data_enum.variants {
                 let variant_name = &variant.ident;
@@ -109,7 +109,7 @@ pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> quote::Tokens {
 }
 
 
-fn get_asserted_id_from_attrs(attrs: &[Attribute]) -> quote::Tokens {
+fn get_asserted_id_from_attrs(attrs: &[Attribute]) -> proc_macro2::TokenStream {
     let id = get_id_from_attrs(attrs);
     let check_expr = quote! {
         Self::all_type_ids().contains(&#id)
@@ -130,8 +130,8 @@ fn get_asserted_id_from_attrs(attrs: &[Attribute]) -> quote::Tokens {
                                     panic!("check_type_id must have exactly 1 argument");
                                 }
 
-                                if let NestedMeta::Meta(Meta::Word(ident)) = nested_list.nested[0] {
-                                    let res = match ident.as_ref() {
+                                if let NestedMeta::Meta(Meta::Word(ref ident)) = nested_list.nested[0] {
+                                    let res = match ident.to_string().as_ref() {
                                         "never" => quote! { #id },
                                         "debug_only" => quote! {
                                             {
