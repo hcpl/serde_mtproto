@@ -58,7 +58,7 @@ matrix:
           fi
         - rm -rf target/gh-pages
       after_success:
-        - cargo doc-upload
+        - cargo doc-upload --message $'Automatic Travis documentation build\n\n'"${TRAVIS_COMMIT_MESSAGE}"
 
 cache: cargo
 
