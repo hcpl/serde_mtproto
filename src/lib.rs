@@ -48,9 +48,17 @@
     tyvar_behind_raw_pointer,
 ))]
 
-#![cfg_attr(all(feature = "aggressive-rustc-lints", lints_1_26), deny(
-    // Deny some warn-level lints available from Rust 1.26
+#![cfg_attr(all(feature = "aggressive-rustc-lints", lints_1_26, not(lints_1_27)), deny(
+    // Deny some warn-level lints available from Rust 1.26 that are renamed in
+    // 1.27 (relevant PR: https://github.com/rust-lang/rust/pull/50879).
     unstable_name_collision,
+))]
+
+#![cfg_attr(all(feature = "aggressive-rustc-lints", lints_1_27), deny(
+    // Deny some warn-level lints available from previous Rust versions that are
+    // renamed in 1.27
+    // (relevant PR: https://github.com/rust-lang/rust/pull/50879).
+    unstable_name_collisions,
 ))]
 
 
