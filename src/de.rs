@@ -79,10 +79,11 @@ impl<'ids, R: io::Read> Deserializer<'ids, R> {
         let mut b = vec![0; len];
         self.reader.read_exact(&mut b)?;
 
-        let mut p = vec![0; padding];
-        self.reader.read_exact(&mut p)?;
+        let mut p = [0; 3];
+        let ps = &mut p[0..padding];
+        self.reader.read_exact(ps)?;
 
-        if p.iter().any(|b| *b != 0) {
+        if ps.iter().any(|b| *b != 0) {
             bail!(DeErrorKind::NonZeroBytesPadding);
         }
 
