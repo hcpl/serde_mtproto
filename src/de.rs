@@ -48,6 +48,10 @@ impl<'ids, R: io::Read> Deserializer<'ids, R> {
             rem = (len + 1) % 4;
         } else if first_byte == 254 {
             let uncasted = self.reader.read_u24::<LittleEndian>()?;
+            if uncasted <= 253 {
+                bail!(DeErrorKind::BytesLenPrefix254LessThan254(uncasted));
+            }
+
             len = safe_int_cast::<u32, usize>(uncasted)?;
             rem = len % 4;
         } else { // must be 255
@@ -77,6 +81,10 @@ impl<'ids, R: io::Read> Deserializer<'ids, R> {
 
         let mut p = vec![0; padding];
         self.reader.read_exact(&mut p)?;
+
+        if p.iter().any(|b| *b != 0) {
+            bail!(DeErrorKind::NonZeroBytesPadding);
+        }
 
         Ok(b)
     }

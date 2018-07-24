@@ -60,6 +60,9 @@ test-nightly-regressions = []
 
 
 [[test]]
+name = "fuzz_regressions"
+
+[[test]]
 name = "regression_tests"
 
 [[test]]

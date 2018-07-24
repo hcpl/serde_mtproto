@@ -142,6 +142,10 @@ impl From<SerErrorKind> for Error {
 pub enum DeErrorKind {
     /// A convenient variant for String.
     Msg(String),
+    /// Bytes sequence with the 0xfe prefix, but with length less than 254.
+    BytesLenPrefix254LessThan254(u32),
+    /// Padding for a bytes sequence that has at least one non-zero byte.
+    NonZeroBytesPadding,
     /// This `serde` data format doesn't support several types in the Serde data model.
     UnsupportedSerdeType(DeSerdeType),
     /// Not enough elements, stores the already deserialized and expected count.
@@ -163,6 +167,12 @@ impl fmt::Display for DeErrorKind {
         match *self {
             DeErrorKind::Msg(ref string) => {
                 write!(f, "custom string: {}", string)
+            },
+            DeErrorKind::BytesLenPrefix254LessThan254(len) => {
+                write!(f, "byte sequence has the 0xfe prefix with length less than 254 {}", len)
+            },
+            DeErrorKind::NonZeroBytesPadding => {
+                write!(f, "byte sequence has a padding with a non-zero byte")
             },
             DeErrorKind::UnsupportedSerdeType(ref type_) => {
                 write!(f, "{} type is not supported for deserialization", type_)
