@@ -1,15 +1,28 @@
 use num_traits::cast::cast;
 use num_traits::float::Float;
 use num_traits::int::PrimInt;
-use num_traits::sign::Unsigned;
+use num_traits::sign::{Signed, Unsigned};
 
 use error::{self, ErrorKind, ResultExt};
 
 
-pub fn safe_int_cast<T: PrimInt + Copy, U: PrimInt>(n: T) -> error::Result<U> {
+pub fn safe_int_cast<T, U>(n: T) -> error::Result<U>
+    where T: PrimInt + Signed,
+          U: PrimInt + Signed,
+{
+    cast(n).ok_or_else(|| {
+        let upcasted = cast::<T, i64>(n).unwrap();    // Shouldn't panic
+        ErrorKind::SignedIntegerCast(upcasted).into()
+    })
+}
+
+pub fn safe_uint_cast<T, U>(n: T) -> error::Result<U>
+    where T: PrimInt + Unsigned,
+          U: PrimInt + Unsigned,
+{
     cast(n).ok_or_else(|| {
         let upcasted = cast::<T, u64>(n).unwrap();    // Shouldn't panic
-        ErrorKind::IntegerCast(upcasted).into()
+        ErrorKind::UnsignedIntegerCast(upcasted).into()
     })
 }
 
@@ -21,7 +34,7 @@ pub fn safe_float_cast<T: Float + Copy, U: Float>(n: T) -> error::Result<U> {
 }
 
 pub fn check_seq_len(len: usize) -> error::Result<()> {
-    safe_int_cast::<usize, u32>(len)
+    safe_uint_cast::<usize, u32>(len)
         .map(|_| ())
         .chain_err(|| ErrorKind::SeqTooLong(len))
 }
@@ -32,7 +45,7 @@ pub fn safe_uint_eq<T, U>(x: T, y: U) -> bool
 {
     if let Some(ux) = cast::<T, U>(x) { // check if T \subseteq U ...
         ux == y
-    } else if let Some(ty) = cast::<U, T>(y) { // check above failed, then it must be U \subseteq T here
+    } else if let Some(ty) = cast::<U, T>(y) { // check above failed, then it must be U \subset T here
         x == ty
     } else {
         unreachable!("This kind of comparison always involves upcasting the narrower number \

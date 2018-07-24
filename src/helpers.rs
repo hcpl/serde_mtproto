@@ -8,7 +8,7 @@ use serde::ser::{Serialize, Serializer, SerializeTuple};
 
 use error;
 use sized::MtProtoSized;
-use utils::safe_int_cast;
+use utils::safe_uint_cast;
 
 
 /// A byte buffer which doesn't write its length when serialized.
@@ -121,7 +121,7 @@ impl<'de> DeserializeSeed<'de> for UnsizedByteBufSeed {
         }
 
         let padded_bytes_len = self.inner_len + (16 - self.inner_len % 16) % 16;
-        let padded_len = safe_int_cast::<u32, usize>(padded_bytes_len / 8).map_err(D::Error::custom)?;
+        let padded_len = safe_uint_cast::<u32, usize>(padded_bytes_len / 8).map_err(D::Error::custom)?;
 
         deserializer.deserialize_tuple(padded_len, UnsizedByteBufVisitor)
     }

@@ -44,7 +44,7 @@ use serde::de::{Deserialize, DeserializeSeed, Deserializer,
 use error::{self, DeErrorKind};
 use identifiable::Identifiable;
 use sized::MtProtoSized;
-use utils::{safe_int_cast, safe_uint_eq};
+use utils::{safe_uint_cast, safe_uint_eq};
 
 
 /// A struct that wraps an [`Identifiable`] type value to serialize and
@@ -191,7 +191,7 @@ impl<T: MtProtoSized> WithSize<T> {
     /// Wrap a value along with its serialized size.
     pub fn new(inner: T) -> error::Result<WithSize<T>> {
         let with_size = WithSize {
-            size: safe_int_cast(inner.size_hint()?)?,
+            size: safe_uint_cast(inner.size_hint()?)?,
             inner,
         };
 
@@ -240,7 +240,7 @@ impl<'de, T> Deserialize<'de> for WithSize<T>
         if !safe_uint_eq(helper.size, helper_size_hint) {
             bail!(errconv::<D::Error>(DeErrorKind::SizeMismatch(
                 helper.size,
-                safe_int_cast(helper_size_hint).map_err(D::Error::custom)?,
+                safe_uint_cast(helper_size_hint).map_err(D::Error::custom)?,
             )));
         }
 

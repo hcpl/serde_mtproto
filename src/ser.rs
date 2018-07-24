@@ -7,7 +7,7 @@ use serde::ser::{self, Serialize};
 
 use error::{self, SerErrorKind, SerSerdeType};
 use identifiable::Identifiable;
-use utils::safe_int_cast;
+use utils::safe_uint_cast;
 
 
 /// A structure for serializing Rust values into MTProto binary representation.
@@ -202,7 +202,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     fn serialize_seq(self, len: Option<usize>) -> error::Result<Self::SerializeSeq> {
         if let Some(len) = len {
             debug!("Serializing seq of len {}", len);
-            SerializeFixedLengthSeq::with_serialize_len(self, safe_int_cast(len)?)
+            SerializeFixedLengthSeq::with_serialize_len(self, safe_uint_cast(len)?)
         } else {
             bail!(SerErrorKind::SeqsWithUnknownLengthUnsupported);
         }
@@ -210,7 +210,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
     fn serialize_tuple(self, len: usize) -> error::Result<Self::SerializeTuple> {
         debug!("Serializing tuple of len {}", len);
-        Ok(SerializeFixedLengthSeq::new(self, safe_int_cast(len)?))
+        Ok(SerializeFixedLengthSeq::new(self, safe_uint_cast(len)?))
     }
 
     fn serialize_tuple_struct(self,
@@ -218,7 +218,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
                               len: usize)
                              -> error::Result<Self::SerializeTupleStruct> {
         debug!("Serializing tuple struct {} of len {}", name, len);
-        Ok(SerializeFixedLengthSeq::new(self, safe_int_cast(len)?))
+        Ok(SerializeFixedLengthSeq::new(self, safe_uint_cast(len)?))
     }
 
     fn serialize_tuple_variant(self,
@@ -229,13 +229,13 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
                               -> error::Result<Self::SerializeTupleVariant> {
         debug!("Serializing tuple variant {}::{} (variant index {}) of len {}",
             name, variant, variant_index, len);
-        Ok(SerializeFixedLengthSeq::new(self, safe_int_cast(len)?))
+        Ok(SerializeFixedLengthSeq::new(self, safe_uint_cast(len)?))
     }
 
     fn serialize_map(self, len: Option<usize>) -> error::Result<Self::SerializeMap> {
         if let Some(len) = len {
             debug!("Serializing map of len {}", len);
-            SerializeFixedLengthMap::with_serialize_len(self, safe_int_cast(len)?)
+            SerializeFixedLengthMap::with_serialize_len(self, safe_uint_cast(len)?)
         } else {
             bail!(SerErrorKind::MapsWithUnknownLengthUnsupported);
         }
@@ -243,7 +243,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
     fn serialize_struct(self, name: &'static str, len: usize) -> error::Result<Self::SerializeStruct> {
         debug!("Serializing struct {} of len {}", name, len);
-        Ok(SerializeFixedLengthSeq::new(self, safe_int_cast(len)?))
+        Ok(SerializeFixedLengthSeq::new(self, safe_uint_cast(len)?))
     }
 
     fn serialize_struct_variant(self,
@@ -254,7 +254,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
                                -> error::Result<Self::SerializeStructVariant> {
         debug!("Serializing struct variant {}::{} (variant index {}) of len {}",
             name, variant, variant_index, len);
-        Ok(SerializeFixedLengthSeq::new(self, safe_int_cast(len)?))
+        Ok(SerializeFixedLengthSeq::new(self, safe_uint_cast(len)?))
     }
 }
 

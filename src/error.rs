@@ -24,10 +24,16 @@ error_chain! {
             display("deserialization error in serde_mtproto: {}", kind)
         }
 
-        /// Error while casting an integer.
-        IntegerCast(num: u64) {
-            description("error while casting an integer")
-            display("error while casting an integer: {}", num)
+        /// Error while casting a signed integer.
+        SignedIntegerCast(num: i64) {
+            description("error while casting a signed integer")
+            display("error while casting a signed integer: {}", num)
+        }
+
+        /// Error while casting an unsigned integer.
+        UnsignedIntegerCast(num: u64) {
+            description("error while casting an unsigned integer")
+            display("error while casting an unsigned integer: {}", num)
         }
 
         /// Error while casting a floating-point number.
