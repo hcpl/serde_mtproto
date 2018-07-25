@@ -7,7 +7,6 @@
 // For `error_chain!` macro used in `error` module
 #![recursion_limit = "66"]
 
-#![cfg_attr(all(not(stable_i128), feature = "i128"), feature(i128_type))]
 #![cfg_attr(feature = "test-nightly-regressions", feature(nll))]
 
 

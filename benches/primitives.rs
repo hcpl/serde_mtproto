@@ -1,7 +1,5 @@
 #![feature(test)]
 
-#![cfg_attr(all(not(stable_i128), feature = "i128"), feature(i128_type))]
-
 
 #[cfg(feature = "extprim")]
 extern crate extprim;
@@ -83,8 +81,9 @@ bench_primitive! {
 }
 
 
-// Uncomment when `serde` provides support for builtin `i128` and `u128` types.
-//#[cfg(feature = "i128")]
+// Uncomment after switching to `rand` >=0.5 because `i128` support in 0.4
+// doesn't work for Rust 1.26+.
+//#[cfg(stable_i128)]
 //bench_primitive! {
 //    i128, i128_serialize => [u8; 16], i128_deserialize;
 //    u128, u128_serialize => [u8; 16], u128_deserialize;

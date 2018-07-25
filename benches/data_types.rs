@@ -24,7 +24,7 @@ fn random_string<R: Rng>(rng: &mut R, words_count: (usize, usize)) -> String {
 
 
 #[derive(Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
-#[id = "0xd594ba98"]
+#[mtproto_identifiable(id = "0xd594ba98")]
 struct Struct {
     bar: bool,
     s: String,
@@ -93,7 +93,7 @@ fn random_struct_deserialize(b: &mut Bencher) {
 
 
 #[derive(Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
-#[id = "0x200c5e59"]
+#[mtproto_identifiable(id = "0x200c5e59")]
 struct Nothing;
 
 impl Rand for Nothing {
