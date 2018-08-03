@@ -146,6 +146,10 @@ impl<T: Identifiable> Identifiable for Boxed<T> {
         T::all_type_ids()
     }
 
+    fn all_enum_variant_names() -> Option<&'static [&'static str]> {
+        T::all_enum_variant_names()
+    }
+
     fn type_id(&self) -> u32 {
         T::type_id(&self.inner)
     }
@@ -254,6 +258,10 @@ impl<'de, T> Deserialize<'de> for WithSize<T>
 impl<T: Identifiable> Identifiable for WithSize<T> {
     fn all_type_ids() -> &'static [u32] {
         T::all_type_ids()
+    }
+
+    fn all_enum_variant_names() -> Option<&'static [&'static str]> {
+        T::all_enum_variant_names()
     }
 
     fn type_id(&self) -> u32 {

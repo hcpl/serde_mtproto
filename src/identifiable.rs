@@ -26,6 +26,8 @@ const DOUBLE_IDS: &[u32] = &[DOUBLE_ID];
 const STRING_IDS: &[u32] = &[STRING_ID];
 const VECTOR_IDS: &[u32] = &[VECTOR_ID];
 
+const BOOL_VARIANT_NAMES: &[&str] = &["false", "true"];
+
 
 /// A trait for a Rust data structure that can have an id.
 pub trait Identifiable {
@@ -56,6 +58,18 @@ pub trait Identifiable {
     fn all_type_ids() -> &'static [u32]
         where Self: Sized;
 
+    /// Get all enum variant names of an identifiable type.
+    ///
+    /// Structs must return `None` and enums must return `Some` with stringified
+    /// variant names in the same order as the variants themselves.
+    ///
+    /// # Compatibility note
+    ///
+    /// Will probably be replaced by an associated constant
+    /// after bumping minimum supported Rust version to 1.20.
+    fn all_enum_variant_names() -> Option<&'static [&'static str]>
+        where Self: Sized;
+
     /// Get id of a value of an identifiable type.
     ///
     /// Its signature is made `(&self) -> i32`, not `() -> i32` because of enum
@@ -84,6 +98,10 @@ impl<'a, T: Identifiable> Identifiable for &'a T {
         T::all_type_ids()
     }
 
+    fn all_enum_variant_names() -> Option<&'static [&'static str]> {
+        T::all_enum_variant_names()
+    }
+
     fn type_id(&self) -> u32 {
         (*self).type_id()
     }
@@ -96,6 +114,10 @@ impl<'a, T: Identifiable> Identifiable for &'a T {
 impl<T: Identifiable> Identifiable for Box<T> {
     fn all_type_ids() -> &'static [u32] {
         T::all_type_ids()
+    }
+
+    fn all_enum_variant_names() -> Option<&'static [&'static str]> {
+        T::all_enum_variant_names()
     }
 
     fn type_id(&self) -> u32 {
@@ -111,6 +133,10 @@ impl<T: Identifiable> Identifiable for Box<T> {
 impl Identifiable for bool {
     fn all_type_ids() -> &'static [u32] {
         BOOL_IDS
+    }
+
+    fn all_enum_variant_names() -> Option<&'static [&'static str]> {
+        Some(BOOL_VARIANT_NAMES)
     }
 
     fn type_id(&self) -> u32 {
@@ -136,6 +162,10 @@ macro_rules! impl_identifiable_for_simple_types {
             impl Identifiable for $type {
                 fn all_type_ids() -> &'static [u32] {
                     $all_ids
+                }
+
+                fn all_enum_variant_names() -> Option<&'static [&'static str]> {
+                    None
                 }
 
                 fn type_id(&self) -> u32 {
@@ -174,6 +204,10 @@ impl<'a> Identifiable for &'a str {
         STRING_IDS
     }
 
+    fn all_enum_variant_names() -> Option<&'static [&'static str]> {
+        None
+    }
+
     fn type_id(&self) -> u32 {
         STRING_ID
     }
@@ -186,6 +220,10 @@ impl<'a> Identifiable for &'a str {
 impl<T> Identifiable for Vec<T> {
     fn all_type_ids() -> &'static [u32] {
         VECTOR_IDS
+    }
+
+    fn all_enum_variant_names() -> Option<&'static [&'static str]> {
+        None
     }
 
     fn type_id(&self) -> u32 {

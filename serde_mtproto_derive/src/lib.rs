@@ -41,6 +41,9 @@
 //! # fn main() {}
 //! ```
 
+// For `quote!` used at the end of `impl_mt_proto_identifiable`
+#![recursion_limit = "87"]
+
 extern crate proc_macro;
 
 extern crate proc_macro2;

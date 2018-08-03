@@ -11,6 +11,8 @@ pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> proc_macro2::TokenStream
         Ident::new(&format!("_IMPL_MT_PROTO_IDENTIFIABLE_FOR_{}", item_name), Span::call_site());
     let all_type_ids_const =
         Ident::new(&format!("_ALL_TYPE_IDS_OF_{}", item_name), Span::call_site());
+    let all_enum_variant_names_const =
+        Ident::new(&format!("_ALL_ENUM_VARIANT_NAMES_OF_{}", item_name), Span::call_site());
 
     let all_type_ids_value = match ast.data {
         Data::Struct(_) => {
@@ -24,6 +26,20 @@ pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> proc_macro2::TokenStream
                 .collect::<Vec<_>>();
 
             quote! { &[#(#ids),*] }
+        },
+        Data::Union(_) => panic!("Cannot derive `mtproto::Identifiable` for unions."),
+    };
+
+    let all_enum_variant_names_value = match ast.data {
+        Data::Struct(_) => {
+            quote! { None }
+        },
+        Data::Enum(ref data_enum) => {
+            let names = data_enum.variants.iter()
+                .map(|v| v.ident.to_string())
+                .collect::<Vec<_>>();
+
+            quote! { Some(&[#(#names),*]) }
         },
         Data::Union(_) => panic!("Cannot derive `mtproto::Identifiable` for unions."),
     };
@@ -88,12 +104,17 @@ pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> proc_macro2::TokenStream
             extern crate serde_mtproto as _serde_mtproto;
 
             const #all_type_ids_const: &'static [u32] = #all_type_ids_value;
+            const #all_enum_variant_names_const: Option<&'static [&'static str]> = #all_enum_variant_names_value;
 
             impl #item_impl_generics _serde_mtproto::Identifiable for #item_name #item_ty_generics
                 #item_where_clause
             {
                 fn all_type_ids() -> &'static [u32] {
                     #all_type_ids_const
+                }
+
+                fn all_enum_variant_names() -> Option<&'static [&'static str]> {
+                    #all_enum_variant_names_const
                 }
 
                 fn type_id(&self) -> u32 {
