@@ -4,9 +4,9 @@ language: rust
 matrix:
   include:
     # Minimum supported Rust
-    - rust: 1.17.0
+    - rust: 1.19.0
       env: FEATURES=""
-    - rust: 1.17.0
+    - rust: 1.19.0
       env: FEATURES="extprim"
 
     # Minimum Rust that works with the `version_numbers` test

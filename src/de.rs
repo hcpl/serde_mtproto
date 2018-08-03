@@ -80,7 +80,8 @@ impl<'ids, R: io::Read> Deserializer<'ids, R> {
         self.reader.read_exact(&mut b)?;
 
         let mut p = [0; 3];
-        let ps = &mut p[0..padding];
+        let ps = p.get_mut(0..padding)
+            .unwrap_or_else(|| unreachable!("padding must be of length 3 or less"));
         self.reader.read_exact(ps)?;
 
         if ps.iter().any(|b| *b != 0) {

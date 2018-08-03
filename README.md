@@ -31,7 +31,7 @@ You may be looking for:
 - [Detailed documentation about Serde](https://serde.rs/)
 - [Setting up `#[derive(Serialize, Deserialize)]`](https://serde.rs/codegen.html)
 
-Supports Rust 1.17 and newer.
+Supports Rust 1.19 and newer.
 Older versions may work, but are not guaranteed to.
 
 ### Optional Cargo features
