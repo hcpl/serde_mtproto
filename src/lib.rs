@@ -16,6 +16,7 @@
     // Deny some warn-level lints
     const_err,
     deprecated,
+    illegal_floating_point_literal_pattern,
     improper_ctypes,
     overflowing_literals,
     patterns_in_fns_without_body,
@@ -28,20 +29,13 @@
     while_true,
 
     // Deny some allow-level lints
+    anonymous_parameters,
     missing_debug_implementations,
     missing_docs,
     trivial_casts,
     trivial_numeric_casts,
     unused_import_braces,
     unused_results,
-))]
-
-#![cfg_attr(all(feature = "aggressive-rustc-lints", lints_1_19), deny(
-    // Deny some warn-level lints available from Rust 1.19
-    illegal_floating_point_literal_pattern,
-
-    // Deny some allow-level lints available from Rust 1.19
-    anonymous_parameters,
 ))]
 
 #![cfg_attr(all(feature = "aggressive-rustc-lints", lints_1_24), deny(

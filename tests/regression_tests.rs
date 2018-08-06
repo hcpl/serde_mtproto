@@ -1,9 +1,9 @@
 //! Integration & regression tests.
 
-//#[cfg(feature = "extprim")]
-//extern crate extprim;
 #[macro_use]
 extern crate derivative;
+#[cfg(feature = "extprim")]
+extern crate extprim;
 #[macro_use]
 extern crate lazy_static;
 #[macro_use]
@@ -20,9 +20,10 @@ extern crate serde_mtproto_derive;
 
 
 use std::collections::BTreeMap;
+use std::str::FromStr;
 
-//#[cfg(feature = "extprim")]
-//use extprim::i128::i128;
+#[cfg(feature = "extprim")]
+use extprim::i128;
 use serde::de::{Deserializer, DeserializeSeed};
 use serde_bytes::ByteBuf;
 use serde_mtproto_other_name::{Boxed, MtProtoSized, UnsizedByteBuf, UnsizedByteBufSeed,
@@ -100,8 +101,8 @@ enum Cafebabe<T> {
         position: (u64, u32),
         #[serde(bound(deserialize = "T: ::serde_mtproto_other_name::Identifiable"))]
         data: Boxed<T>,
-        //#[cfg(feature = "extprim")]
-        //bignum: i128,
+        #[cfg(feature = "extprim")]
+        bignum: i128::i128,
         ratio: f32,
     },
     #[mtproto_identifiable(id = "0xbaaaaaad")]
@@ -211,22 +212,22 @@ lazy_static! {
         byte_id: -20,
         position: (350, 142_857),
         data: Boxed::new(4096),
-        // TODO: uncomment this after bumping minimal Rust version to 1.20 with the struct field
-        // attributes feature.
-        //
-        //#[cfg(feature = "extprim")]
-        //bignum: i128::from_str("100000000000000000000000000000000000000").unwrap(),
+        #[cfg(feature = "extprim")]
+        bignum: i128::i128::from_str("100000000000000000000000000000000000000").unwrap(),
         ratio: ::std::f32::consts::E,
     };
 
     static ref CAFEBABE_BAR_SERIALIZED_BOXED: Vec<u8> = vec![
-        0x0d, 0xf0, 0xad, 0x0b,          // id of Cafebabe::Bar in little-endian
-        236, 255, 255, 255,              // -20 as 32-bit int (MTProto doesn't support less than 32-bit)
-        94, 1, 0, 0, 0, 0, 0, 0,         // 350 as little-endian 64-bit int
-        9, 46, 2, 0,                     // 142857 as little-endian 32-bit int
-        218, 155, 80, 168,               // id of int built-in MTProto type
-        0, 16, 0, 0,                     // 4096 as little-endian 32-bit int
-        0, 0, 0, 128, 10, 191, 5, 64,    // 2.718281828 as little-endian 32-bit floating point
+        0x0d, 0xf0, 0xad, 0x0b,                // id of Cafebabe::Bar in little-endian
+        236, 255, 255, 255,                    // -20 as 32-bit int (MTProto doesn't support \
+                                               // less than 32-bit)
+        94, 1, 0, 0, 0, 0, 0, 0,               // 350 as little-endian 64-bit int
+        9, 46, 2, 0,                           // 142857 as little-endian 32-bit int
+        218, 155, 80, 168,                     // id of int built-in MTProto type
+        0, 16, 0, 0,                           // 4096 as little-endian 32-bit int
+        0, 0, 0, 0, 64, 34, 138, 9,            // 100000000000000000000000000000000000000 as \
+        122, 196, 134, 90, 168, 76, 59, 75,    //   128-bit int
+        0, 0, 0, 128, 10, 191, 5, 64,          // 2.718281828 as little-endian 32-bit floating point
     ];
 
     static ref CAFEBABE_BAZ: Cafebabe<Vec<bool>> = Cafebabe::Baz {
