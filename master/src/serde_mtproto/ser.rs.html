@@ -530,7 +530,7 @@
 
 <span class="kw">use</span> <span class="ident">error</span>::{<span class="self">self</span>, <span class="ident">SerErrorKind</span>, <span class="ident">SerSerdeType</span>};
 <span class="kw">use</span> <span class="ident">identifiable</span>::<span class="ident">Identifiable</span>;
-<span class="kw">use</span> <span class="ident">utils</span>::<span class="ident">safe_int_cast</span>;
+<span class="kw">use</span> <span class="ident">utils</span>::<span class="ident">safe_uint_cast</span>;
 
 
 <span class="doccomment">/// A structure for serializing Rust values into MTProto binary representation.</span>
@@ -725,7 +725,7 @@
     <span class="kw">fn</span> <span class="ident">serialize_seq</span>(<span class="self">self</span>, <span class="ident">len</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">error</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">SerializeSeq</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">len</span> {
             <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Serializing seq of len {}&quot;</span>, <span class="ident">len</span>);
-            <span class="ident">SerializeFixedLengthSeq</span>::<span class="ident">with_serialize_len</span>(<span class="self">self</span>, <span class="ident">safe_int_cast</span>(<span class="ident">len</span>)<span class="question-mark">?</span>)
+            <span class="ident">SerializeFixedLengthSeq</span>::<span class="ident">with_serialize_len</span>(<span class="self">self</span>, <span class="ident">safe_uint_cast</span>(<span class="ident">len</span>)<span class="question-mark">?</span>)
         } <span class="kw">else</span> {
             <span class="macro">bail</span><span class="macro">!</span>(<span class="ident">SerErrorKind</span>::<span class="ident">SeqsWithUnknownLengthUnsupported</span>);
         }
@@ -733,7 +733,7 @@
 
     <span class="kw">fn</span> <span class="ident">serialize_tuple</span>(<span class="self">self</span>, <span class="ident">len</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">error</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">SerializeTuple</span><span class="op">&gt;</span> {
         <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Serializing tuple of len {}&quot;</span>, <span class="ident">len</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">SerializeFixedLengthSeq</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">safe_int_cast</span>(<span class="ident">len</span>)<span class="question-mark">?</span>))
+        <span class="prelude-val">Ok</span>(<span class="ident">SerializeFixedLengthSeq</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">safe_uint_cast</span>(<span class="ident">len</span>)<span class="question-mark">?</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_tuple_struct</span>(<span class="self">self</span>,
@@ -741,7 +741,7 @@
                               <span class="ident">len</span>: <span class="ident">usize</span>)
                              <span class="op">-&gt;</span> <span class="ident">error</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">SerializeTupleStruct</span><span class="op">&gt;</span> {
         <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Serializing tuple struct {} of len {}&quot;</span>, <span class="ident">name</span>, <span class="ident">len</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">SerializeFixedLengthSeq</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">safe_int_cast</span>(<span class="ident">len</span>)<span class="question-mark">?</span>))
+        <span class="prelude-val">Ok</span>(<span class="ident">SerializeFixedLengthSeq</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">safe_uint_cast</span>(<span class="ident">len</span>)<span class="question-mark">?</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_tuple_variant</span>(<span class="self">self</span>,
@@ -752,13 +752,13 @@
                               <span class="op">-&gt;</span> <span class="ident">error</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">SerializeTupleVariant</span><span class="op">&gt;</span> {
         <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Serializing tuple variant {}::{} (variant index {}) of len {}&quot;</span>,
             <span class="ident">name</span>, <span class="ident">variant</span>, <span class="ident">variant_index</span>, <span class="ident">len</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">SerializeFixedLengthSeq</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">safe_int_cast</span>(<span class="ident">len</span>)<span class="question-mark">?</span>))
+        <span class="prelude-val">Ok</span>(<span class="ident">SerializeFixedLengthSeq</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">safe_uint_cast</span>(<span class="ident">len</span>)<span class="question-mark">?</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_map</span>(<span class="self">self</span>, <span class="ident">len</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">error</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">SerializeMap</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">len</span>) <span class="op">=</span> <span class="ident">len</span> {
             <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Serializing map of len {}&quot;</span>, <span class="ident">len</span>);
-            <span class="ident">SerializeFixedLengthMap</span>::<span class="ident">with_serialize_len</span>(<span class="self">self</span>, <span class="ident">safe_int_cast</span>(<span class="ident">len</span>)<span class="question-mark">?</span>)
+            <span class="ident">SerializeFixedLengthMap</span>::<span class="ident">with_serialize_len</span>(<span class="self">self</span>, <span class="ident">safe_uint_cast</span>(<span class="ident">len</span>)<span class="question-mark">?</span>)
         } <span class="kw">else</span> {
             <span class="macro">bail</span><span class="macro">!</span>(<span class="ident">SerErrorKind</span>::<span class="ident">MapsWithUnknownLengthUnsupported</span>);
         }
@@ -766,7 +766,7 @@
 
     <span class="kw">fn</span> <span class="ident">serialize_struct</span>(<span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">len</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">error</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">SerializeStruct</span><span class="op">&gt;</span> {
         <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Serializing struct {} of len {}&quot;</span>, <span class="ident">name</span>, <span class="ident">len</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">SerializeFixedLengthSeq</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">safe_int_cast</span>(<span class="ident">len</span>)<span class="question-mark">?</span>))
+        <span class="prelude-val">Ok</span>(<span class="ident">SerializeFixedLengthSeq</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">safe_uint_cast</span>(<span class="ident">len</span>)<span class="question-mark">?</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">serialize_struct_variant</span>(<span class="self">self</span>,
@@ -777,7 +777,7 @@
                                <span class="op">-&gt;</span> <span class="ident">error</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">SerializeStructVariant</span><span class="op">&gt;</span> {
         <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Serializing struct variant {}::{} (variant index {}) of len {}&quot;</span>,
             <span class="ident">name</span>, <span class="ident">variant</span>, <span class="ident">variant_index</span>, <span class="ident">len</span>);
-        <span class="prelude-val">Ok</span>(<span class="ident">SerializeFixedLengthSeq</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">safe_int_cast</span>(<span class="ident">len</span>)<span class="question-mark">?</span>))
+        <span class="prelude-val">Ok</span>(<span class="ident">SerializeFixedLengthSeq</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">safe_uint_cast</span>(<span class="ident">len</span>)<span class="question-mark">?</span>))
     }
 }
 

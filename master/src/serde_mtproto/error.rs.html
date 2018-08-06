@@ -238,6 +238,22 @@
 <span id="238">238</span>
 <span id="239">239</span>
 <span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! When serializing or deserializing MTProto goes wrong.</span>
 
@@ -265,10 +281,16 @@
             <span class="ident">display</span>(<span class="string">&quot;deserialization error in serde_mtproto: {}&quot;</span>, <span class="ident">kind</span>)
         }
 
-        <span class="doccomment">/// Error while casting an integer.</span>
-        <span class="ident">IntegerCast</span>(<span class="ident">num</span>: <span class="ident">u64</span>) {
-            <span class="ident">description</span>(<span class="string">&quot;error while casting an integer&quot;</span>)
-            <span class="ident">display</span>(<span class="string">&quot;error while casting an integer: {}&quot;</span>, <span class="ident">num</span>)
+        <span class="doccomment">/// Error while casting a signed integer.</span>
+        <span class="ident">SignedIntegerCast</span>(<span class="ident">num</span>: <span class="ident">i64</span>) {
+            <span class="ident">description</span>(<span class="string">&quot;error while casting a signed integer&quot;</span>)
+            <span class="ident">display</span>(<span class="string">&quot;error while casting a signed integer: {}&quot;</span>, <span class="ident">num</span>)
+        }
+
+        <span class="doccomment">/// Error while casting an unsigned integer.</span>
+        <span class="ident">UnsignedIntegerCast</span>(<span class="ident">num</span>: <span class="ident">u64</span>) {
+            <span class="ident">description</span>(<span class="string">&quot;error while casting an unsigned integer&quot;</span>)
+            <span class="ident">display</span>(<span class="string">&quot;error while casting an unsigned integer: {}&quot;</span>, <span class="ident">num</span>)
         }
 
         <span class="doccomment">/// Error while casting a floating-point number.</span>
@@ -383,6 +405,10 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DeErrorKind</span> {
     <span class="doccomment">/// A convenient variant for String.</span>
     <span class="ident">Msg</span>(<span class="ident">String</span>),
+    <span class="doccomment">/// Bytes sequence with the 0xfe prefix, but with length less than 254.</span>
+    <span class="ident">BytesLenPrefix254LessThan254</span>(<span class="ident">u32</span>),
+    <span class="doccomment">/// Padding for a bytes sequence that has at least one non-zero byte.</span>
+    <span class="ident">NonZeroBytesPadding</span>,
     <span class="doccomment">/// This `serde` data format doesn&#39;t support several types in the Serde data model.</span>
     <span class="ident">UnsupportedSerdeType</span>(<span class="ident">DeSerdeType</span>),
     <span class="doccomment">/// Not enough elements, stores the already deserialized and expected count.</span>
@@ -404,6 +430,12 @@
         <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
             <span class="ident">DeErrorKind</span>::<span class="ident">Msg</span>(<span class="kw-2">ref</span> <span class="ident">string</span>) <span class="op">=&gt;</span> {
                 <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;custom string: {}&quot;</span>, <span class="ident">string</span>)
+            },
+            <span class="ident">DeErrorKind</span>::<span class="ident">BytesLenPrefix254LessThan254</span>(<span class="ident">len</span>) <span class="op">=&gt;</span> {
+                <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;byte sequence has the 0xfe prefix with length less than 254 {}&quot;</span>, <span class="ident">len</span>)
+            },
+            <span class="ident">DeErrorKind</span>::<span class="ident">NonZeroBytesPadding</span> <span class="op">=&gt;</span> {
+                <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;byte sequence has a padding with a non-zero byte&quot;</span>)
             },
             <span class="ident">DeErrorKind</span>::<span class="ident">UnsupportedSerdeType</span>(<span class="kw-2">ref</span> <span class="ident">type_</span>) <span class="op">=&gt;</span> {
                 <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{} type is not supported for deserialization&quot;</span>, <span class="ident">type_</span>)

@@ -174,7 +174,7 @@
 
 <span class="kw">use</span> <span class="ident">error</span>;
 <span class="kw">use</span> <span class="ident">sized</span>::<span class="ident">MtProtoSized</span>;
-<span class="kw">use</span> <span class="ident">utils</span>::<span class="ident">safe_int_cast</span>;
+<span class="kw">use</span> <span class="ident">utils</span>::<span class="ident">safe_uint_cast</span>;
 
 
 <span class="doccomment">/// A byte buffer which doesn&#39;t write its length when serialized.</span>
@@ -287,7 +287,7 @@
         }
 
         <span class="kw">let</span> <span class="ident">padded_bytes_len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner_len</span> <span class="op">+</span> (<span class="number">16</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">inner_len</span> <span class="op">%</span> <span class="number">16</span>) <span class="op">%</span> <span class="number">16</span>;
-        <span class="kw">let</span> <span class="ident">padded_len</span> <span class="op">=</span> <span class="ident">safe_int_cast</span>::<span class="op">&lt;</span><span class="ident">u32</span>, <span class="ident">usize</span><span class="op">&gt;</span>(<span class="ident">padded_bytes_len</span> <span class="op">/</span> <span class="number">8</span>).<span class="ident">map_err</span>(<span class="ident">D</span>::<span class="ident">Error</span>::<span class="ident">custom</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">padded_len</span> <span class="op">=</span> <span class="ident">safe_uint_cast</span>::<span class="op">&lt;</span><span class="ident">u32</span>, <span class="ident">usize</span><span class="op">&gt;</span>(<span class="ident">padded_bytes_len</span> <span class="op">/</span> <span class="number">8</span>).<span class="ident">map_err</span>(<span class="ident">D</span>::<span class="ident">Error</span>::<span class="ident">custom</span>)<span class="question-mark">?</span>;
 
         <span class="ident">deserializer</span>.<span class="ident">deserialize_tuple</span>(<span class="ident">padded_len</span>, <span class="ident">UnsizedByteBufVisitor</span>)
     }

@@ -366,6 +366,14 @@
 <span id="366">366</span>
 <span id="367">367</span>
 <span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! Wrapper structs for attaching additional data to a type for</span>
 <span class="doccomment">//! [de]serialization purposes.</span>
@@ -413,7 +421,7 @@
 <span class="kw">use</span> <span class="ident">error</span>::{<span class="self">self</span>, <span class="ident">DeErrorKind</span>};
 <span class="kw">use</span> <span class="ident">identifiable</span>::<span class="ident">Identifiable</span>;
 <span class="kw">use</span> <span class="ident">sized</span>::<span class="ident">MtProtoSized</span>;
-<span class="kw">use</span> <span class="ident">utils</span>::{<span class="ident">safe_int_cast</span>, <span class="ident">safe_uint_eq</span>};
+<span class="kw">use</span> <span class="ident">utils</span>::{<span class="ident">safe_uint_cast</span>, <span class="ident">safe_uint_eq</span>};
 
 
 <span class="doccomment">/// A struct that wraps an [`Identifiable`] type value to serialize and</span>
@@ -515,6 +523,10 @@
         <span class="ident">T</span>::<span class="ident">all_type_ids</span>()
     }
 
+    <span class="kw">fn</span> <span class="ident">all_enum_variant_names</span>() <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>]<span class="op">&gt;</span> {
+        <span class="ident">T</span>::<span class="ident">all_enum_variant_names</span>()
+    }
+
     <span class="kw">fn</span> <span class="ident">type_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u32</span> {
         <span class="ident">T</span>::<span class="ident">type_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span>)
     }
@@ -560,7 +572,7 @@
     <span class="doccomment">/// Wrap a value along with its serialized size.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">inner</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">error</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">WithSize</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;&gt;</span> {
         <span class="kw">let</span> <span class="ident">with_size</span> <span class="op">=</span> <span class="ident">WithSize</span> {
-            <span class="ident">size</span>: <span class="ident">safe_int_cast</span>(<span class="ident">inner</span>.<span class="ident">size_hint</span>()<span class="question-mark">?</span>)<span class="question-mark">?</span>,
+            <span class="ident">size</span>: <span class="ident">safe_uint_cast</span>(<span class="ident">inner</span>.<span class="ident">size_hint</span>()<span class="question-mark">?</span>)<span class="question-mark">?</span>,
             <span class="ident">inner</span>,
         };
 
@@ -609,7 +621,7 @@
         <span class="kw">if</span> <span class="op">!</span><span class="ident">safe_uint_eq</span>(<span class="ident">helper</span>.<span class="ident">size</span>, <span class="ident">helper_size_hint</span>) {
             <span class="macro">bail</span><span class="macro">!</span>(<span class="ident">errconv</span>::<span class="op">&lt;</span><span class="ident">D</span>::<span class="ident">Error</span><span class="op">&gt;</span>(<span class="ident">DeErrorKind</span>::<span class="ident">SizeMismatch</span>(
                 <span class="ident">helper</span>.<span class="ident">size</span>,
-                <span class="ident">safe_int_cast</span>(<span class="ident">helper_size_hint</span>).<span class="ident">map_err</span>(<span class="ident">D</span>::<span class="ident">Error</span>::<span class="ident">custom</span>)<span class="question-mark">?</span>,
+                <span class="ident">safe_uint_cast</span>(<span class="ident">helper_size_hint</span>).<span class="ident">map_err</span>(<span class="ident">D</span>::<span class="ident">Error</span>::<span class="ident">custom</span>)<span class="question-mark">?</span>,
             )));
         }
 
@@ -623,6 +635,10 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Identifiable</span><span class="op">&gt;</span> <span class="ident">Identifiable</span> <span class="kw">for</span> <span class="ident">WithSize</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">all_type_ids</span>() <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">u32</span>] {
         <span class="ident">T</span>::<span class="ident">all_type_ids</span>()
+    }
+
+    <span class="kw">fn</span> <span class="ident">all_enum_variant_names</span>() <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>]<span class="op">&gt;</span> {
+        <span class="ident">T</span>::<span class="ident">all_enum_variant_names</span>()
     }
 
     <span class="kw">fn</span> <span class="ident">type_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u32</span> {

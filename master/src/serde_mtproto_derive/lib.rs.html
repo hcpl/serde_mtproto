@@ -76,13 +76,17 @@
 <span id="76">76</span>
 <span id="77">77</span>
 <span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! This crate provides Serde MTProto&#39;s two derive macros.</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//! # #[macro_use] extern crate serde_mtproto_derive;</span>
 <span class="doccomment">//! #[derive(MtProtoIdentifiable, MtProtoSized)]</span>
-<span class="doccomment">//! # #[id = &quot;0x00000000&quot;]</span>
+<span class="doccomment">//! # #[mtproto_identifiable(id = &quot;0x00000000&quot;)]</span>
 <span class="doccomment">//! # struct Stub;</span>
 <span class="doccomment">//! # fn main() {}</span>
 <span class="doccomment">//! ```</span>
@@ -95,7 +99,7 @@
 <span class="doccomment">//! extern crate serde_mtproto_derive;</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! #[derive(MtProtoIdentifiable, MtProtoSized)]</span>
-<span class="doccomment">//! #[id = &quot;0xbeefdead&quot;]</span>
+<span class="doccomment">//! #[mtproto_identifiable(id = &quot;0xbeefdead&quot;)]</span>
 <span class="doccomment">//! struct Message {</span>
 <span class="doccomment">//!     message_id: u32,</span>
 <span class="doccomment">//!     user_id: u32,</span>
@@ -105,13 +109,13 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! #[derive(MtProtoIdentifiable, MtProtoSized)]</span>
 <span class="doccomment">//! enum Attachment {</span>
-<span class="doccomment">//!     #[id = &quot;0xdef19e00&quot;]</span>
+<span class="doccomment">//!     #[mtproto_identifiable(id = &quot;0xdef19e00&quot;)]</span>
 <span class="doccomment">//!     Nothing,</span>
-<span class="doccomment">//!     #[id = &quot;0xbadf00d0&quot;]</span>
+<span class="doccomment">//!     #[mtproto_identifiable(id = &quot;0xbadf00d0&quot;)]</span>
 <span class="doccomment">//!     Link {</span>
 <span class="doccomment">//!         url: String,</span>
 <span class="doccomment">//!     },</span>
-<span class="doccomment">//!     #[id = &quot;0xdeafbeef&quot;]</span>
+<span class="doccomment">//!     #[mtproto_identifiable(id = &quot;0xdeafbeef&quot;)]</span>
 <span class="doccomment">//!     Repost {</span>
 <span class="doccomment">//!         message_id: u32,</span>
 <span class="doccomment">//!     },</span>
@@ -120,11 +124,15 @@
 <span class="doccomment">//! # fn main() {}</span>
 <span class="doccomment">//! ```</span>
 
+<span class="comment">// For `quote!` used at the end of `impl_mt_proto_identifiable`</span>
+<span class="attribute">#![<span class="ident">recursion_limit</span> <span class="op">=</span> <span class="string">&quot;87&quot;</span>]</span>
+
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">proc_macro</span>;
 
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">proc_macro2</span>;
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">quote</span>;
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">syn</span>;
 
 
@@ -138,7 +146,7 @@
 <span class="kw">use</span> <span class="ident">mt_proto_sized</span>::<span class="ident">impl_mt_proto_sized</span>;
 
 
-<span class="attribute">#[<span class="ident">proc_macro_derive</span>(<span class="ident">MtProtoIdentifiable</span>, <span class="ident">attributes</span>(<span class="ident">id</span>, <span class="ident">check_type_id</span>))]</span>
+<span class="attribute">#[<span class="ident">proc_macro_derive</span>(<span class="ident">MtProtoIdentifiable</span>, <span class="ident">attributes</span>(<span class="ident">mtproto_identifiable</span>))]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mt_proto_identifiable</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>) <span class="op">-&gt;</span> <span class="ident">TokenStream</span> {
     <span class="kw">let</span> <span class="ident">ast</span> <span class="op">=</span> <span class="ident">syn</span>::<span class="ident">parse</span>(<span class="ident">input</span>).<span class="ident">unwrap</span>();
 

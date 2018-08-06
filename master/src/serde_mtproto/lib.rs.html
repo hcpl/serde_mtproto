@@ -170,6 +170,10 @@
 <span id="170">170</span>
 <span id="171">171</span>
 <span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! # Serde MTProto</span>
 <span class="doccomment">//!</span>
@@ -177,7 +181,9 @@
 <span class="doccomment">//! This crate provides means to serialize Rust types to its binary</span>
 <span class="doccomment">//! representation and to deserialize from said representation.</span>
 
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">not</span>(<span class="ident">stable_i128</span>), <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;i128&quot;</span>), <span class="ident">feature</span>(<span class="ident">i128_type</span>))]</span>
+<span class="comment">// For `error_chain!` macro used in `error` module</span>
+<span class="attribute">#![<span class="ident">recursion_limit</span> <span class="op">=</span> <span class="string">&quot;66&quot;</span>]</span>
+
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;test-nightly-regressions&quot;</span>, <span class="ident">feature</span>(<span class="ident">nll</span>))]</span>
 
 
@@ -187,6 +193,7 @@
     <span class="comment">// Deny some warn-level lints</span>
     <span class="ident">const_err</span>,
     <span class="ident">deprecated</span>,
+    <span class="ident">illegal_floating_point_literal_pattern</span>,
     <span class="ident">improper_ctypes</span>,
     <span class="ident">overflowing_literals</span>,
     <span class="ident">patterns_in_fns_without_body</span>,
@@ -199,6 +206,7 @@
     <span class="ident">while_true</span>,
 
     <span class="comment">// Deny some allow-level lints</span>
+    <span class="ident">anonymous_parameters</span>,
     <span class="ident">missing_debug_implementations</span>,
     <span class="ident">missing_docs</span>,
     <span class="ident">trivial_casts</span>,
@@ -207,23 +215,23 @@
     <span class="ident">unused_results</span>,
 ))]</span>
 
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;aggressive-rustc-lints&quot;</span>, <span class="ident">lints_1_19</span>), <span class="ident">deny</span>(
-    <span class="comment">// Deny some warn-level lints available from Rust 1.19</span>
-    <span class="ident">illegal_floating_point_literal_pattern</span>,
-
-    <span class="comment">// Deny some allow-level lints available from Rust 1.19</span>
-    <span class="ident">anonymous_parameters</span>,
-))]</span>
-
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;aggressive-rustc-lints&quot;</span>, <span class="ident">lints_1_24</span>), <span class="ident">deny</span>(
     <span class="comment">// Deny some warn-level lints available from Rust 1.24</span>
     <span class="ident">safe_packed_borrows</span>,
     <span class="ident">tyvar_behind_raw_pointer</span>,
 ))]</span>
 
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;aggressive-rustc-lints&quot;</span>, <span class="ident">lints_1_26</span>), <span class="ident">deny</span>(
-    <span class="comment">// Deny some warn-level lints available from Rust 1.26</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;aggressive-rustc-lints&quot;</span>, <span class="ident">lints_1_26</span>, <span class="ident">not</span>(<span class="ident">lints_1_27</span>)), <span class="ident">deny</span>(
+    <span class="comment">// Deny some warn-level lints available from Rust 1.26 that are renamed in</span>
+    <span class="comment">// 1.27 (relevant PR: https://github.com/rust-lang/rust/pull/50879).</span>
     <span class="ident">unstable_name_collision</span>,
+))]</span>
+
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">all</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;aggressive-rustc-lints&quot;</span>, <span class="ident">lints_1_27</span>), <span class="ident">deny</span>(
+    <span class="comment">// Deny some warn-level lints available from previous Rust versions that are</span>
+    <span class="comment">// renamed in 1.27</span>
+    <span class="comment">// (relevant PR: https://github.com/rust-lang/rust/pull/50879).</span>
+    <span class="ident">unstable_name_collisions</span>,
 ))]</span>
 
 

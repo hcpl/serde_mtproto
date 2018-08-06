@@ -40,19 +40,45 @@
 <span id="40">40</span>
 <span id="41">41</span>
 <span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
 </pre><pre class="rust ">
 <span class="kw">use</span> <span class="ident">num_traits</span>::<span class="ident">cast</span>::<span class="ident">cast</span>;
 <span class="kw">use</span> <span class="ident">num_traits</span>::<span class="ident">float</span>::<span class="ident">Float</span>;
 <span class="kw">use</span> <span class="ident">num_traits</span>::<span class="ident">int</span>::<span class="ident">PrimInt</span>;
-<span class="kw">use</span> <span class="ident">num_traits</span>::<span class="ident">sign</span>::<span class="ident">Unsigned</span>;
+<span class="kw">use</span> <span class="ident">num_traits</span>::<span class="ident">sign</span>::{<span class="ident">Signed</span>, <span class="ident">Unsigned</span>};
 
 <span class="kw">use</span> <span class="ident">error</span>::{<span class="self">self</span>, <span class="ident">ErrorKind</span>, <span class="ident">ResultExt</span>};
 
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">safe_int_cast</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">PrimInt</span> <span class="op">+</span> <span class="ident">Copy</span>, <span class="ident">U</span>: <span class="ident">PrimInt</span><span class="op">&gt;</span>(<span class="ident">n</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">error</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">safe_int_cast</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span>(<span class="ident">n</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">error</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">PrimInt</span> <span class="op">+</span> <span class="ident">Signed</span>,
+          <span class="ident">U</span>: <span class="ident">PrimInt</span> <span class="op">+</span> <span class="ident">Signed</span>,
+{
+    <span class="ident">cast</span>(<span class="ident">n</span>).<span class="ident">ok_or_else</span>(<span class="op">||</span> {
+        <span class="kw">let</span> <span class="ident">upcasted</span> <span class="op">=</span> <span class="ident">cast</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">i64</span><span class="op">&gt;</span>(<span class="ident">n</span>).<span class="ident">unwrap</span>();    <span class="comment">// Shouldn&#39;t panic</span>
+        <span class="ident">ErrorKind</span>::<span class="ident">SignedIntegerCast</span>(<span class="ident">upcasted</span>).<span class="ident">into</span>()
+    })
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">safe_uint_cast</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span>(<span class="ident">n</span>: <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">error</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>
+    <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">PrimInt</span> <span class="op">+</span> <span class="ident">Unsigned</span>,
+          <span class="ident">U</span>: <span class="ident">PrimInt</span> <span class="op">+</span> <span class="ident">Unsigned</span>,
+{
     <span class="ident">cast</span>(<span class="ident">n</span>).<span class="ident">ok_or_else</span>(<span class="op">||</span> {
         <span class="kw">let</span> <span class="ident">upcasted</span> <span class="op">=</span> <span class="ident">cast</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">u64</span><span class="op">&gt;</span>(<span class="ident">n</span>).<span class="ident">unwrap</span>();    <span class="comment">// Shouldn&#39;t panic</span>
-        <span class="ident">ErrorKind</span>::<span class="ident">IntegerCast</span>(<span class="ident">upcasted</span>).<span class="ident">into</span>()
+        <span class="ident">ErrorKind</span>::<span class="ident">UnsignedIntegerCast</span>(<span class="ident">upcasted</span>).<span class="ident">into</span>()
     })
 }
 
@@ -64,7 +90,7 @@
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">check_seq_len</span>(<span class="ident">len</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">error</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="ident">safe_int_cast</span>::<span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">u32</span><span class="op">&gt;</span>(<span class="ident">len</span>)
+    <span class="ident">safe_uint_cast</span>::<span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">u32</span><span class="op">&gt;</span>(<span class="ident">len</span>)
         .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> ())
         .<span class="ident">chain_err</span>(<span class="op">||</span> <span class="ident">ErrorKind</span>::<span class="ident">SeqTooLong</span>(<span class="ident">len</span>))
 }
@@ -75,7 +101,7 @@
 {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ux</span>) <span class="op">=</span> <span class="ident">cast</span>::<span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">U</span><span class="op">&gt;</span>(<span class="ident">x</span>) { <span class="comment">// check if T \subseteq U ...</span>
         <span class="ident">ux</span> <span class="op">==</span> <span class="ident">y</span>
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ty</span>) <span class="op">=</span> <span class="ident">cast</span>::<span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">y</span>) { <span class="comment">// check above failed, then it must be U \subseteq T here</span>
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ty</span>) <span class="op">=</span> <span class="ident">cast</span>::<span class="op">&lt;</span><span class="ident">U</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">y</span>) { <span class="comment">// check above failed, then it must be U \subset T here</span>
         <span class="ident">x</span> <span class="op">==</span> <span class="ident">ty</span>
     } <span class="kw">else</span> {
         <span class="macro">unreachable</span><span class="macro">!</span>(<span class="string">&quot;This kind of comparison always involves upcasting the narrower number \

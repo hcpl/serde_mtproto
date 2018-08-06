@@ -502,6 +502,16 @@
 <span id="502">502</span>
 <span id="503">503</span>
 <span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! Deserialize MTProto binary representation to a Rust data structure.</span>
 
@@ -512,7 +522,7 @@
 
 <span class="kw">use</span> <span class="ident">error</span>::{<span class="self">self</span>, <span class="ident">DeErrorKind</span>, <span class="ident">DeSerdeType</span>};
 <span class="kw">use</span> <span class="ident">identifiable</span>::{<span class="ident">BOOL_FALSE_ID</span>, <span class="ident">BOOL_TRUE_ID</span>};
-<span class="kw">use</span> <span class="ident">utils</span>::{<span class="ident">safe_float_cast</span>, <span class="ident">safe_int_cast</span>};
+<span class="kw">use</span> <span class="ident">utils</span>::{<span class="ident">safe_float_cast</span>, <span class="ident">safe_int_cast</span>, <span class="ident">safe_uint_cast</span>};
 
 
 <span class="doccomment">/// A structure that deserializes  MTProto binary representation into Rust values.</span>
@@ -553,7 +563,11 @@
             <span class="ident">rem</span> <span class="op">=</span> (<span class="ident">len</span> <span class="op">+</span> <span class="number">1</span>) <span class="op">%</span> <span class="number">4</span>;
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">first_byte</span> <span class="op">==</span> <span class="number">254</span> {
             <span class="kw">let</span> <span class="ident">uncasted</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">reader</span>.<span class="ident">read_u24</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-            <span class="ident">len</span> <span class="op">=</span> <span class="ident">safe_int_cast</span>::<span class="op">&lt;</span><span class="ident">u32</span>, <span class="ident">usize</span><span class="op">&gt;</span>(<span class="ident">uncasted</span>)<span class="question-mark">?</span>;
+            <span class="kw">if</span> <span class="ident">uncasted</span> <span class="op">&lt;=</span> <span class="number">253</span> {
+                <span class="macro">bail</span><span class="macro">!</span>(<span class="ident">DeErrorKind</span>::<span class="ident">BytesLenPrefix254LessThan254</span>(<span class="ident">uncasted</span>));
+            }
+
+            <span class="ident">len</span> <span class="op">=</span> <span class="ident">safe_uint_cast</span>::<span class="op">&lt;</span><span class="ident">u32</span>, <span class="ident">usize</span><span class="op">&gt;</span>(<span class="ident">uncasted</span>)<span class="question-mark">?</span>;
             <span class="ident">rem</span> <span class="op">=</span> <span class="ident">len</span> <span class="op">%</span> <span class="number">4</span>;
         } <span class="kw">else</span> { <span class="comment">// must be 255</span>
             <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">first_byte</span>, <span class="number">255</span>);
@@ -580,8 +594,14 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="number">0</span>; <span class="ident">len</span>];
         <span class="self">self</span>.<span class="ident">reader</span>.<span class="ident">read_exact</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">b</span>)<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="number">0</span>; <span class="ident">padding</span>];
-        <span class="self">self</span>.<span class="ident">reader</span>.<span class="ident">read_exact</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">p</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> [<span class="number">0</span>; <span class="number">3</span>];
+        <span class="kw">let</span> <span class="ident">ps</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">get_mut</span>(<span class="number">0</span>..<span class="ident">padding</span>)
+            .<span class="ident">unwrap_or_else</span>(<span class="op">||</span> <span class="macro">unreachable</span><span class="macro">!</span>(<span class="string">&quot;padding must be of length 3 or less&quot;</span>));
+        <span class="self">self</span>.<span class="ident">reader</span>.<span class="ident">read_exact</span>(<span class="ident">ps</span>)<span class="question-mark">?</span>;
+
+        <span class="kw">if</span> <span class="ident">ps</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">b</span> <span class="op">!=</span> <span class="number">0</span>) {
+            <span class="macro">bail</span><span class="macro">!</span>(<span class="ident">DeErrorKind</span>::<span class="ident">NonZeroBytesPadding</span>);
+        }
 
         <span class="prelude-val">Ok</span>(<span class="ident">b</span>)
     }
@@ -596,15 +616,15 @@
 
 
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_deserialize_small_int</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">small_type</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">small_deserialize</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">big_read</span>:<span class="ident">ident</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">big_endianness</span>:<span class="ident">ident</span><span class="op">&gt;</span>,
-     <span class="macro-nonterminal">$</span><span class="macro-nonterminal">small_visit</span>:<span class="ident">ident</span>
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">small_type</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">small_deserialize</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">cast</span>:<span class="ident">ident</span>,
+     <span class="macro-nonterminal">$</span><span class="macro-nonterminal">big_read</span>:<span class="ident">ident</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">big_endianness</span>:<span class="ident">ident</span><span class="op">&gt;</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">small_visit</span>:<span class="ident">ident</span>
     ) <span class="op">=&gt;</span> {
         <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">small_deserialize</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">error</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V</span>::<span class="ident">Value</span><span class="op">&gt;</span>
             <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>
         {
             <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">reader</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">big_read</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">big_endianness</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
             <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Deserialized big int: {:#x}&quot;</span>, <span class="ident">value</span>);
-            <span class="kw">let</span> <span class="ident">casted</span> <span class="op">=</span> <span class="ident">safe_int_cast</span>(<span class="ident">value</span>)<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">casted</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">cast</span>(<span class="ident">value</span>)<span class="question-mark">?</span>;
             <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Casted to {}: {:#x}&quot;</span>, <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">small_type</span>), <span class="ident">casted</span>);
 
             <span class="ident">visitor</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">small_visit</span>(<span class="ident">casted</span>)
@@ -656,13 +676,13 @@
         <span class="ident">visitor</span>.<span class="ident">visit_bool</span>(<span class="ident">value</span>)
     }
 
-    <span class="macro">impl_deserialize_small_int</span><span class="macro">!</span>(<span class="ident">i8</span>,  <span class="ident">deserialize_i8</span>,  <span class="ident">read_i32</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>, <span class="ident">visit_i8</span>);
-    <span class="macro">impl_deserialize_small_int</span><span class="macro">!</span>(<span class="ident">i16</span>, <span class="ident">deserialize_i16</span>, <span class="ident">read_i32</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>, <span class="ident">visit_i16</span>);
+    <span class="macro">impl_deserialize_small_int</span><span class="macro">!</span>(<span class="ident">i8</span>,  <span class="ident">deserialize_i8</span>,  <span class="ident">safe_int_cast</span>, <span class="ident">read_i32</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>, <span class="ident">visit_i8</span>);
+    <span class="macro">impl_deserialize_small_int</span><span class="macro">!</span>(<span class="ident">i16</span>, <span class="ident">deserialize_i16</span>, <span class="ident">safe_int_cast</span>, <span class="ident">read_i32</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>, <span class="ident">visit_i16</span>);
     <span class="macro">impl_deserialize_big_int</span><span class="macro">!</span>(<span class="ident">i32</span>, <span class="ident">deserialize_i32</span>, <span class="ident">read_i32</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>, <span class="ident">visit_i32</span>);
     <span class="macro">impl_deserialize_big_int</span><span class="macro">!</span>(<span class="ident">i64</span>, <span class="ident">deserialize_i64</span>, <span class="ident">read_i64</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>, <span class="ident">visit_i64</span>);
 
-    <span class="macro">impl_deserialize_small_int</span><span class="macro">!</span>(<span class="ident">u8</span>,  <span class="ident">deserialize_u8</span>,  <span class="ident">read_u32</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>, <span class="ident">visit_u8</span>);
-    <span class="macro">impl_deserialize_small_int</span><span class="macro">!</span>(<span class="ident">u16</span>, <span class="ident">deserialize_u16</span>, <span class="ident">read_u32</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>, <span class="ident">visit_u16</span>);
+    <span class="macro">impl_deserialize_small_int</span><span class="macro">!</span>(<span class="ident">u8</span>,  <span class="ident">deserialize_u8</span>,  <span class="ident">safe_uint_cast</span>, <span class="ident">read_u32</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>, <span class="ident">visit_u8</span>);
+    <span class="macro">impl_deserialize_small_int</span><span class="macro">!</span>(<span class="ident">u16</span>, <span class="ident">deserialize_u16</span>, <span class="ident">safe_uint_cast</span>, <span class="ident">read_u32</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>, <span class="ident">visit_u16</span>);
     <span class="macro">impl_deserialize_big_int</span><span class="macro">!</span>(<span class="ident">u32</span>, <span class="ident">deserialize_u32</span>, <span class="ident">read_u32</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>, <span class="ident">visit_u32</span>);
     <span class="macro">impl_deserialize_big_int</span><span class="macro">!</span>(<span class="ident">u64</span>, <span class="ident">deserialize_u64</span>, <span class="ident">read_u64</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>, <span class="ident">visit_u64</span>);
 
@@ -764,14 +784,14 @@
         <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>
     {
         <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Deserializing tuple of len {}&quot;</span>, <span class="ident">len</span>);
-        <span class="ident">visitor</span>.<span class="ident">visit_seq</span>(<span class="ident">SeqAccess</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">safe_int_cast</span>(<span class="ident">len</span>)<span class="question-mark">?</span>))
+        <span class="ident">visitor</span>.<span class="ident">visit_seq</span>(<span class="ident">SeqAccess</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">safe_uint_cast</span>(<span class="ident">len</span>)<span class="question-mark">?</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">deserialize_tuple_struct</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">len</span>: <span class="ident">usize</span>, <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">error</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V</span>::<span class="ident">Value</span><span class="op">&gt;</span>
         <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>
     {
         <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Deserializing tuple struct {} of len {}&quot;</span>, <span class="ident">name</span>, <span class="ident">len</span>);
-        <span class="ident">visitor</span>.<span class="ident">visit_seq</span>(<span class="ident">SeqAccess</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">safe_int_cast</span>(<span class="ident">len</span>)<span class="question-mark">?</span>))
+        <span class="ident">visitor</span>.<span class="ident">visit_seq</span>(<span class="ident">SeqAccess</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">safe_uint_cast</span>(<span class="ident">len</span>)<span class="question-mark">?</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">deserialize_map</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">error</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V</span>::<span class="ident">Value</span><span class="op">&gt;</span>
@@ -787,7 +807,7 @@
         <span class="kw">where</span> <span class="ident">V</span>: <span class="ident">Visitor</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>
     {
         <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Deserializing struct {} with fields {:?}&quot;</span>, <span class="ident">name</span>, <span class="ident">fields</span>);
-        <span class="ident">visitor</span>.<span class="ident">visit_seq</span>(<span class="ident">SeqAccess</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">safe_int_cast</span>(<span class="ident">fields</span>.<span class="ident">len</span>())<span class="question-mark">?</span>))
+        <span class="ident">visitor</span>.<span class="ident">visit_seq</span>(<span class="ident">SeqAccess</span>::<span class="ident">new</span>(<span class="self">self</span>, <span class="ident">safe_uint_cast</span>(<span class="ident">fields</span>.<span class="ident">len</span>())<span class="question-mark">?</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">deserialize_enum</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">variants</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>], <span class="ident">visitor</span>: <span class="ident">V</span>) <span class="op">-&gt;</span> <span class="ident">error</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">V</span>::<span class="ident">Value</span><span class="op">&gt;</span>
@@ -851,7 +871,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="ident">safe_int_cast</span>(<span class="self">self</span>.<span class="ident">len</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">next_index</span>).<span class="ident">ok</span>()
+        <span class="ident">safe_uint_cast</span>(<span class="self">self</span>.<span class="ident">len</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">next_index</span>).<span class="ident">ok</span>()
     }
 }
 
@@ -896,7 +916,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="ident">safe_int_cast</span>(<span class="self">self</span>.<span class="ident">len</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">next_index</span>).<span class="ident">ok</span>()
+        <span class="ident">safe_uint_cast</span>(<span class="self">self</span>.<span class="ident">len</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">next_index</span>).<span class="ident">ok</span>()
     }
 }
 
