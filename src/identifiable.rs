@@ -55,18 +55,25 @@ pub trait Identifiable {
     ///
     /// Will probably be replaced by an associated constant
     /// after bumping minimum supported Rust version to 1.20.
+    ///
+    /// On the other hand, making static methods associated constants will
+    /// prevent this trait from usage with dynamic dispatch.
     fn all_type_ids() -> &'static [u32]
         where Self: Sized;
 
     /// Get all enum variant names of an identifiable type.
     ///
-    /// Structs must return `None` and enums must return `Some` with stringified
-    /// variant names in the same order as the variants themselves.
+    /// For structs this method must return `None` and for enums it must return
+    /// `Some` with stringified variant names in the same order as the variants
+    /// themselves.
     ///
     /// # Compatibility note
     ///
     /// Will probably be replaced by an associated constant
     /// after bumping minimum supported Rust version to 1.20.
+    ///
+    /// On the other hand, making static methods associated constants will
+    /// prevent this trait from usage with dynamic dispatch.
     fn all_enum_variant_names() -> Option<&'static [&'static str]>
         where Self: Sized;
 
