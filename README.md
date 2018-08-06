@@ -43,9 +43,6 @@ Older versions may work, but are not guaranteed to.
   defined in `serde_mtproto`.
   For now, those only include wrapper types `Boxed`, `WithSize`.
   Works on Rust 1.20+.
-- **`i128`** — `MtProtoSized` implementations for builtin `i128` and `u128`
-  primitives.
-  Works on Rust 1.26+.
 
 ## Changelog
 

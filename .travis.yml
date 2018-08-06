@@ -17,25 +17,25 @@ matrix:
       env: FEATURES="version-sync"
 
     - rust: stable
-      env: FEATURES="i128,version-sync"
+      env: FEATURES="version-sync"
     - rust: stable
-      env: FEATURES="extprim,i128,version-sync"
+      env: FEATURES="extprim,version-sync"
 
     - rust: beta
-      env: FEATURES="i128,version-sync"
+      env: FEATURES="version-sync"
     - rust: beta
-      env: FEATURES="extprim,i128,version-sync"
+      env: FEATURES="extprim,version-sync"
 
     - rust: nightly
-      env: FEATURES="i128,test-nightly-regressions,version-sync"
+      env: FEATURES="test-nightly-regressions,version-sync"
     - rust: nightly
-      env: FEATURES="extprim,i128,test-nightly-regressions,version-sync"
+      env: FEATURES="extprim,test-nightly-regressions,version-sync"
 
     # Run QuickCheck only on limited amount of configurations - we don't need more
     - rust: stable
-      env: FEATURES="extprim,i128,quickcheck"
+      env: FEATURES="extprim,quickcheck"
     - rust: nightly
-      env: FEATURES="extprim,i128,quickcheck,test-nightly-regressions"
+      env: FEATURES="extprim,quickcheck,test-nightly-regressions"
 
     # Host documentation on <https://hcpl.github.com/serde_mtproto>
     - rust: nightly
@@ -45,7 +45,7 @@ matrix:
         - cargo install cargo-travis || echo "cargo-travis already installed"
         - cargo install-update cargo-travis
       script:
-        - cargo doc --manifest-path Cargo.toml --features extprim,i128,quickcheck
+        - cargo doc --manifest-path Cargo.toml --features extprim,quickcheck
         - cargo doc --manifest-path serde_mtproto_derive/Cargo.toml
         - git clone --depth=1 --branch gh-pages "https://github.com/${TRAVIS_REPO_SLUG}" target/gh-pages
         - |

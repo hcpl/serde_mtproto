@@ -77,4 +77,4 @@ required-features = ["quickcheck"]
 
 
 [package.metadata.docs.rs]
-features = ["extprim", "i128", "quickcheck"]
+features = ["extprim", "quickcheck"]
