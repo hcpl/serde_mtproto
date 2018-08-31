@@ -120,7 +120,9 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
     #[cfg(stable_i128)]
     fn serialize_i128(self, value: i128) -> error::Result<()> {
+        #[cfg_attr(feature = "cargo-clippy", allow(cast_sign_loss, cast_possible_truncation))]
         let lo = value as u64;
+        #[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation))]
         let hi = (value >> 64) as i64;
         WriteBytesExt::write_u64::<LittleEndian>(&mut self.writer, lo)?;
         WriteBytesExt::write_i64::<LittleEndian>(&mut self.writer, hi)?;
@@ -135,7 +137,9 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
     #[cfg(stable_i128)]
     fn serialize_u128(self, value: u128) -> error::Result<()> {
+        #[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation))]
         let lo = value as u64;
+        #[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation))]
         let hi = (value >> 64) as u64;
         WriteBytesExt::write_u64::<LittleEndian>(&mut self.writer, lo)?;
         WriteBytesExt::write_u64::<LittleEndian>(&mut self.writer, hi)?;

@@ -172,7 +172,7 @@ impl<'de, 'a, 'ids, R> de::Deserializer<'de> for &'a mut Deserializer<'ids, R>
     {
         let lo = self.reader.read_u64::<LittleEndian>()?;
         let hi = self.reader.read_i64::<LittleEndian>()?;
-        let value = (hi as i128) << 64 | lo as i128;
+        let value = i128::from(hi) << 64 | i128::from(lo);
         debug!("Deserialized i128: {:#x}", value);
 
         visitor.visit_i128(value)
@@ -189,7 +189,7 @@ impl<'de, 'a, 'ids, R> de::Deserializer<'de> for &'a mut Deserializer<'ids, R>
     {
         let lo = self.reader.read_u64::<LittleEndian>()?;
         let hi = self.reader.read_u64::<LittleEndian>()?;
-        let value = (hi as u128) << 64 | lo as u128;
+        let value = u128::from(hi) << 64 | u128::from(lo);
         debug!("Deserialized u128: {:#x}", value);
 
         visitor.visit_u128(value)
