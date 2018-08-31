@@ -118,10 +118,30 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     impl_serialize_big_int!(i32, serialize_i32, WriteBytesExt::write_i32<LittleEndian>);
     impl_serialize_big_int!(i64, serialize_i64, WriteBytesExt::write_i64<LittleEndian>);
 
+    #[cfg(stable_i128)]
+    fn serialize_i128(self, value: i128) -> error::Result<()> {
+        let lo = value as u64;
+        let hi = (value >> 64) as i64;
+        WriteBytesExt::write_u64::<LittleEndian>(&mut self.writer, lo)?;
+        WriteBytesExt::write_i64::<LittleEndian>(&mut self.writer, hi)?;
+        debug!("Serialized i128: {:#x}", value);
+        Ok(())
+    }
+
     impl_serialize_small_int!(u8,  serialize_u8,  u32, serialize_u32);
     impl_serialize_small_int!(u16, serialize_u16, u32, serialize_u32);
     impl_serialize_big_int!(u32, serialize_u32, WriteBytesExt::write_u32<LittleEndian>);
     impl_serialize_big_int!(u64, serialize_u64, WriteBytesExt::write_u64<LittleEndian>);
+
+    #[cfg(stable_i128)]
+    fn serialize_u128(self, value: u128) -> error::Result<()> {
+        let lo = value as u64;
+        let hi = (value >> 64) as u64;
+        WriteBytesExt::write_u64::<LittleEndian>(&mut self.writer, lo)?;
+        WriteBytesExt::write_u64::<LittleEndian>(&mut self.writer, hi)?;
+        debug!("Serialized u128: {:#x}", value);
+        Ok(())
+    }
 
     fn serialize_f32(self, value: f32) -> error::Result<()> {
         // There is only one floating-point type, and it's double precision

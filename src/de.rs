@@ -166,10 +166,34 @@ impl<'de, 'a, 'ids, R> de::Deserializer<'de> for &'a mut Deserializer<'ids, R>
     impl_deserialize_big_int!(i32, deserialize_i32, read_i32::<LittleEndian>, visit_i32);
     impl_deserialize_big_int!(i64, deserialize_i64, read_i64::<LittleEndian>, visit_i64);
 
+    #[cfg(stable_i128)]
+    fn deserialize_i128<V>(self, visitor: V) -> error::Result<V::Value>
+        where V: Visitor<'de>
+    {
+        let lo = self.reader.read_u64::<LittleEndian>()?;
+        let hi = self.reader.read_i64::<LittleEndian>()?;
+        let value = (hi as i128) << 64 | lo as i128;
+        debug!("Deserialized i128: {:#x}", value);
+
+        visitor.visit_i128(value)
+    }
+
     impl_deserialize_small_int!(u8,  deserialize_u8,  safe_uint_cast, read_u32::<LittleEndian>, visit_u8);
     impl_deserialize_small_int!(u16, deserialize_u16, safe_uint_cast, read_u32::<LittleEndian>, visit_u16);
     impl_deserialize_big_int!(u32, deserialize_u32, read_u32::<LittleEndian>, visit_u32);
     impl_deserialize_big_int!(u64, deserialize_u64, read_u64::<LittleEndian>, visit_u64);
+
+    #[cfg(stable_i128)]
+    fn deserialize_u128<V>(self, visitor: V) -> error::Result<V::Value>
+        where V: Visitor<'de>
+    {
+        let lo = self.reader.read_u64::<LittleEndian>()?;
+        let hi = self.reader.read_u64::<LittleEndian>()?;
+        let value = (hi as u128) << 64 | lo as u128;
+        debug!("Deserialized u128: {:#x}", value);
+
+        visitor.visit_u128(value)
+    }
 
     fn deserialize_f32<V>(self, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>

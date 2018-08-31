@@ -123,6 +123,16 @@ enum Cafebabe<T> {
 }
 
 
+#[cfg(stable_i128)]
+lazy_static! {
+    static ref BUILTIN_I128: i128 = 100000000000000000000000000000000000000;
+
+    static ref BUILTIN_I128_SERIALIZED_BARE: Vec<u8> = vec![
+         0, 0, 0, 0, 64, 34, 138, 9,            // 100000000000000000000000000000000000000 as \
+         122, 196, 134, 90, 168, 76, 59, 75,    //   128-bit int
+    ];
+}
+
 lazy_static! {
     static ref FOO: Foo = Foo {
         has_receiver: true,
@@ -378,6 +388,16 @@ macro_rules! test_suite_boxed {
     };
 }
 
+
+#[cfg(stable_i128)]
+test_suite_bare! {
+    test_builtin_i128_to_bytes_bare,
+    test_builtin_i128_to_writer_bare,
+    test_builtin_i128_from_bytes_bare,
+    test_builtin_i128_from_reader_bare,
+    test_builtin_i128_size_prediction_bare =>
+    i128: (BUILTIN_I128, BUILTIN_I128_SERIALIZED_BARE, builin_i128_deserialized_bare, &[])
+}
 
 test_suite_bare! {
     test_struct_to_bytes_bare,
