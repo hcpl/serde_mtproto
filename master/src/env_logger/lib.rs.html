@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-1ecc6299db9ec823/env_logger-0.5.12/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><link rel="shortcut icon" href="http://www.rust-lang.org/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../env_logger/index.html'><img src='http://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png' alt='logo' width='100'></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><input class="search-input" name="search" autocomplete="off" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-1ecc6299db9ec823/env_logger-0.5.13/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><link rel="shortcut icon" href="http://www.rust-lang.org/favicon.ico"></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../env_logger/index.html'><img src='http://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png' alt='logo' width='100'></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><input class="search-input" name="search" autocomplete="off" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1123,15 +1123,6 @@
 <span id="1123">1123</span>
 <span id="1124">1124</span>
 <span id="1125">1125</span>
-<span id="1126">1126</span>
-<span id="1127">1127</span>
-<span id="1128">1128</span>
-<span id="1129">1129</span>
-<span id="1130">1130</span>
-<span id="1131">1131</span>
-<span id="1132">1132</span>
-<span id="1133">1133</span>
-<span id="1134">1134</span>
 </pre><pre class="rust ">
 <span class="comment">// Copyright 2014-2015 The Rust Project Developers. See the COPYRIGHT</span>
 <span class="comment">// file at the top-level directory of this distribution and at</span>
@@ -1289,7 +1280,7 @@
 <span class="doccomment">//! ## Tweaking the default format</span>
 <span class="doccomment">//! </span>
 <span class="doccomment">//! Parts of the default format can be excluded from the log output using the [`Builder`].</span>
-<span class="doccomment">//! The following example excluding the timestamp from the log output:</span>
+<span class="doccomment">//! The following example excludes the timestamp from the log output:</span>
 <span class="doccomment">//! </span>
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//! #[macro_use] extern crate log;</span>
@@ -1339,7 +1330,7 @@
 
 <span class="attribute">#![<span class="ident">doc</span>(<span class="ident">html_logo_url</span> <span class="op">=</span> <span class="string">&quot;http://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png&quot;</span>,
        <span class="ident">html_favicon_url</span> <span class="op">=</span> <span class="string">&quot;http://www.rust-lang.org/favicon.ico&quot;</span>,
-       <span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/env_logger/0.5.12&quot;</span>)]</span>
+       <span class="ident">html_root_url</span> <span class="op">=</span> <span class="string">&quot;https://docs.rs/env_logger/0.5.13&quot;</span>)]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">test</span>, <span class="ident">deny</span>(<span class="ident">warnings</span>))]</span>
 
 <span class="comment">// When compiled for the rustc compiler itself we want to make sure that this is</span>
@@ -1361,7 +1352,7 @@
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 
-<span class="kw">use</span> <span class="ident">log</span>::{<span class="ident">Log</span>, <span class="ident">LevelFilter</span>, <span class="ident">Level</span>, <span class="ident">Record</span>, <span class="ident">SetLoggerError</span>, <span class="ident">Metadata</span>};
+<span class="kw">use</span> <span class="ident">log</span>::{<span class="ident">Log</span>, <span class="ident">LevelFilter</span>, <span class="ident">Record</span>, <span class="ident">SetLoggerError</span>, <span class="ident">Metadata</span>};
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">filter</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">fmt</span>;
@@ -1455,16 +1446,7 @@
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">buf</span>, <span class="ident">record</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">write_level</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">default_format_level</span> {
                     <span class="kw">let</span> <span class="ident">level</span> <span class="op">=</span> <span class="ident">record</span>.<span class="ident">level</span>();
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">level_style</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">style</span>();
-
-                    <span class="kw">match</span> <span class="ident">level</span> {
-                        <span class="ident">Level</span>::<span class="ident">Trace</span> <span class="op">=&gt;</span> <span class="ident">level_style</span>.<span class="ident">set_color</span>(<span class="ident">Color</span>::<span class="ident">White</span>),
-                        <span class="ident">Level</span>::<span class="ident">Debug</span> <span class="op">=&gt;</span> <span class="ident">level_style</span>.<span class="ident">set_color</span>(<span class="ident">Color</span>::<span class="ident">Blue</span>),
-                        <span class="ident">Level</span>::<span class="ident">Info</span> <span class="op">=&gt;</span> <span class="ident">level_style</span>.<span class="ident">set_color</span>(<span class="ident">Color</span>::<span class="ident">Green</span>),
-                        <span class="ident">Level</span>::<span class="ident">Warn</span> <span class="op">=&gt;</span> <span class="ident">level_style</span>.<span class="ident">set_color</span>(<span class="ident">Color</span>::<span class="ident">Yellow</span>),
-                        <span class="ident">Level</span>::<span class="ident">Error</span> <span class="op">=&gt;</span> <span class="ident">level_style</span>.<span class="ident">set_color</span>(<span class="ident">Color</span>::<span class="ident">Red</span>).<span class="ident">set_bold</span>(<span class="bool-val">true</span>),
-                    };
-
+                    <span class="kw">let</span> <span class="ident">level_style</span> <span class="op">=</span> <span class="ident">buf</span>.<span class="ident">default_level_style</span>(<span class="ident">level</span>);
                     <span class="macro">write</span><span class="macro">!</span>(<span class="ident">buf</span>, <span class="string">&quot;{:&gt;5} &quot;</span>, <span class="ident">level_style</span>.<span class="ident">value</span>(<span class="ident">level</span>))
                 } <span class="kw">else</span> {
                     <span class="prelude-val">Ok</span>(())
