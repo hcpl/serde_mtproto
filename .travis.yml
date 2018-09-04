@@ -5,37 +5,37 @@ matrix:
   include:
     # Minimum supported Rust
     - rust: 1.20.0
-      env: FEATURES=""
+      env: FEATURES="aggressive-rustc-lints"
     - rust: 1.20.0
-      env: FEATURES="extprim"
+      env: FEATURES="aggressive-rustc-lints extprim"
 
     # Minimum Rust that works with the `version_numbers` test
     # Specifically, at the time of commiting these changes `version-sync` 0.5.0 depends on `url`
     # 1.7.0 which depends on `unicode-normalization` 0.1.6 which uses rvalue static promotion from
     # Rust 1.21. Let's not run the `version_numbers` test under Rust 1.17!
     - rust: 1.21.0
-      env: FEATURES="version-sync"
+      env: FEATURES="aggressive-rustc-lints version-sync"
 
     - rust: stable
-      env: FEATURES="version-sync"
+      env: FEATURES="aggressive-rustc-lints version-sync"
     - rust: stable
-      env: FEATURES="extprim,version-sync"
+      env: FEATURES="aggressive-rustc-lints extprim version-sync"
 
     - rust: beta
-      env: FEATURES="version-sync"
+      env: FEATURES="aggressive-rustc-lints version-sync"
     - rust: beta
-      env: FEATURES="extprim,version-sync"
+      env: FEATURES="aggressive-rustc-lints extprim version-sync"
 
     - rust: nightly
-      env: FEATURES="test-nightly-regressions,version-sync"
+      env: FEATURES="aggressive-rustc-lints test-nightly-regressions version-sync"
     - rust: nightly
-      env: FEATURES="extprim,test-nightly-regressions,version-sync"
+      env: FEATURES="aggressive-rustc-lints extprim test-nightly-regressions version-sync"
 
     # Run QuickCheck only on limited amount of configurations - we don't need more
     - rust: stable
-      env: FEATURES="extprim,quickcheck"
+      env: FEATURES="aggressive-rustc-lints extprim quickcheck"
     - rust: nightly
-      env: FEATURES="extprim,quickcheck,test-nightly-regressions"
+      env: FEATURES="aggressive-rustc-lints extprim quickcheck test-nightly-regressions"
 
     # Host documentation on <https://hcpl.github.com/serde_mtproto>
     - rust: nightly
@@ -45,7 +45,7 @@ matrix:
         - cargo install cargo-travis || echo "cargo-travis already installed"
         - cargo install-update cargo-travis
       script:
-        - cargo doc --manifest-path Cargo.toml --features extprim,quickcheck
+        - cargo doc --manifest-path Cargo.toml --features "extprim quickcheck"
         - cargo doc --manifest-path serde_mtproto_derive/Cargo.toml
         - git clone --depth=1 --branch gh-pages "https://github.com/${TRAVIS_REPO_SLUG}" target/gh-pages
         - |

@@ -38,7 +38,7 @@ impl<W: io::Write> Serializer<W> {
             // whereupon all of this is interpreted as a sequence
             // of int(L/4)+1 32-bit little-endian integers.
 
-            #[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation))]
+            #[cfg_attr(feature = "cargo-clippy", allow(clippy::cast_possible_truncation))]
             self.writer.write_u8(len as u8)?; // `as` is safe: [0..253] \subseteq [0..255]
 
             rem = (len + 1) % 4;
@@ -48,7 +48,7 @@ impl<W: io::Write> Serializer<W> {
             // bytes of the string, further followed by 0 to 3 null padding bytes.
 
             self.writer.write_u8(254)?;
-            #[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation))]
+            #[cfg_attr(feature = "cargo-clippy", allow(clippy::cast_possible_truncation))]
             self.writer.write_u24::<LittleEndian>(len as u32)?; // `as` is safe: [0..0xff_ff_ff] \subseteq [0..0xff_ff_ff_ff]
 
             rem = len % 4;
@@ -120,9 +120,9 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
     #[cfg(stable_i128)]
     fn serialize_i128(self, value: i128) -> error::Result<()> {
-        #[cfg_attr(feature = "cargo-clippy", allow(cast_sign_loss, cast_possible_truncation))]
+        #[cfg_attr(feature = "cargo-clippy", allow(clippy::cast_sign_loss, clippy::cast_possible_truncation))]
         let lo = value as u64;
-        #[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation))]
+        #[cfg_attr(feature = "cargo-clippy", allow(clippy::cast_possible_truncation))]
         let hi = (value >> 64) as i64;
         WriteBytesExt::write_u64::<LittleEndian>(&mut self.writer, lo)?;
         WriteBytesExt::write_i64::<LittleEndian>(&mut self.writer, hi)?;
@@ -137,9 +137,9 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
     #[cfg(stable_i128)]
     fn serialize_u128(self, value: u128) -> error::Result<()> {
-        #[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation))]
+        #[cfg_attr(feature = "cargo-clippy", allow(clippy::cast_possible_truncation))]
         let lo = value as u64;
-        #[cfg_attr(feature = "cargo-clippy", allow(cast_possible_truncation))]
+        #[cfg_attr(feature = "cargo-clippy", allow(clippy::cast_possible_truncation))]
         let hi = (value >> 64) as u64;
         WriteBytesExt::write_u64::<LittleEndian>(&mut self.writer, lo)?;
         WriteBytesExt::write_u64::<LittleEndian>(&mut self.writer, hi)?;

@@ -1,6 +1,6 @@
 //! `Identifiable` trait for any Rust data structure that can have an id.
 
-#![cfg_attr(feature = "cargo-clippy", allow(unreadable_literal))]  // To match the look & feel from TL schema
+#![cfg_attr(feature = "cargo-clippy", allow(clippy::unreadable_literal))]  // To match the look & feel from TL schema
 
 
 /// Type id of the bool true value.
@@ -136,7 +136,7 @@ impl<T: Identifiable> Identifiable for Box<T> {
     }
 }
 
-#[cfg_attr(feature = "cargo-clippy", allow(match_bool))]  // match looks better here
+#[cfg_attr(feature = "cargo-clippy", allow(clippy::match_bool))]  // match looks better here
 impl Identifiable for bool {
     fn all_type_ids() -> &'static [u32] {
         BOOL_IDS

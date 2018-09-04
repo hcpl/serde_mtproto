@@ -4,10 +4,12 @@
 //! This crate provides means to serialize Rust types to its binary
 //! representation and to deserialize from said representation.
 
+
 // For `error_chain!` macro used in `error` module
 #![recursion_limit = "66"]
 
 #![cfg_attr(feature = "test-nightly-regressions", feature(nll))]
+#![cfg_attr(feature = "cargo-clippy", feature(tool_lints))]
 
 
 // ========== RUSTC LINTS ========== //
@@ -63,49 +65,49 @@
 #![cfg_attr(feature = "cargo-clippy", warn(
     // Warn about every lint in these categories (not deny because some them may have false
     // positives according to `clippy` README)
-    clippy_complexity,
-    clippy_correctness,
-    clippy_perf,
-    clippy_style,
+    clippy::complexity,
+    clippy::correctness,
+    clippy::perf,
+    clippy::style,
 
     // Restrict our code to ease reviewing and auditing in some cases
-    clone_on_ref_ptr,
-    decimal_literal_representation,
-    float_arithmetic,
-    indexing_slicing,
-    mem_forget,
-    print_stdout,
-    result_unwrap_used,
-    shadow_unrelated,
-    wrong_pub_self_convention,
+    clippy::clone_on_ref_ptr,
+    clippy::decimal_literal_representation,
+    clippy::float_arithmetic,
+    clippy::indexing_slicing,
+    clippy::mem_forget,
+    clippy::print_stdout,
+    clippy::result_unwrap_used,
+    clippy::shadow_unrelated,
+    clippy::wrong_pub_self_convention,
 
     // Additional pedantic warns about numeric casts
-    cast_possible_truncation,
-    cast_possible_wrap,
-    cast_precision_loss,
-    cast_sign_loss,
-    invalid_upcast_comparisons,
+    clippy::cast_possible_truncation,
+    clippy::cast_possible_wrap,
+    clippy::cast_precision_loss,
+    clippy::cast_sign_loss,
+    clippy::invalid_upcast_comparisons,
 
     // Other pedantic lints we consider useful to use as warns in this crate
-    doc_markdown,
-    empty_enum,
-    enum_glob_use,
-    items_after_statements,
-    match_same_arms,
-    maybe_infinite_iter,
-    mut_mut,
-    needless_continue,
-    pub_enum_variant_names,
-    similar_names,
-    string_add_assign,
-    unseparated_literal_suffix,
-    used_underscore_binding,
+    clippy::doc_markdown,
+    clippy::empty_enum,
+    clippy::enum_glob_use,
+    clippy::items_after_statements,
+    clippy::match_same_arms,
+    clippy::maybe_infinite_iter,
+    clippy::mut_mut,
+    clippy::needless_continue,
+    clippy::pub_enum_variant_names,
+    clippy::similar_names,
+    clippy::string_add_assign,
+    clippy::unseparated_literal_suffix,
+    clippy::used_underscore_binding,
 ))]
 
 #![cfg_attr(feature = "cargo-clippy", deny(
     // Turn all warn-level lints that have no false positives (according to `clippy` README) to
     // denies (because it should be safe to do so)
-    clippy,
+    clippy::all,
 ))]
 
 
