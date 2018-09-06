@@ -156,7 +156,7 @@ fn add_mt_proto_sized_trait_bound_if_missing(ast: &mut DeriveInput) {
                     }
 
                     let path = &trait_bound.path;
-                    if path.global() {
+                    if path.leading_colon.is_some() {
                         continue;
                     }
 
@@ -180,7 +180,6 @@ fn is_skippable_field(field: &Field) -> bool {
     for attr in &field.attrs {
         if let Attribute {
             style: AttrStyle::Outer,
-            is_sugared_doc: false,
             ..
         } = *attr {
             if let Some(Meta::List(ref list)) = attr.interpret_meta() {

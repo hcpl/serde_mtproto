@@ -139,7 +139,6 @@ fn get_asserted_id_from_attrs(attrs: &[Attribute]) -> proc_macro2::TokenStream {
     for attr in attrs {
         if let Attribute {
             style: AttrStyle::Outer,
-            is_sugared_doc: false,
             ..
         } = *attr {
             if let Some(Meta::List(list)) = attr.interpret_meta() {
@@ -191,7 +190,6 @@ fn get_id_from_attrs(attrs: &[Attribute]) -> u32 {
     for attr in attrs {
         if let Attribute {
             style: AttrStyle::Outer,
-            is_sugared_doc: false,
             ..
         } = *attr {
             if let Some(Meta::List(list)) = attr.interpret_meta() {
