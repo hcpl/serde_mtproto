@@ -174,6 +174,8 @@
 <span id="174">174</span>
 <span id="175">175</span>
 <span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! # Serde MTProto</span>
 <span class="doccomment">//!</span>
@@ -181,10 +183,12 @@
 <span class="doccomment">//! This crate provides means to serialize Rust types to its binary</span>
 <span class="doccomment">//! representation and to deserialize from said representation.</span>
 
+
 <span class="comment">// For `error_chain!` macro used in `error` module</span>
 <span class="attribute">#![<span class="ident">recursion_limit</span> <span class="op">=</span> <span class="string">&quot;66&quot;</span>]</span>
 
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;test-nightly-regressions&quot;</span>, <span class="ident">feature</span>(<span class="ident">nll</span>))]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cargo-clippy&quot;</span>, <span class="ident">feature</span>(<span class="ident">tool_lints</span>))]</span>
 
 
 <span class="comment">// ========== RUSTC LINTS ========== //</span>
@@ -240,49 +244,49 @@
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cargo-clippy&quot;</span>, <span class="ident">warn</span>(
     <span class="comment">// Warn about every lint in these categories (not deny because some them may have false</span>
     <span class="comment">// positives according to `clippy` README)</span>
-    <span class="ident">clippy_complexity</span>,
-    <span class="ident">clippy_correctness</span>,
-    <span class="ident">clippy_perf</span>,
-    <span class="ident">clippy_style</span>,
+    <span class="ident">clippy</span>::<span class="ident">complexity</span>,
+    <span class="ident">clippy</span>::<span class="ident">correctness</span>,
+    <span class="ident">clippy</span>::<span class="ident">perf</span>,
+    <span class="ident">clippy</span>::<span class="ident">style</span>,
 
     <span class="comment">// Restrict our code to ease reviewing and auditing in some cases</span>
-    <span class="ident">clone_on_ref_ptr</span>,
-    <span class="ident">decimal_literal_representation</span>,
-    <span class="ident">float_arithmetic</span>,
-    <span class="ident">indexing_slicing</span>,
-    <span class="ident">mem_forget</span>,
-    <span class="ident">print_stdout</span>,
-    <span class="ident">result_unwrap_used</span>,
-    <span class="ident">shadow_unrelated</span>,
-    <span class="ident">wrong_pub_self_convention</span>,
+    <span class="ident">clippy</span>::<span class="ident">clone_on_ref_ptr</span>,
+    <span class="ident">clippy</span>::<span class="ident">decimal_literal_representation</span>,
+    <span class="ident">clippy</span>::<span class="ident">float_arithmetic</span>,
+    <span class="ident">clippy</span>::<span class="ident">indexing_slicing</span>,
+    <span class="ident">clippy</span>::<span class="ident">mem_forget</span>,
+    <span class="ident">clippy</span>::<span class="ident">print_stdout</span>,
+    <span class="ident">clippy</span>::<span class="ident">result_unwrap_used</span>,
+    <span class="ident">clippy</span>::<span class="ident">shadow_unrelated</span>,
+    <span class="ident">clippy</span>::<span class="ident">wrong_pub_self_convention</span>,
 
     <span class="comment">// Additional pedantic warns about numeric casts</span>
-    <span class="ident">cast_possible_truncation</span>,
-    <span class="ident">cast_possible_wrap</span>,
-    <span class="ident">cast_precision_loss</span>,
-    <span class="ident">cast_sign_loss</span>,
-    <span class="ident">invalid_upcast_comparisons</span>,
+    <span class="ident">clippy</span>::<span class="ident">cast_possible_truncation</span>,
+    <span class="ident">clippy</span>::<span class="ident">cast_possible_wrap</span>,
+    <span class="ident">clippy</span>::<span class="ident">cast_precision_loss</span>,
+    <span class="ident">clippy</span>::<span class="ident">cast_sign_loss</span>,
+    <span class="ident">clippy</span>::<span class="ident">invalid_upcast_comparisons</span>,
 
     <span class="comment">// Other pedantic lints we consider useful to use as warns in this crate</span>
-    <span class="ident">doc_markdown</span>,
-    <span class="ident">empty_enum</span>,
-    <span class="ident">enum_glob_use</span>,
-    <span class="ident">items_after_statements</span>,
-    <span class="ident">match_same_arms</span>,
-    <span class="ident">maybe_infinite_iter</span>,
-    <span class="ident">mut_mut</span>,
-    <span class="ident">needless_continue</span>,
-    <span class="ident">pub_enum_variant_names</span>,
-    <span class="ident">similar_names</span>,
-    <span class="ident">string_add_assign</span>,
-    <span class="ident">unseparated_literal_suffix</span>,
-    <span class="ident">used_underscore_binding</span>,
+    <span class="ident">clippy</span>::<span class="ident">doc_markdown</span>,
+    <span class="ident">clippy</span>::<span class="ident">empty_enum</span>,
+    <span class="ident">clippy</span>::<span class="ident">enum_glob_use</span>,
+    <span class="ident">clippy</span>::<span class="ident">items_after_statements</span>,
+    <span class="ident">clippy</span>::<span class="ident">match_same_arms</span>,
+    <span class="ident">clippy</span>::<span class="ident">maybe_infinite_iter</span>,
+    <span class="ident">clippy</span>::<span class="ident">mut_mut</span>,
+    <span class="ident">clippy</span>::<span class="ident">needless_continue</span>,
+    <span class="ident">clippy</span>::<span class="ident">pub_enum_variant_names</span>,
+    <span class="ident">clippy</span>::<span class="ident">similar_names</span>,
+    <span class="ident">clippy</span>::<span class="ident">string_add_assign</span>,
+    <span class="ident">clippy</span>::<span class="ident">unseparated_literal_suffix</span>,
+    <span class="ident">clippy</span>::<span class="ident">used_underscore_binding</span>,
 ))]</span>
 
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cargo-clippy&quot;</span>, <span class="ident">deny</span>(
     <span class="comment">// Turn all warn-level lints that have no false positives (according to `clippy` README) to</span>
     <span class="comment">// denies (because it should be safe to do so)</span>
-    <span class="ident">clippy</span>,
+    <span class="ident">clippy</span>::<span class="ident">all</span>,
 ))]</span>
 
 

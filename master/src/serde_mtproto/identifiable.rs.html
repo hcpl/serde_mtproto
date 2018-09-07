@@ -244,7 +244,7 @@
 </pre><pre class="rust ">
 <span class="doccomment">//! `Identifiable` trait for any Rust data structure that can have an id.</span>
 
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cargo-clippy&quot;</span>, <span class="ident">allow</span>(<span class="ident">unreadable_literal</span>))]</span>  <span class="comment">// To match the look &amp; feel from TL schema</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cargo-clippy&quot;</span>, <span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">unreadable_literal</span>))]</span>  <span class="comment">// To match the look &amp; feel from TL schema</span>
 
 
 <span class="doccomment">/// Type id of the bool true value.</span>
@@ -380,7 +380,7 @@
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cargo-clippy&quot;</span>, <span class="ident">allow</span>(<span class="ident">match_bool</span>))]</span>  <span class="comment">// match looks better here</span>
+<span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cargo-clippy&quot;</span>, <span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">match_bool</span>))]</span>  <span class="comment">// match looks better here</span>
 <span class="kw">impl</span> <span class="ident">Identifiable</span> <span class="kw">for</span> <span class="ident">bool</span> {
     <span class="kw">fn</span> <span class="ident">all_type_ids</span>() <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">u32</span>] {
         <span class="ident">BOOL_IDS</span>

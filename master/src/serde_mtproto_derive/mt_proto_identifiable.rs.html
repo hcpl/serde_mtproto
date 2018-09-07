@@ -232,8 +232,6 @@
 <span id="232">232</span>
 <span id="233">233</span>
 <span id="234">234</span>
-<span id="235">235</span>
-<span id="236">236</span>
 </pre><pre class="rust ">
 <span class="kw">use</span> <span class="ident">proc_macro2</span>::{<span class="self">self</span>, <span class="ident">Span</span>};
 <span class="kw">use</span> <span class="ident">quote</span>::<span class="ident">TokenStreamExt</span>;
@@ -376,7 +374,6 @@
     <span class="kw">for</span> <span class="ident">attr</span> <span class="kw">in</span> <span class="ident">attrs</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Attribute</span> {
             <span class="ident">style</span>: <span class="ident">AttrStyle</span>::<span class="ident">Outer</span>,
-            <span class="ident">is_sugared_doc</span>: <span class="bool-val">false</span>,
             ..
         } <span class="op">=</span> <span class="kw-2">*</span><span class="ident">attr</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">Meta</span>::<span class="ident">List</span>(<span class="ident">list</span>)) <span class="op">=</span> <span class="ident">attr</span>.<span class="ident">interpret_meta</span>() {
@@ -428,7 +425,6 @@
     <span class="kw">for</span> <span class="ident">attr</span> <span class="kw">in</span> <span class="ident">attrs</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Attribute</span> {
             <span class="ident">style</span>: <span class="ident">AttrStyle</span>::<span class="ident">Outer</span>,
-            <span class="ident">is_sugared_doc</span>: <span class="bool-val">false</span>,
             ..
         } <span class="op">=</span> <span class="kw-2">*</span><span class="ident">attr</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">Meta</span>::<span class="ident">List</span>(<span class="ident">list</span>)) <span class="op">=</span> <span class="ident">attr</span>.<span class="ident">interpret_meta</span>() {

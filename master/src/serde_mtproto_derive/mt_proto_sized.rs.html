@@ -200,7 +200,6 @@
 <span id="200">200</span>
 <span id="201">201</span>
 <span id="202">202</span>
-<span id="203">203</span>
 </pre><pre class="rust ">
 <span class="kw">use</span> <span class="ident">proc_macro2</span>::{<span class="self">self</span>, <span class="ident">Span</span>};
 <span class="kw">use</span> <span class="ident">quote</span>::<span class="ident">TokenStreamExt</span>;
@@ -360,7 +359,7 @@
                     }
 
                     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">trait_bound</span>.<span class="ident">path</span>;
-                    <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">global</span>() {
+                    <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">leading_colon</span>.<span class="ident">is_some</span>() {
                         <span class="kw">continue</span>;
                     }
 
@@ -384,7 +383,6 @@
     <span class="kw">for</span> <span class="ident">attr</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">attrs</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Attribute</span> {
             <span class="ident">style</span>: <span class="ident">AttrStyle</span>::<span class="ident">Outer</span>,
-            <span class="ident">is_sugared_doc</span>: <span class="bool-val">false</span>,
             ..
         } <span class="op">=</span> <span class="kw-2">*</span><span class="ident">attr</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">Meta</span>::<span class="ident">List</span>(<span class="kw-2">ref</span> <span class="ident">list</span>)) <span class="op">=</span> <span class="ident">attr</span>.<span class="ident">interpret_meta</span>() {
