@@ -6,7 +6,7 @@ use num_traits::sign::{Signed, Unsigned};
 use error::{self, ErrorKind, ResultExt};
 
 
-pub fn safe_int_cast<T, U>(n: T) -> error::Result<U>
+pub(crate) fn safe_int_cast<T, U>(n: T) -> error::Result<U>
     where T: PrimInt + Signed,
           U: PrimInt + Signed,
 {
@@ -16,7 +16,7 @@ pub fn safe_int_cast<T, U>(n: T) -> error::Result<U>
     })
 }
 
-pub fn safe_uint_cast<T, U>(n: T) -> error::Result<U>
+pub(crate) fn safe_uint_cast<T, U>(n: T) -> error::Result<U>
     where T: PrimInt + Unsigned,
           U: PrimInt + Unsigned,
 {
@@ -26,20 +26,20 @@ pub fn safe_uint_cast<T, U>(n: T) -> error::Result<U>
     })
 }
 
-pub fn safe_float_cast<T: Float + Copy, U: Float>(n: T) -> error::Result<U> {
+pub(crate) fn safe_float_cast<T: Float + Copy, U: Float>(n: T) -> error::Result<U> {
     cast(n).ok_or_else(|| {
         let upcasted = cast::<T, f64>(n).unwrap();    // Shouldn't panic
         ErrorKind::FloatCast(upcasted).into()
     })
 }
 
-pub fn check_seq_len(len: usize) -> error::Result<()> {
+pub(crate) fn check_seq_len(len: usize) -> error::Result<()> {
     safe_uint_cast::<usize, u32>(len)
         .map(|_| ())
         .chain_err(|| ErrorKind::SeqTooLong(len))
 }
 
-pub fn safe_uint_eq<T, U>(x: T, y: U) -> bool
+pub(crate) fn safe_uint_eq<T, U>(x: T, y: U) -> bool
     where T: PrimInt + Unsigned,
           U: PrimInt + Unsigned,
 {

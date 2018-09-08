@@ -158,20 +158,17 @@ doc_inline! {
         Deserializer,
         from_bytes,
         from_bytes_reuse,
+        from_bytes_seed,
         from_reader,
         from_reader_reuse,
+        from_reader_seed,
     };
 
     // Error types and typedefs
     pub use error::{Error, ErrorKind, Result, ResultExt};
 
     // Other items generally useful for MTProto [de]serialization
-    pub use helpers::{
-        UnsizedByteBuf,
-        UnsizedByteBufSeed,
-        UnsizedBytes,
-        size_hint_from_unsized_byte_seq_len,
-    };
+    pub use helpers::{UnsizedByteBuf, UnsizedByteBufSeed};
     pub use identifiable::Identifiable;
     pub use sized::{MtProtoSized, size_hint_from_byte_seq_len};
     pub use wrappers::{Boxed, WithId, WithSize};
