@@ -25,7 +25,7 @@ use std::str::FromStr;
 
 #[cfg(feature = "extprim")]
 use extprim::i128;
-use serde::de::{Deserializer, DeserializeSeed};
+use serde::de::{Deserializer, DeserializeSeed, Error as DeError};
 use serde_bytes::ByteBuf;
 use serde_mtproto_other_name::{Boxed, MtProtoSized, UnsizedByteBuf, UnsizedByteBufSeed,
                                to_bytes, to_writer, from_bytes, from_reader};
@@ -57,7 +57,7 @@ struct Message {
 fn deserialize_message<'de, D>(deserializer: D) -> Result<UnsizedByteBuf, D::Error>
     where D: Deserializer<'de>
 {
-    UnsizedByteBufSeed::new(19).deserialize(deserializer)
+    UnsizedByteBufSeed::new(32).map_err(D::Error::custom)?.deserialize(deserializer)
 }
 
 fn pad(bytes: &[u8]) -> Vec<u8> {
@@ -159,7 +159,7 @@ lazy_static! {
 
         auth_key_id: -0x7edc_ba98_7654_3210,
         msg_key: [3230999370, 1546177172, 3106848747, 2091612143],
-        encrypted_data: UnsizedByteBuf::new(pad(&[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18])),
+        encrypted_data: UnsizedByteBuf::new(pad(&[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18])).unwrap(),
     };
 
     static ref MESSAGE_SERIALIZED_BARE: Vec<u8> = vec![
