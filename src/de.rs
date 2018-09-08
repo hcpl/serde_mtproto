@@ -502,14 +502,28 @@ pub fn from_bytes<'de, T>(bytes: &'de [u8], enum_variant_ids: &[&'static str]) -
 
 /// Deserialize an instance of type `T` from bytes of binary MTProto and return unused bytes.
 pub fn from_bytes_reuse<'de, T>(bytes: &'de [u8],
-                               enum_variant_ids: &[&'static str])
-                              -> error::Result<(T, &'de [u8])>
+                                enum_variant_ids: &[&'static str])
+                               -> error::Result<(T, &'de [u8])>
     where T: Deserialize<'de>
 {
     let mut de = Deserializer::new(bytes, enum_variant_ids);
     let value: T = Deserialize::deserialize(&mut de)?;
 
     Ok((value, de.reader))
+}
+
+/// Deserialize an instance of type `T` from bytes of binary MTProto using a seed.
+pub fn from_bytes_seed<'de, S, T>(
+    seed: S,
+    bytes: &'de [u8],
+    enum_variant_ids: &[&'static str],
+) -> error::Result<T>
+    where S: DeserializeSeed<'de, Value = T>
+{
+    let mut de = Deserializer::new(bytes, enum_variant_ids);
+    let value: T = DeserializeSeed::deserialize(seed, &mut de)?;
+
+    Ok(value)
 }
 
 /// Deserialize an instance of type `T` from an IO stream of binary MTProto.
@@ -535,4 +549,19 @@ pub fn from_reader_reuse<R, T>(reader: R,
     let value: T = Deserialize::deserialize(&mut de)?;
 
     Ok((value, de.reader))
+}
+
+/// Deserialize an instance of type `T` from an IO stream of binary MTProto using a seed.
+pub fn from_reader_seed<R, S, T>(
+    seed: S,
+    reader: R,
+    enum_variant_ids: &[&'static str],
+) -> error::Result<T>
+    where S: for<'de> DeserializeSeed<'de, Value = T>,
+          R: io::Read,
+{
+    let mut de = Deserializer::new(reader, enum_variant_ids);
+    let value: T = DeserializeSeed::deserialize(seed, &mut de)?;
+
+    Ok(value)
 }
