@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-1ecc6299db9ec823/syn-0.15.1/src/token.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>token.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><input class="search-input" name="search" autocomplete="off" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-1ecc6299db9ec823/syn-0.15.6/src/token.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>token.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><input class="search-input" name="search" autocomplete="off" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -878,6 +878,29 @@
 <span id="878">878</span>
 <span id="879">879</span>
 <span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
 </pre><pre class="rust ">
 <span class="comment">// Copyright 2018 Syn Developers</span>
 <span class="comment">//</span>
@@ -981,9 +1004,11 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">proc_macro2</span>::<span class="ident">Delimiter</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>))]</span>
+<span class="kw">use</span> <span class="ident">proc_macro2</span>::<span class="ident">Ident</span>;
+<span class="kw">use</span> <span class="ident">proc_macro2</span>::<span class="ident">Span</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">proc_macro2</span>::<span class="ident">TokenStream</span>;
-<span class="kw">use</span> <span class="ident">proc_macro2</span>::{<span class="ident">Ident</span>, <span class="ident">Span</span>};
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;printing&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">quote</span>::{<span class="ident">ToTokens</span>, <span class="ident">TokenStreamExt</span>};
 
@@ -1033,6 +1058,7 @@
     <span class="ident">peek</span>(<span class="kw-2">&amp;</span><span class="ident">buffer</span>)
 }
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;full&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;derive&quot;</span>))]</span>
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_token</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">display</span>:<span class="ident">expr</span>) <span class="op">=&gt;</span> {
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parsing&quot;</span>)]</span>
@@ -1375,7 +1401,7 @@
             <span class="kw">return</span> <span class="ident">ident</span> <span class="op">==</span> <span class="string">&quot;_&quot;</span>;
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">punct</span>, <span class="ident">_rest</span>)) <span class="op">=</span> <span class="ident">cursor</span>.<span class="ident">punct</span>() {
-            <span class="kw">return</span> <span class="ident">punct</span>.<span class="ident">as_char</span>() <span class="op">==</span> <span class="string">&#39;_&#39;</span>
+            <span class="kw">return</span> <span class="ident">punct</span>.<span class="ident">as_char</span>() <span class="op">==</span> <span class="string">&#39;_&#39;</span>;
         }
         <span class="bool-val">false</span>
     }
@@ -1433,9 +1459,11 @@
 }
 
 <span class="macro">define_keywords</span><span class="macro">!</span> {
+    <span class="string">&quot;abstract&quot;</span>    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Abstract</span>     <span class="doccomment">/// `abstract`</span>
     <span class="string">&quot;as&quot;</span>          <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">As</span>           <span class="doccomment">/// `as`</span>
     <span class="string">&quot;async&quot;</span>       <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Async</span>        <span class="doccomment">/// `async`</span>
     <span class="string">&quot;auto&quot;</span>        <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Auto</span>         <span class="doccomment">/// `auto`</span>
+    <span class="string">&quot;become&quot;</span>      <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Become</span>       <span class="doccomment">/// `become`</span>
     <span class="string">&quot;box&quot;</span>         <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Box</span>          <span class="doccomment">/// `box`</span>
     <span class="string">&quot;break&quot;</span>       <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Break</span>        <span class="doccomment">/// `break`</span>
     <span class="string">&quot;Self&quot;</span>        <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CapSelf</span>      <span class="doccomment">/// `Self`</span>
@@ -1443,11 +1471,13 @@
     <span class="string">&quot;continue&quot;</span>    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Continue</span>     <span class="doccomment">/// `continue`</span>
     <span class="string">&quot;crate&quot;</span>       <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Crate</span>        <span class="doccomment">/// `crate`</span>
     <span class="string">&quot;default&quot;</span>     <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Default</span>      <span class="doccomment">/// `default`</span>
+    <span class="string">&quot;do&quot;</span>          <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Do</span>           <span class="doccomment">/// `do`</span>
     <span class="string">&quot;dyn&quot;</span>         <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Dyn</span>          <span class="doccomment">/// `dyn`</span>
     <span class="string">&quot;else&quot;</span>        <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Else</span>         <span class="doccomment">/// `else`</span>
     <span class="string">&quot;enum&quot;</span>        <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Enum</span>         <span class="doccomment">/// `enum`</span>
     <span class="string">&quot;existential&quot;</span> <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Existential</span>  <span class="doccomment">/// `existential`</span>
     <span class="string">&quot;extern&quot;</span>      <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Extern</span>       <span class="doccomment">/// `extern`</span>
+    <span class="string">&quot;final&quot;</span>       <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Final</span>        <span class="doccomment">/// `final`</span>
     <span class="string">&quot;fn&quot;</span>          <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Fn</span>           <span class="doccomment">/// `fn`</span>
     <span class="string">&quot;for&quot;</span>         <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">For</span>          <span class="doccomment">/// `for`</span>
     <span class="string">&quot;if&quot;</span>          <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">If</span>           <span class="doccomment">/// `if`</span>
@@ -1460,6 +1490,8 @@
     <span class="string">&quot;mod&quot;</span>         <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Mod</span>          <span class="doccomment">/// `mod`</span>
     <span class="string">&quot;move&quot;</span>        <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Move</span>         <span class="doccomment">/// `move`</span>
     <span class="string">&quot;mut&quot;</span>         <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Mut</span>          <span class="doccomment">/// `mut`</span>
+    <span class="string">&quot;override&quot;</span>    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Override</span>     <span class="doccomment">/// `override`</span>
+    <span class="string">&quot;priv&quot;</span>        <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Priv</span>         <span class="doccomment">/// `priv`</span>
     <span class="string">&quot;pub&quot;</span>         <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Pub</span>          <span class="doccomment">/// `pub`</span>
     <span class="string">&quot;ref&quot;</span>         <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Ref</span>          <span class="doccomment">/// `ref`</span>
     <span class="string">&quot;return&quot;</span>      <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Return</span>       <span class="doccomment">/// `return`</span>
@@ -1470,9 +1502,12 @@
     <span class="string">&quot;trait&quot;</span>       <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Trait</span>        <span class="doccomment">/// `trait`</span>
     <span class="string">&quot;try&quot;</span>         <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Try</span>          <span class="doccomment">/// `try`</span>
     <span class="string">&quot;type&quot;</span>        <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Type</span>         <span class="doccomment">/// `type`</span>
+    <span class="string">&quot;typeof&quot;</span>      <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Typeof</span>       <span class="doccomment">/// `typeof`</span>
     <span class="string">&quot;union&quot;</span>       <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Union</span>        <span class="doccomment">/// `union`</span>
     <span class="string">&quot;unsafe&quot;</span>      <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Unsafe</span>       <span class="doccomment">/// `unsafe`</span>
+    <span class="string">&quot;unsized&quot;</span>     <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Unsized</span>      <span class="doccomment">/// `unsized`</span>
     <span class="string">&quot;use&quot;</span>         <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Use</span>          <span class="doccomment">/// `use`</span>
+    <span class="string">&quot;virtual&quot;</span>     <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Virtual</span>      <span class="doccomment">/// `virtual`</span>
     <span class="string">&quot;where&quot;</span>       <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Where</span>        <span class="doccomment">/// `where`</span>
     <span class="string">&quot;while&quot;</span>       <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">While</span>        <span class="doccomment">/// `while`</span>
     <span class="string">&quot;yield&quot;</span>       <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Yield</span>        <span class="doccomment">/// `yield`</span>
@@ -1524,6 +1559,7 @@
     <span class="string">&quot;*&quot;</span>           <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Star</span><span class="op">/</span><span class="number">1</span>       <span class="doccomment">/// `*`</span>
     <span class="string">&quot;-&quot;</span>           <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Sub</span><span class="op">/</span><span class="number">1</span>        <span class="doccomment">/// `-`</span>
     <span class="string">&quot;-=&quot;</span>          <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SubEq</span><span class="op">/</span><span class="number">2</span>      <span class="doccomment">/// `-=`</span>
+    <span class="string">&quot;~&quot;</span>           <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Tilde</span><span class="op">/</span><span class="number">1</span>      <span class="doccomment">/// `~`</span>
 }
 
 <span class="macro">define_delimiters</span><span class="macro">!</span> {
@@ -1544,9 +1580,11 @@
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">rustfmt</span>, <span class="ident">rustfmt_skip</span>)]</span>
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">Token</span> {
+    (<span class="kw">abstract</span>)    <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Abstract</span> };
     (<span class="kw">as</span>)          <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">As</span> };
     (<span class="ident">async</span>)       <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Async</span> };
     (<span class="ident">auto</span>)        <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Auto</span> };
+    (<span class="kw">become</span>)      <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Become</span> };
     (<span class="kw">box</span>)         <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Box</span> };
     (<span class="kw">break</span>)       <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Break</span> };
     (<span class="self">Self</span>)        <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">CapSelf</span> };
@@ -1554,11 +1592,13 @@
     (<span class="kw">continue</span>)    <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Continue</span> };
     (<span class="kw">crate</span>)       <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Crate</span> };
     (<span class="ident">default</span>)     <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Default</span> };
+    (<span class="kw">do</span>)          <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Do</span> };
     (<span class="ident">dyn</span>)         <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Dyn</span> };
     (<span class="kw">else</span>)        <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Else</span> };
     (<span class="kw">enum</span>)        <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Enum</span> };
     (<span class="ident">existential</span>) <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Existential</span> };
     (<span class="kw">extern</span>)      <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Extern</span> };
+    (<span class="kw">final</span>)       <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Final</span> };
     (<span class="kw">fn</span>)          <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Fn</span> };
     (<span class="kw">for</span>)         <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">For</span> };
     (<span class="kw">if</span>)          <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">If</span> };
@@ -1571,6 +1611,8 @@
     (<span class="kw">mod</span>)         <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Mod</span> };
     (<span class="kw">move</span>)        <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Move</span> };
     (<span class="kw-2">mut</span>)         <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Mut</span> };
+    (<span class="kw">override</span>)    <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Override</span> };
+    (<span class="kw">priv</span>)        <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Priv</span> };
     (<span class="kw">pub</span>)         <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Pub</span> };
     (<span class="kw-2">ref</span>)         <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Ref</span> };
     (<span class="kw">return</span>)      <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Return</span> };
@@ -1581,9 +1623,12 @@
     (<span class="kw">trait</span>)       <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Trait</span> };
     (<span class="ident">try</span>)         <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Try</span> };
     (<span class="kw">type</span>)        <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Type</span> };
+    (<span class="kw">typeof</span>)      <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Typeof</span> };
     (<span class="ident">union</span>)       <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Union</span> };
     (<span class="kw">unsafe</span>)      <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Unsafe</span> };
+    (<span class="kw">unsized</span>)     <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Unsized</span> };
     (<span class="kw">use</span>)         <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Use</span> };
+    (<span class="kw">virtual</span>)     <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Virtual</span> };
     (<span class="kw">where</span>)       <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Where</span> };
     (<span class="kw">while</span>)       <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">While</span> };
     (<span class="kw">yield</span>)       <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Yield</span> };
@@ -1631,6 +1676,7 @@
     (<span class="kw-2">*</span>)           <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Star</span> };
     (<span class="op">-</span>)           <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Sub</span> };
     (<span class="op">-=</span>)          <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">SubEq</span> };
+    (~)           <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Tilde</span> };
     (<span class="kw">_</span>)           <span class="op">=&gt;</span> { <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">token</span>::<span class="ident">Underscore</span> };
 }
 
