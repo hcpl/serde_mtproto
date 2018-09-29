@@ -100,7 +100,7 @@ enum Cafebabe<T> {
     Bar {
         byte_id: i8,
         position: (u64, u32),
-        #[serde(bound(deserialize = "T: ::serde_mtproto_other_name::Identifiable"))]
+        #[serde(bound = "T: ::serde_mtproto_other_name::Identifiable")]
         data: Boxed<T>,
         #[cfg(feature = "extprim")]
         bignum: i128::i128,

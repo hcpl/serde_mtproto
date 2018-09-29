@@ -40,6 +40,7 @@ use std::marker::PhantomData;
 use quickcheck::{Arbitrary, Gen};
 use serde::de::{Deserialize, DeserializeSeed, Deserializer,
                 Error as DeError, MapAccess, SeqAccess, Visitor};
+use serde::ser::{Error as SerError, Serialize, Serializer, SerializeStruct};
 
 use error::{self, DeErrorKind};
 use identifiable::Identifiable;
@@ -49,9 +50,8 @@ use utils::{safe_uint_cast, safe_uint_eq};
 
 /// A struct that wraps an [`Identifiable`] type value to serialize and
 /// deserialize as a boxed MTProto data type.
-#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct Boxed<T> {
-    id: u32,
     inner: T,
 }
 
@@ -61,10 +61,7 @@ pub type WithId<T> = Boxed<T>;
 impl<T: Identifiable> Boxed<T> {
     /// Wrap a value along with its id.
     pub fn new(inner: T) -> Boxed<T> {
-        Boxed {
-            id: inner.type_id(),
-            inner,
-        }
+        Boxed { inner }
     }
 
     /// Return an immutable reference to the underlying data.
@@ -80,6 +77,19 @@ impl<T: Identifiable> Boxed<T> {
     /// Unwrap the box and return the wrapped value.
     pub fn into_inner(self) -> T {
         self.inner
+    }
+}
+
+impl<T> Serialize for Boxed<T>
+    where T: Serialize + Identifiable
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: Serializer,
+    {
+        let mut ser = serializer.serialize_struct("Boxed", 2)?;
+        ser.serialize_field("id", &self.inner.type_id())?;
+        ser.serialize_field("inner", &self.inner)?;
+        ser.end()
     }
 }
 
@@ -126,13 +136,11 @@ impl<'de, T> Deserialize<'de> for Boxed<T>
         }
 
         fn checked_boxed_value<T: Identifiable>(type_id: u32, value: T) -> error::Result<Boxed<T>> {
-            let boxed_value = Boxed::new(value);
-
-            if type_id != boxed_value.id {
-                bail!(DeErrorKind::TypeIdMismatch(type_id, boxed_value.id));
+            if type_id != value.type_id() {
+                bail!(DeErrorKind::TypeIdMismatch(type_id, value.type_id()));
             }
 
-            Ok(boxed_value)
+            Ok(Boxed::new(value))
         }
 
         // TODO: Use rvalue static promotion after bumping minimal Rust version to 1.21
@@ -161,7 +169,8 @@ impl<T: Identifiable> Identifiable for Boxed<T> {
 
 impl<T: MtProtoSized> MtProtoSized for Boxed<T> {
     fn size_hint(&self) -> error::Result<usize> {
-        let id_size_hint = self.id.size_hint()?;
+        // Just an u32 value to use for `<u32 as MtProtoSized>::size_hint`
+        let id_size_hint = 0u32.size_hint()?;
         let inner_size_hint = self.inner.size_hint()?;
 
         Ok(id_size_hint + inner_size_hint)
@@ -185,21 +194,15 @@ impl<T> Arbitrary for Boxed<T>
 /// A struct that wraps a [`MtProtoSized`] type value to serialize and
 /// deserialize as a MTProto data type with the size of its serialized
 /// value.
-#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct WithSize<T> {
-    size: u32,
     inner: T,
 }
 
 impl<T: MtProtoSized> WithSize<T> {
     /// Wrap a value along with its serialized size.
     pub fn new(inner: T) -> error::Result<WithSize<T>> {
-        let with_size = WithSize {
-            size: safe_uint_cast(inner.size_hint()?)?,
-            inner,
-        };
-
-        Ok(with_size)
+        Ok(WithSize { inner })
     }
 
     /// Return an immutable reference to the underlying data.
@@ -215,6 +218,22 @@ impl<T: MtProtoSized> WithSize<T> {
     /// Unwrap the box and return the wrapped value.
     pub fn into_inner(self) -> T {
         self.inner
+    }
+}
+
+impl<T> Serialize for WithSize<T>
+    where T: Serialize + MtProtoSized
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: Serializer,
+    {
+        let id_usize = self.inner.size_hint().map_err(S::Error::custom)?;
+        let id_u32 = safe_uint_cast::<usize, u32>(id_usize).map_err(S::Error::custom)?;
+
+        let mut ser = serializer.serialize_struct("WithSize", 2)?;
+        ser.serialize_field("id", &id_u32)?;
+        ser.serialize_field("inner", &self.inner)?;
+        ser.end()
     }
 }
 
@@ -249,7 +268,6 @@ impl<'de, T> Deserialize<'de> for WithSize<T>
         }
 
         Ok(WithSize {
-            size: helper.size,
             inner: helper.inner,
         })
     }
@@ -275,7 +293,8 @@ impl<T: Identifiable> Identifiable for WithSize<T> {
 
 impl<T: MtProtoSized> MtProtoSized for WithSize<T> {
     fn size_hint(&self) -> error::Result<usize> {
-        let size_size_hint = self.size.size_hint()?;
+        // Just an u32 value to use for `<u32 as MtProtoSized>::size_hint`
+        let size_size_hint = 0u32.size_hint()?;
         let inner_size_hint = self.inner.size_hint()?;
 
         Ok(size_size_hint + inner_size_hint)
