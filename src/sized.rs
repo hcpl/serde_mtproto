@@ -69,10 +69,8 @@
 //!
 //! The derived implementation is the same as the one shown above.
 
-use std::cmp;
 use std::collections::{HashMap, BTreeMap};
 use std::hash::{BuildHasher, Hash};
-use std::mem;
 
 use serde_bytes::{ByteBuf, Bytes};
 
@@ -120,14 +118,12 @@ impl_mt_proto_sized_for_primitives! {
     bool => BOOL_SIZE,
 
     // Minimum MTProto integer size is 4 bytes
-    isize => cmp::max(mem::size_of::<isize>(), INT_SIZE),
     i8    => INT_SIZE,
     i16   => INT_SIZE,
     i32   => INT_SIZE,
     i64   => LONG_SIZE,
 
     // Same here
-    usize => cmp::max(mem::size_of::<usize>(), INT_SIZE),
     u8    => INT_SIZE,
     u16   => INT_SIZE,
     u32   => INT_SIZE,
@@ -204,6 +200,9 @@ impl<'a, T: MtProtoSized> MtProtoSized for &'a [T] {
             result += elem.size_hint()?;
         }
 
+        // Check again just to be sure
+        check_seq_len(result)?;
+
         Ok(result)
     }
 }
@@ -230,6 +229,9 @@ impl<K, V, S> MtProtoSized for HashMap<K, V, S>
             result += v.size_hint()?;
         }
 
+        // Check again just to be sure
+        check_seq_len(result)?;
+
         Ok(result)
     }
 }
@@ -248,6 +250,9 @@ impl<K, V> MtProtoSized for BTreeMap<K, V>
             result += k.size_hint()?;
             result += v.size_hint()?;
         }
+
+        // Check again just to be sure
+        check_seq_len(result)?;
 
         Ok(result)
     }

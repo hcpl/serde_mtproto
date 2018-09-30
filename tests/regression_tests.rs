@@ -36,7 +36,7 @@ use serde_mtproto_other_name::{Boxed, MtProtoSized, UnsizedByteBuf, UnsizedByteB
 #[mtproto_identifiable(id = "0xdeadbeef")]
 struct Foo {
     has_receiver: bool,
-    size: usize,
+    size: u64,
     raw_info: ByteBuf,
 
     #[derivative(PartialEq = "ignore")]
