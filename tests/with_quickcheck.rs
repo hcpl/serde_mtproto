@@ -29,12 +29,12 @@ struct SimpleStruct {
     field3: String,
     field4: Boxed<SimpleEnum>,
     field5: SimpleStruct2,
-    field6: usize,
+    field6: i16,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Arbitrary, MtProtoIdentifiable, MtProtoSized)]
 #[mtproto_identifiable(id = "0x341b1c93")]
-struct SimpleStruct2((i8,), PhantomStruct, WithSize<(isize, u16)>);
+struct SimpleStruct2((i8,), PhantomStruct, WithSize<(i64, u16)>);
 
 #[cfg_attr(feature = "cargo-clippy", allow(enum_variant_names))]
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Arbitrary, MtProtoIdentifiable, MtProtoSized)]
