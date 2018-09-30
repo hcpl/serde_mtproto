@@ -333,6 +333,11 @@
 <span id="333">333</span>
 <span id="334">334</span>
 <span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! `MtProtoSized` trait for any Rust data structure a predictable size of its MTProto binary</span>
 <span class="doccomment">//! representation can be computed.</span>
@@ -405,10 +410,8 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! The derived implementation is the same as the one shown above.</span>
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">BTreeMap</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">hash</span>::{<span class="ident">BuildHasher</span>, <span class="ident">Hash</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
 
 <span class="kw">use</span> <span class="ident">serde_bytes</span>::{<span class="ident">ByteBuf</span>, <span class="ident">Bytes</span>};
 
@@ -456,14 +459,12 @@
     <span class="ident">bool</span> <span class="op">=&gt;</span> <span class="ident">BOOL_SIZE</span>,
 
     <span class="comment">// Minimum MTProto integer size is 4 bytes</span>
-    <span class="ident">isize</span> <span class="op">=&gt;</span> <span class="ident">cmp</span>::<span class="ident">max</span>(<span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">isize</span><span class="op">&gt;</span>(), <span class="ident">INT_SIZE</span>),
     <span class="ident">i8</span>    <span class="op">=&gt;</span> <span class="ident">INT_SIZE</span>,
     <span class="ident">i16</span>   <span class="op">=&gt;</span> <span class="ident">INT_SIZE</span>,
     <span class="ident">i32</span>   <span class="op">=&gt;</span> <span class="ident">INT_SIZE</span>,
     <span class="ident">i64</span>   <span class="op">=&gt;</span> <span class="ident">LONG_SIZE</span>,
 
     <span class="comment">// Same here</span>
-    <span class="ident">usize</span> <span class="op">=&gt;</span> <span class="ident">cmp</span>::<span class="ident">max</span>(<span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>(), <span class="ident">INT_SIZE</span>),
     <span class="ident">u8</span>    <span class="op">=&gt;</span> <span class="ident">INT_SIZE</span>,
     <span class="ident">u16</span>   <span class="op">=&gt;</span> <span class="ident">INT_SIZE</span>,
     <span class="ident">u32</span>   <span class="op">=&gt;</span> <span class="ident">INT_SIZE</span>,
@@ -540,6 +541,9 @@
             <span class="ident">result</span> <span class="op">+=</span> <span class="ident">elem</span>.<span class="ident">size_hint</span>()<span class="question-mark">?</span>;
         }
 
+        <span class="comment">// Check again just to be sure</span>
+        <span class="ident">check_seq_len</span>(<span class="ident">result</span>)<span class="question-mark">?</span>;
+
         <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
     }
 }
@@ -566,6 +570,9 @@
             <span class="ident">result</span> <span class="op">+=</span> <span class="ident">v</span>.<span class="ident">size_hint</span>()<span class="question-mark">?</span>;
         }
 
+        <span class="comment">// Check again just to be sure</span>
+        <span class="ident">check_seq_len</span>(<span class="ident">result</span>)<span class="question-mark">?</span>;
+
         <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
     }
 }
@@ -584,6 +591,9 @@
             <span class="ident">result</span> <span class="op">+=</span> <span class="ident">k</span>.<span class="ident">size_hint</span>()<span class="question-mark">?</span>;
             <span class="ident">result</span> <span class="op">+=</span> <span class="ident">v</span>.<span class="ident">size_hint</span>()<span class="question-mark">?</span>;
         }
+
+        <span class="comment">// Check again just to be sure</span>
+        <span class="ident">check_seq_len</span>(<span class="ident">result</span>)<span class="question-mark">?</span>;
 
         <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
     }
