@@ -76,10 +76,6 @@
 <span id="76">76</span>
 <span id="77">77</span>
 <span id="78">78</span>
-<span id="79">79</span>
-<span id="80">80</span>
-<span id="81">81</span>
-<span id="82">82</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! This crate provides Serde MTProto&#39;s two derive macros.</span>
 <span class="doccomment">//!</span>
@@ -148,19 +144,15 @@
 
 <span class="attribute">#[<span class="ident">proc_macro_derive</span>(<span class="ident">MtProtoIdentifiable</span>, <span class="ident">attributes</span>(<span class="ident">mtproto_identifiable</span>))]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mt_proto_identifiable</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>) <span class="op">-&gt;</span> <span class="ident">TokenStream</span> {
-    <span class="kw">let</span> <span class="ident">ast</span> <span class="op">=</span> <span class="ident">syn</span>::<span class="ident">parse</span>(<span class="ident">input</span>).<span class="ident">unwrap</span>();
-
+    <span class="kw">let</span> <span class="ident">ast</span> <span class="op">=</span> <span class="macro">parse_macro_input</span><span class="macro">!</span>(<span class="ident">input</span> <span class="kw">as</span> <span class="ident">syn</span>::<span class="ident">DeriveInput</span>);
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">impl_mt_proto_identifiable</span>(<span class="kw-2">&amp;</span><span class="ident">ast</span>);
-
     <span class="ident">res</span>.<span class="ident">into</span>()
 }
 
 <span class="attribute">#[<span class="ident">proc_macro_derive</span>(<span class="ident">MtProtoSized</span>, <span class="ident">attributes</span>(<span class="ident">mtproto_sized</span>))]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mt_proto_sized</span>(<span class="ident">input</span>: <span class="ident">TokenStream</span>) <span class="op">-&gt;</span> <span class="ident">TokenStream</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ast</span> <span class="op">=</span> <span class="ident">syn</span>::<span class="ident">parse</span>(<span class="ident">input</span>).<span class="ident">unwrap</span>();
-
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ast</span> <span class="op">=</span> <span class="macro">parse_macro_input</span><span class="macro">!</span>(<span class="ident">input</span> <span class="kw">as</span> <span class="ident">syn</span>::<span class="ident">DeriveInput</span>);
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">impl_mt_proto_sized</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ast</span>);
-
     <span class="ident">res</span>.<span class="ident">into</span>()
 }
 </pre>
