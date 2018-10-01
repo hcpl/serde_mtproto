@@ -65,18 +65,14 @@ use mt_proto_sized::impl_mt_proto_sized;
 
 #[proc_macro_derive(MtProtoIdentifiable, attributes(mtproto_identifiable))]
 pub fn mt_proto_identifiable(input: TokenStream) -> TokenStream {
-    let ast = syn::parse(input).unwrap();
-
+    let ast = parse_macro_input!(input as syn::DeriveInput);
     let res = impl_mt_proto_identifiable(&ast);
-
     res.into()
 }
 
 #[proc_macro_derive(MtProtoSized, attributes(mtproto_sized))]
 pub fn mt_proto_sized(input: TokenStream) -> TokenStream {
-    let mut ast = syn::parse(input).unwrap();
-
+    let mut ast = parse_macro_input!(input as syn::DeriveInput);
     let res = impl_mt_proto_sized(&mut ast);
-
     res.into()
 }
