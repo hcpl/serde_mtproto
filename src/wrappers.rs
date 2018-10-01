@@ -227,11 +227,11 @@ impl<T> Serialize for WithSize<T>
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
         where S: Serializer,
     {
-        let id_usize = self.inner.size_hint().map_err(S::Error::custom)?;
-        let id_u32 = safe_uint_cast::<usize, u32>(id_usize).map_err(S::Error::custom)?;
+        let size_usize = self.inner.size_hint().map_err(S::Error::custom)?;
+        let size_u32 = safe_uint_cast::<usize, u32>(size_usize).map_err(S::Error::custom)?;
 
         let mut ser = serializer.serialize_struct("WithSize", 2)?;
-        ser.serialize_field("id", &id_u32)?;
+        ser.serialize_field("size", &size_u32)?;
         ser.serialize_field("inner", &self.inner)?;
         ser.end()
     }
