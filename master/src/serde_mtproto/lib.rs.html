@@ -173,6 +173,9 @@
 <span id="173">173</span>
 <span id="174">174</span>
 <span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! # Serde MTProto</span>
 <span class="doccomment">//!</span>
@@ -184,6 +187,8 @@
 <span class="comment">// For `error_chain!` macro used in `error` module</span>
 <span class="attribute">#![<span class="ident">recursion_limit</span> <span class="op">=</span> <span class="string">&quot;66&quot;</span>]</span>
 
+<span class="comment">// See &lt;https://github.com/rust-lang/rust/issues/50907&gt; for details.</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nightly&quot;</span>, <span class="ident">feature</span>(<span class="ident">exhaustive_integer_patterns</span>))]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;test-nightly-regressions&quot;</span>, <span class="ident">feature</span>(<span class="ident">nll</span>))]</span>
 <span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cargo-clippy&quot;</span>, <span class="ident">feature</span>(<span class="ident">tool_lints</span>))]</span>
 
@@ -204,6 +209,7 @@
     <span class="ident">unconditional_recursion</span>,
     <span class="ident">unions_with_drop_fields</span>,
     <span class="ident">unknown_lints</span>,
+    <span class="ident">unreachable_patterns</span>,
     <span class="ident">while_true</span>,
 
     <span class="comment">// Deny some allow-level lints</span>
