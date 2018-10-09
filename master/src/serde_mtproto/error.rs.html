@@ -282,13 +282,13 @@
         }
 
         <span class="doccomment">/// Error while casting a signed integer.</span>
-        <span class="ident">SignedIntegerCast</span>(<span class="ident">num</span>: <span class="ident">i64</span>) {
+        <span class="ident">SignedIntegerCast</span>(<span class="ident">num</span>: ::<span class="ident">utils</span>::<span class="ident">IntMax</span>) {
             <span class="ident">description</span>(<span class="string">&quot;error while casting a signed integer&quot;</span>)
             <span class="ident">display</span>(<span class="string">&quot;error while casting a signed integer: {}&quot;</span>, <span class="ident">num</span>)
         }
 
         <span class="doccomment">/// Error while casting an unsigned integer.</span>
-        <span class="ident">UnsignedIntegerCast</span>(<span class="ident">num</span>: <span class="ident">u64</span>) {
+        <span class="ident">UnsignedIntegerCast</span>(<span class="ident">num</span>: ::<span class="ident">utils</span>::<span class="ident">UIntMax</span>) {
             <span class="ident">description</span>(<span class="string">&quot;error while casting an unsigned integer&quot;</span>)
             <span class="ident">display</span>(<span class="string">&quot;error while casting an unsigned integer: {}&quot;</span>, <span class="ident">num</span>)
         }

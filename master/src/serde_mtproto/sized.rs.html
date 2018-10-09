@@ -444,14 +444,14 @@
 
 
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_mt_proto_sized_for_primitives</span> {
-    ($(<span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ty</span> <span class="op">=&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">size</span>:<span class="ident">expr</span>,)<span class="kw-2">*</span>) <span class="op">=&gt;</span> {
+    ($(<span class="macro-nonterminal">$</span><span class="kw">type</span>:<span class="macro-nonterminal">ty</span> <span class="op">=&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">size</span>:<span class="ident">expr</span>,)<span class="op">+</span>) <span class="op">=&gt;</span> {
         $(
             <span class="kw">impl</span> <span class="ident">MtProtoSized</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="kw">type</span> {
                 <span class="kw">fn</span> <span class="macro-nonterminal">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">error</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
                     <span class="prelude-val">Ok</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">size</span>)
                 }
             }
-        )<span class="op">*</span>
+        )<span class="op">+</span>
     };
 }
 
@@ -459,16 +459,16 @@
     <span class="ident">bool</span> <span class="op">=&gt;</span> <span class="ident">BOOL_SIZE</span>,
 
     <span class="comment">// Minimum MTProto integer size is 4 bytes</span>
-    <span class="ident">i8</span>    <span class="op">=&gt;</span> <span class="ident">INT_SIZE</span>,
-    <span class="ident">i16</span>   <span class="op">=&gt;</span> <span class="ident">INT_SIZE</span>,
-    <span class="ident">i32</span>   <span class="op">=&gt;</span> <span class="ident">INT_SIZE</span>,
-    <span class="ident">i64</span>   <span class="op">=&gt;</span> <span class="ident">LONG_SIZE</span>,
+    <span class="ident">i8</span>  <span class="op">=&gt;</span> <span class="ident">INT_SIZE</span>,
+    <span class="ident">i16</span> <span class="op">=&gt;</span> <span class="ident">INT_SIZE</span>,
+    <span class="ident">i32</span> <span class="op">=&gt;</span> <span class="ident">INT_SIZE</span>,
+    <span class="ident">i64</span> <span class="op">=&gt;</span> <span class="ident">LONG_SIZE</span>,
 
     <span class="comment">// Same here</span>
-    <span class="ident">u8</span>    <span class="op">=&gt;</span> <span class="ident">INT_SIZE</span>,
-    <span class="ident">u16</span>   <span class="op">=&gt;</span> <span class="ident">INT_SIZE</span>,
-    <span class="ident">u32</span>   <span class="op">=&gt;</span> <span class="ident">INT_SIZE</span>,
-    <span class="ident">u64</span>   <span class="op">=&gt;</span> <span class="ident">LONG_SIZE</span>,
+    <span class="ident">u8</span>  <span class="op">=&gt;</span> <span class="ident">INT_SIZE</span>,
+    <span class="ident">u16</span> <span class="op">=&gt;</span> <span class="ident">INT_SIZE</span>,
+    <span class="ident">u32</span> <span class="op">=&gt;</span> <span class="ident">INT_SIZE</span>,
+    <span class="ident">u64</span> <span class="op">=&gt;</span> <span class="ident">LONG_SIZE</span>,
 
     <span class="ident">f32</span> <span class="op">=&gt;</span> <span class="ident">DOUBLE_SIZE</span>,
     <span class="ident">f64</span> <span class="op">=&gt;</span> <span class="ident">DOUBLE_SIZE</span>,
@@ -619,13 +619,13 @@
 
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_mt_proto_sized_for_tuple</span> {
     ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>:<span class="ident">ident</span> : <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">ident</span> ,)<span class="op">+</span>) <span class="op">=&gt;</span> {
-        <span class="kw">impl</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>),<span class="kw-2">*</span><span class="op">&gt;</span> <span class="ident">MtProtoSized</span> <span class="kw">for</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>,)<span class="kw-2">*</span>)
-            <span class="kw">where</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>: <span class="ident">MtProtoSized</span>,)<span class="op">*</span>
+        <span class="kw">impl</span><span class="op">&lt;</span>$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>),<span class="op">+</span><span class="op">&gt;</span> <span class="ident">MtProtoSized</span> <span class="kw">for</span> ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>,)<span class="op">+</span>)
+            <span class="kw">where</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>: <span class="ident">MtProtoSized</span>,)<span class="op">+</span>
         {
             <span class="kw">fn</span> <span class="ident">size_hint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">error</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="number">0</span>;
-                <span class="kw">let</span> <span class="kw-2">&amp;</span>($(<span class="kw-2">ref</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>,)<span class="kw-2">*</span>) <span class="op">=</span> <span class="self">self</span>;
-                $( <span class="ident">result</span> <span class="op">+=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>.<span class="ident">size_hint</span>()<span class="question-mark">?</span>; )<span class="op">*</span>
+                <span class="kw">let</span> ($(<span class="kw-2">ref</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>,)<span class="op">+</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span>;
+                $( <span class="ident">result</span> <span class="op">+=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ident</span>.<span class="ident">size_hint</span>()<span class="question-mark">?</span>; )<span class="op">+</span>
                 <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
             }
         }
@@ -672,8 +672,8 @@
         }
     };
 
-    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">size</span>:<span class="ident">expr</span>),<span class="kw-2">*</span>) <span class="op">=&gt;</span> {
-        $( <span class="macro">impl_mt_proto_sized_for_arrays</span><span class="macro">!</span>(<span class="ident">__impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">size</span>); )<span class="op">*</span>
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">size</span>:<span class="ident">expr</span>),<span class="op">+</span>) <span class="op">=&gt;</span> {
+        $( <span class="macro">impl_mt_proto_sized_for_arrays</span><span class="macro">!</span>(<span class="ident">__impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">size</span>); )<span class="op">+</span>
     };
 }
 
