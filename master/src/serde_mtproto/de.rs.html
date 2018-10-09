@@ -583,7 +583,7 @@
 
 <span class="kw">use</span> <span class="ident">error</span>::{<span class="self">self</span>, <span class="ident">DeErrorKind</span>, <span class="ident">DeSerdeType</span>};
 <span class="kw">use</span> <span class="ident">identifiable</span>::{<span class="ident">BOOL_FALSE_ID</span>, <span class="ident">BOOL_TRUE_ID</span>};
-<span class="kw">use</span> <span class="ident">utils</span>::{<span class="ident">safe_float_cast</span>, <span class="ident">safe_int_cast</span>, <span class="ident">safe_uint_cast</span>};
+<span class="kw">use</span> <span class="ident">utils</span>::{<span class="ident">i128_from_parts</span>, <span class="ident">safe_float_cast</span>, <span class="ident">safe_int_cast</span>, <span class="ident">safe_uint_cast</span>, <span class="ident">u128_from_parts</span>};
 
 
 <span class="doccomment">/// A structure that deserializes  MTProto binary representation into Rust values.</span>
@@ -756,7 +756,7 @@
     {
         <span class="kw">let</span> <span class="ident">lo</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">reader</span>.<span class="ident">read_u64</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">hi</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">reader</span>.<span class="ident">read_i64</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">i128</span>::<span class="ident">from</span>(<span class="ident">hi</span>) <span class="op">&lt;&lt;</span> <span class="number">64</span> <span class="op">|</span> <span class="ident">i128</span>::<span class="ident">from</span>(<span class="ident">lo</span>);
+        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">i128_from_parts</span>(<span class="ident">hi</span>, <span class="ident">lo</span>);
         <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Deserialized i128: {:#x}&quot;</span>, <span class="ident">value</span>);
 
         <span class="ident">visitor</span>.<span class="ident">visit_i128</span>(<span class="ident">value</span>)
@@ -773,7 +773,7 @@
     {
         <span class="kw">let</span> <span class="ident">lo</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">reader</span>.<span class="ident">read_u64</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">hi</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">reader</span>.<span class="ident">read_u64</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">u128</span>::<span class="ident">from</span>(<span class="ident">hi</span>) <span class="op">&lt;&lt;</span> <span class="number">64</span> <span class="op">|</span> <span class="ident">u128</span>::<span class="ident">from</span>(<span class="ident">lo</span>);
+        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">u128_from_parts</span>(<span class="ident">hi</span>, <span class="ident">lo</span>);
         <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Deserialized u128: {:#x}&quot;</span>, <span class="ident">value</span>);
 
         <span class="ident">visitor</span>.<span class="ident">visit_u128</span>(<span class="ident">value</span>)

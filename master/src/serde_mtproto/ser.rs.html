@@ -538,12 +538,6 @@
 <span id="538">538</span>
 <span id="539">539</span>
 <span id="540">540</span>
-<span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! Serialize a Rust data structure into its MTProto binary representation.</span>
 
@@ -554,7 +548,7 @@
 
 <span class="kw">use</span> <span class="ident">error</span>::{<span class="self">self</span>, <span class="ident">SerErrorKind</span>, <span class="ident">SerSerdeType</span>};
 <span class="kw">use</span> <span class="ident">identifiable</span>::<span class="ident">Identifiable</span>;
-<span class="kw">use</span> <span class="ident">utils</span>::<span class="ident">safe_uint_cast</span>;
+<span class="kw">use</span> <span class="ident">utils</span>::{<span class="ident">i128_to_parts</span>, <span class="ident">safe_uint_cast</span>, <span class="ident">u128_to_parts</span>};
 
 
 <span class="doccomment">/// A structure for serializing Rust values into MTProto binary representation.</span>
@@ -667,10 +661,7 @@
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">stable_i128</span>)]</span>
     <span class="kw">fn</span> <span class="ident">serialize_i128</span>(<span class="self">self</span>, <span class="ident">value</span>: <span class="ident">i128</span>) <span class="op">-&gt;</span> <span class="ident">error</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cargo-clippy&quot;</span>, <span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">cast_sign_loss</span>, <span class="ident">clippy</span>::<span class="ident">cast_possible_truncation</span>))]</span>
-        <span class="kw">let</span> <span class="ident">lo</span> <span class="op">=</span> <span class="ident">value</span> <span class="kw">as</span> <span class="ident">u64</span>;
-        <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cargo-clippy&quot;</span>, <span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">cast_possible_truncation</span>))]</span>
-        <span class="kw">let</span> <span class="ident">hi</span> <span class="op">=</span> (<span class="ident">value</span> <span class="op">&gt;&gt;</span> <span class="number">64</span>) <span class="kw">as</span> <span class="ident">i64</span>;
+        <span class="kw">let</span> (<span class="ident">hi</span>, <span class="ident">lo</span>) <span class="op">=</span> <span class="ident">i128_to_parts</span>(<span class="ident">value</span>);
         <span class="ident">WriteBytesExt</span>::<span class="ident">write_u64</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="ident">lo</span>)<span class="question-mark">?</span>;
         <span class="ident">WriteBytesExt</span>::<span class="ident">write_i64</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="ident">hi</span>)<span class="question-mark">?</span>;
         <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Serialized i128: {:#x}&quot;</span>, <span class="ident">value</span>);
@@ -684,10 +675,7 @@
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">stable_i128</span>)]</span>
     <span class="kw">fn</span> <span class="ident">serialize_u128</span>(<span class="self">self</span>, <span class="ident">value</span>: <span class="ident">u128</span>) <span class="op">-&gt;</span> <span class="ident">error</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cargo-clippy&quot;</span>, <span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">cast_possible_truncation</span>))]</span>
-        <span class="kw">let</span> <span class="ident">lo</span> <span class="op">=</span> <span class="ident">value</span> <span class="kw">as</span> <span class="ident">u64</span>;
-        <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;cargo-clippy&quot;</span>, <span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">cast_possible_truncation</span>))]</span>
-        <span class="kw">let</span> <span class="ident">hi</span> <span class="op">=</span> (<span class="ident">value</span> <span class="op">&gt;&gt;</span> <span class="number">64</span>) <span class="kw">as</span> <span class="ident">u64</span>;
+        <span class="kw">let</span> (<span class="ident">hi</span>, <span class="ident">lo</span>) <span class="op">=</span> <span class="ident">u128_to_parts</span>(<span class="ident">value</span>);
         <span class="ident">WriteBytesExt</span>::<span class="ident">write_u64</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="ident">lo</span>)<span class="question-mark">?</span>;
         <span class="ident">WriteBytesExt</span>::<span class="ident">write_u64</span>::<span class="op">&lt;</span><span class="ident">LittleEndian</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">writer</span>, <span class="ident">hi</span>)<span class="question-mark">?</span>;
         <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;Serialized u128: {:#x}&quot;</span>, <span class="ident">value</span>);
