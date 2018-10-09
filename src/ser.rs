@@ -7,7 +7,9 @@ use serde::ser::{self, Serialize};
 
 use error::{self, SerErrorKind, SerSerdeType};
 use identifiable::Identifiable;
-use utils::{i128_to_parts, safe_uint_cast, u128_to_parts};
+use utils::safe_uint_cast;
+#[cfg(stable_i128)]
+use utils::{i128_to_parts, u128_to_parts};
 
 
 /// A structure for serializing Rust values into MTProto binary representation.

@@ -7,7 +7,9 @@ use serde::de::{self, Deserialize, DeserializeOwned, DeserializeSeed, Visitor};
 
 use error::{self, DeErrorKind, DeSerdeType};
 use identifiable::{BOOL_FALSE_ID, BOOL_TRUE_ID};
-use utils::{i128_from_parts, safe_float_cast, safe_int_cast, safe_uint_cast, u128_from_parts};
+use utils::{safe_float_cast, safe_int_cast, safe_uint_cast};
+#[cfg(stable_i128)]
+use utils::{i128_from_parts, u128_from_parts};
 
 
 /// A structure that deserializes  MTProto binary representation into Rust values.
