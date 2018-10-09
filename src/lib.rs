@@ -16,21 +16,29 @@
 
 // ========== RUSTC LINTS ========== //
 
-#![cfg_attr(feature = "aggressive-rustc-lints", deny(
+#![deny(
     // Deny some warn-level lints
     const_err,
     deprecated,
     illegal_floating_point_literal_pattern,
     improper_ctypes,
+    non_camel_case_types,
+    non_shorthand_field_patterns,
+    non_snake_case,
+    non_upper_case_globals,
     overflowing_literals,
+    path_statements,
     patterns_in_fns_without_body,
-    private_no_mangle_fns,
-    private_no_mangle_statics,
+    private_in_public,
     renamed_and_removed_lints,
     unconditional_recursion,
     unions_with_drop_fields,
     unknown_lints,
+    unreachable_code,
     unreachable_patterns,
+    unused_allocation,
+    unused_features,
+    unused_unsafe,
     while_true,
 
     // Deny some allow-level lints
@@ -41,21 +49,26 @@
     trivial_numeric_casts,
     unused_import_braces,
     unused_results,
+)]
+
+#![cfg_attr(lints_1_21, deny(
+    // Deny some warn-level lints available from Rust 1.21
+    late_bound_lifetime_arguments,
 ))]
 
-#![cfg_attr(all(feature = "aggressive-rustc-lints", lints_1_24), deny(
+#![cfg_attr(lints_1_24, deny(
     // Deny some warn-level lints available from Rust 1.24
     safe_packed_borrows,
     tyvar_behind_raw_pointer,
 ))]
 
-#![cfg_attr(all(feature = "aggressive-rustc-lints", lints_1_26, not(lints_1_27)), deny(
+#![cfg_attr(all(lints_1_26, not(lints_1_27)), deny(
     // Deny some warn-level lints available from Rust 1.26 that are renamed in
     // 1.27 (relevant PR: https://github.com/rust-lang/rust/pull/50879).
     unstable_name_collision,
 ))]
 
-#![cfg_attr(all(feature = "aggressive-rustc-lints", lints_1_27), deny(
+#![cfg_attr(lints_1_27, deny(
     // Deny some warn-level lints available from previous Rust versions that are
     // renamed in 1.27
     // (relevant PR: https://github.com/rust-lang/rust/pull/50879).

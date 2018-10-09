@@ -14,10 +14,10 @@ matrix:
       script:
         - |
           for features in \
-              "aggressive-rustc-lints" \
-              "aggressive-rustc-lints extprim" \
-              "aggressive-rustc-lints quickcheck" \
-              "aggressive-rustc-lints extprim quickcheck"
+              "" \
+              "extprim" \
+              "quickcheck" \
+              "extprim quickcheck"
           do
               cargo test --verbose --all --lib --features "${features}"
               cargo test --verbose --all --tests --features "${features}"
@@ -28,10 +28,10 @@ matrix:
       script:
         - |
           for features in \
-              "aggressive-rustc-lints version-sync" \
-              "aggressive-rustc-lints extprim version-sync" \
-              "aggressive-rustc-lints quickcheck version-sync" \
-              "aggressive-rustc-lints extprim quickcheck version-sync"
+              "version-sync" \
+              "extprim version-sync" \
+              "quickcheck version-sync" \
+              "extprim quickcheck version-sync"
           do
               cargo test --verbose --all --lib --features "${features}"
               cargo test --verbose --all --tests --features "${features}"
@@ -42,10 +42,10 @@ matrix:
       script:
         - |
           for features in \
-              "aggressive-rustc-lints version-sync" \
-              "aggressive-rustc-lints extprim version-sync" \
-              "aggressive-rustc-lints quickcheck version-sync" \
-              "aggressive-rustc-lints extprim quickcheck version-sync"
+              "version-sync" \
+              "extprim version-sync" \
+              "quickcheck version-sync" \
+              "extprim quickcheck version-sync"
           do
               cargo test --verbose --all --lib --features "${features}"
               cargo test --verbose --all --tests --features "${features}"
@@ -58,10 +58,10 @@ matrix:
       script:
         - |
           for features in \
-              "aggressive-rustc-lints nightly test-nightly-regressions version-sync" \
-              "aggressive-rustc-lints extprim nightly test-nightly-regressions version-sync" \
-              "aggressive-rustc-lints nightly quickcheck test-nightly-regressions version-sync" \
-              "aggressive-rustc-lints extprim nightly quickcheck test-nightly-regressions version-sync"
+              "nightly test-nightly-regressions version-sync" \
+              "extprim nightly test-nightly-regressions version-sync" \
+              "nightly quickcheck test-nightly-regressions version-sync" \
+              "extprim nightly quickcheck test-nightly-regressions version-sync"
           do
               cargo test --verbose --all --lib --features "${features}"
               cargo test --verbose --all --tests --features "${features}"

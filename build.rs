@@ -15,6 +15,7 @@ fn query_rustc_print_cfg(requested_min_version: &str, cfgs: &[&str]) {
 }
 
 fn main() {
+    query_rustc_print_cfg("1.21.0", &["lints_1_21"]);
     query_rustc_print_cfg("1.24.0", &["lints_1_24"]);
     query_rustc_print_cfg("1.26.0", &["lints_1_26", "stable_i128"]);
     query_rustc_print_cfg("1.27.0", &["lints_1_27"]);
