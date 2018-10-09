@@ -1,41 +1,75 @@
 sudo: false
 language: rust
 
+cache: cargo
+
+env:
+  global:
+    - RUST_BACKTRACE=1
+
 matrix:
   include:
-    # Minimum supported Rust
     - rust: 1.20.0
-      env: FEATURES="aggressive-rustc-lints"
-    - rust: 1.20.0
-      env: FEATURES="aggressive-rustc-lints extprim"
-
-    # Minimum Rust that works with the `version_numbers` test
-    # Specifically, at the time of commiting these changes `version-sync` 0.5.0 depends on `url`
-    # 1.7.0 which depends on `unicode-normalization` 0.1.6 which uses rvalue static promotion from
-    # Rust 1.21. Let's not run the `version_numbers` test under Rust 1.17!
-    - rust: 1.21.0
-      env: FEATURES="aggressive-rustc-lints version-sync"
+      env: DESCRIPTION="minimum supported Rust"
+      script:
+        - |
+          for features in \
+              "aggressive-rustc-lints" \
+              "aggressive-rustc-lints extprim" \
+              "aggressive-rustc-lints quickcheck" \
+              "aggressive-rustc-lints extprim quickcheck"
+          do
+              cargo test --verbose --all --lib --features "${features}"
+              cargo test --verbose --all --tests --features "${features}"
+          done
 
     - rust: stable
-      env: FEATURES="aggressive-rustc-lints version-sync"
-    - rust: stable
-      env: FEATURES="aggressive-rustc-lints extprim version-sync"
+      env: DESCRIPTION="stable Rust"
+      script:
+        - |
+          for features in \
+              "aggressive-rustc-lints version-sync" \
+              "aggressive-rustc-lints extprim version-sync" \
+              "aggressive-rustc-lints quickcheck version-sync" \
+              "aggressive-rustc-lints extprim quickcheck version-sync"
+          do
+              cargo test --verbose --all --lib --features "${features}"
+              cargo test --verbose --all --tests --features "${features}"
+          done
 
     - rust: beta
-      env: FEATURES="aggressive-rustc-lints version-sync"
-    - rust: beta
-      env: FEATURES="aggressive-rustc-lints extprim version-sync"
+      env: DESCRIPTION="beta Rust"
+      script:
+        - |
+          for features in \
+              "aggressive-rustc-lints version-sync" \
+              "aggressive-rustc-lints extprim version-sync" \
+              "aggressive-rustc-lints quickcheck version-sync" \
+              "aggressive-rustc-lints extprim quickcheck version-sync"
+          do
+              cargo test --verbose --all --lib --features "${features}"
+              cargo test --verbose --all --tests --features "${features}"
+          done
 
     - rust: nightly
-      env: FEATURES="aggressive-rustc-lints test-nightly-regressions version-sync"
-    - rust: nightly
-      env: FEATURES="aggressive-rustc-lints extprim test-nightly-regressions version-sync"
-
-    # Run QuickCheck only on limited amount of configurations - we don't need more
-    - rust: stable
-      env: FEATURES="aggressive-rustc-lints extprim quickcheck"
-    - rust: nightly
-      env: FEATURES="aggressive-rustc-lints extprim quickcheck test-nightly-regressions"
+      env: DESCRIPTION="nightly Rust, clippy"
+      install:
+        - rustup component add clippy-preview
+      script:
+        - cargo test --verbose --all --benches --features "${FEATURES}" &&
+        - cargo clippy --verbose --all --features "${FEATURES}"
+        - |
+          for features in \
+              "aggressive-rustc-lints nightly test-nightly-regressions version-sync" \
+              "aggressive-rustc-lints extprim nightly test-nightly-regressions version-sync" \
+              "aggressive-rustc-lints nightly quickcheck test-nightly-regressions version-sync" \
+              "aggressive-rustc-lints extprim nightly quickcheck test-nightly-regressions version-sync"
+          do
+              cargo test --verbose --all --lib --features "${features}"
+              cargo test --verbose --all --tests --features "${features}"
+              cargo test --verbose --all --benches --features "${features}"
+              cargo clippy --verbose --all --features "${features}"
+          done
 
     # Host documentation on <https://hcpl.github.com/serde_mtproto>
     - rust: nightly
@@ -59,35 +93,6 @@ matrix:
         - rm -rf target/gh-pages
       after_success:
         - cargo doc-upload --message $'Automatic Travis documentation build\n\n'"${TRAVIS_COMMIT_MESSAGE}"
-
-cache: cargo
-
-env:
-  global:
-    - RUST_BACKTRACE=1
-
-install:
-  - |
-    if [ "${TRAVIS_RUST_VERSION}" = nightly ]; then
-        # Now that `clippy` is packaged with nightlies, it won't fall out of
-        # sync with build failure
-        rustup component add clippy-preview
-    fi
-
-script:
-  - |
-    cargo build --verbose --all --lib --features "${FEATURES}" &&
-    cargo test --verbose --all --lib --features "${FEATURES}"
-  - |
-    cargo build --verbose --all --tests --features "${FEATURES}" &&
-    cargo test --verbose --all --tests --features "${FEATURES}"
-  - |
-    if [ "${TRAVIS_RUST_VERSION}" = nightly ]; then
-        cargo build --verbose --all --benches --features "${FEATURES}" &&
-        cargo test --verbose --all --benches --features "${FEATURES}" &&
-
-        cargo clippy --verbose --all --features "${FEATURES}"
-    fi
 
 after_success:
   - |
