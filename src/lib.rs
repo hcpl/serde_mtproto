@@ -66,29 +66,11 @@
 // ========== CLIPPY LINTS ========== //
 
 #![cfg_attr(feature = "cargo-clippy", warn(
-    // Warn about every lint in these categories (not deny because some them may have false
-    // positives according to `clippy` README)
-    clippy::complexity,
-    clippy::correctness,
-    clippy::perf,
-    clippy::style,
-
     // Restrict our code to ease reviewing and auditing in some cases
-    clippy::clone_on_ref_ptr,
     clippy::decimal_literal_representation,
     clippy::float_arithmetic,
-    clippy::indexing_slicing,
-    clippy::mem_forget,
-    clippy::print_stdout,
-    clippy::result_unwrap_used,
-    clippy::shadow_unrelated,
-    clippy::wrong_pub_self_convention,
 
     // Additional pedantic warns about numeric casts
-    clippy::cast_possible_truncation,
-    clippy::cast_possible_wrap,
-    clippy::cast_precision_loss,
-    clippy::cast_sign_loss,
     clippy::invalid_upcast_comparisons,
 
     // Other pedantic lints we consider useful to use as warns in this crate
@@ -111,6 +93,21 @@
     // Turn all warn-level lints that have no false positives (according to `clippy` README) to
     // denies (because it should be safe to do so)
     clippy::all,
+
+    // Restrict our code to ease reviewing and auditing in some cases
+    clippy::clone_on_ref_ptr,
+    clippy::indexing_slicing,
+    clippy::mem_forget,
+    clippy::print_stdout,
+    clippy::result_unwrap_used,
+    clippy::shadow_unrelated,
+    clippy::wrong_pub_self_convention,
+
+    // Additional pedantic denies about numeric casts
+    clippy::cast_possible_truncation,
+    clippy::cast_possible_wrap,
+    clippy::cast_precision_loss,
+    clippy::cast_sign_loss,
 ))]
 
 

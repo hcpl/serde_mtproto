@@ -170,7 +170,7 @@ impl<T: Identifiable> Identifiable for Boxed<T> {
 impl<T: MtProtoSized> MtProtoSized for Boxed<T> {
     fn size_hint(&self) -> error::Result<usize> {
         // Just an u32 value to use for `<u32 as MtProtoSized>::size_hint`
-        let id_size_hint = 0u32.size_hint()?;
+        let id_size_hint = 0_u32.size_hint()?;
         let inner_size_hint = self.inner.size_hint()?;
 
         Ok(id_size_hint + inner_size_hint)
@@ -294,7 +294,7 @@ impl<T: Identifiable> Identifiable for WithSize<T> {
 impl<T: MtProtoSized> MtProtoSized for WithSize<T> {
     fn size_hint(&self) -> error::Result<usize> {
         // Just an u32 value to use for `<u32 as MtProtoSized>::size_hint`
-        let size_size_hint = 0u32.size_hint()?;
+        let size_size_hint = 0_u32.size_hint()?;
         let inner_size_hint = self.inner.size_hint()?;
 
         Ok(size_size_hint + inner_size_hint)

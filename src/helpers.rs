@@ -9,6 +9,7 @@ use serde::ser::{Serialize, Serializer, SerializeTupleStruct};
 
 use ::error::{self, DeErrorKind};
 use ::sized::MtProtoSized;
+use ::utils::safe_uint_cast;
 
 
 // TODO: use `mem::size_of` const fn after bumping minimal Rust version to 1.22
@@ -34,9 +35,13 @@ impl UnsizedByteBuf {
     /// Create a new buffer and copy from `input` and pad so that the buffer
     /// length was divisible by 4.
     pub fn from_slice_pad(input: &[u8]) -> UnsizedByteBuf {
-        let inner_len = input.len() + (4 - input.len() % 4) % 4;
+        let len = input.len();
+        let inner_len = len + (4 - len % 4) % 4;
+        assert!(len <= inner_len);
+
         let mut inner = vec![0; inner_len];
-        inner[0..input.len()].copy_from_slice(input);
+        #[cfg_attr(feature = "cargo-clippy", allow(clippy::indexing_slicing))]
+        inner[0..len].copy_from_slice(input);
 
         UnsizedByteBuf { inner }
     }
@@ -128,8 +133,11 @@ impl<'de> DeserializeSeed<'de> for UnsizedByteBufSeed {
 
                 for (i, chunk_mut) in inner.chunks_mut(CHUNK_SIZE).enumerate() {
                     // FIXME: `usize` as `u32`
+                    let unexpected = safe_uint_cast::<usize, u32>(i).map_err(A::Error::custom)?;
+                    let expected = safe_uint_cast::<usize, u32>(chunks_count).map_err(A::Error::custom)?;
+
                     let chunk_u32 = seq.next_element()?
-                        .ok_or_else(|| errconv(DeErrorKind::NotEnoughElements(i as u32, chunks_count as u32)))?;
+                        .ok_or_else(|| errconv(DeErrorKind::NotEnoughElements(unexpected, expected)))?;
 
                     LittleEndian::write_u32(chunk_mut, chunk_u32);
                 }
