@@ -43,22 +43,30 @@ impl<'ids, R: io::Read> Deserializer<'ids, R> {
         let len;
         let rem;
 
-        if first_byte <= 253 {
-            len = usize::from(first_byte);
-            rem = (len + 1) % 4;
-        } else if first_byte == 254 {
-            let uncasted = self.reader.read_u24::<LittleEndian>()?;
-            if uncasted <= 253 {
-                bail!(DeErrorKind::BytesLenPrefix254LessThan254(uncasted));
-            }
+        match first_byte {
+            0 ... 253 => {
+                len = usize::from(first_byte);
+                rem = (len + 1) % 4;
+            },
+            254 => {
+                let uncasted = self.reader.read_u24::<LittleEndian>()?;
+                if uncasted <= 253 {
+                    bail!(DeErrorKind::BytesLenPrefix254LessThan254(uncasted));
+                }
 
-            len = safe_uint_cast::<u32, usize>(uncasted)?;
-            rem = len % 4;
-        } else { // must be 255
-            assert_eq!(first_byte, 255);
-            return Err(de::Error::invalid_value(
-                de::Unexpected::Unsigned(255),
-                &"a byte in [0..254] range"));
+                len = safe_uint_cast::<u32, usize>(uncasted)?;
+                rem = len % 4;
+            },
+            255 => {
+                return Err(de::Error::invalid_value(
+                    de::Unexpected::Unsigned(255),
+                    &"a byte in [0..254] range"));
+            },
+            // Currently exhaustive integer matches only work on nightly.
+            //
+            // See <https://github.com/rust-lang/rust/issues/50907> for details.
+            #[cfg(not(feature = "nightly"))]
+            _ => unreachable!("other match arms should have exhaustively covered every value"),
         }
 
         let padding = (4 - rem) % 4;

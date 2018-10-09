@@ -8,6 +8,8 @@
 // For `error_chain!` macro used in `error` module
 #![recursion_limit = "66"]
 
+// See <https://github.com/rust-lang/rust/issues/50907> for details.
+#![cfg_attr(feature = "nightly", feature(exhaustive_integer_patterns))]
 #![cfg_attr(feature = "test-nightly-regressions", feature(nll))]
 #![cfg_attr(feature = "cargo-clippy", feature(tool_lints))]
 
@@ -28,6 +30,7 @@
     unconditional_recursion,
     unions_with_drop_fields,
     unknown_lints,
+    unreachable_patterns,
     while_true,
 
     // Deny some allow-level lints
