@@ -60,3 +60,106 @@ pub(crate) fn safe_uint_eq<T, U>(x: T, y: U) -> bool
                       U \\subseteq T must be true");
     }
 }
+
+
+#[cfg(stable_i128)]
+pub(crate) fn i128_from_parts(hi: i64, lo: u64) -> i128 {
+    i128::from(hi) << 64 | i128::from(lo)
+}
+
+#[cfg(stable_i128)]
+pub(crate) fn u128_from_parts(hi: u64, lo: u64) -> u128 {
+    u128::from(hi) << 64 | u128::from(lo)
+}
+
+#[cfg(stable_i128)]
+pub(crate) fn i128_to_parts(n: i128) -> (i64, u64) {
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::cast_sign_loss, clippy::cast_possible_truncation))]
+    let lo = n as u64;
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::cast_possible_truncation))]
+    let hi = (n >> 64) as i64;
+
+    (hi, lo)
+}
+
+#[cfg(stable_i128)]
+pub(crate) fn u128_to_parts(n: u128) -> (u64, u64) {
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::cast_possible_truncation))]
+    let lo = n as u64;
+    #[cfg_attr(feature = "cargo-clippy", allow(clippy::cast_possible_truncation))]
+    let hi = (n >> 64) as u64;
+
+    (hi, lo)
+}
+
+
+#[cfg(all(test, stable_i128))]
+mod tests {
+    const I128_PARTS: &[(i128, (i64, u64))] = &[
+        ( 0x0000_0000_0000_0000_0000_0000_0000_0000, ( 0x0000_0000_0000_0000, 0x0000_0000_0000_0000)),
+        ( 0x0000_0000_0000_0000_FFFF_FFFF_FFFF_FFFF, ( 0x0000_0000_0000_0000, 0xFFFF_FFFF_FFFF_FFFF)),
+        ( 0x7777_7777_7777_7777_FFFF_FFFF_FFFF_FFFF, ( 0x7777_7777_7777_7777, 0xFFFF_FFFF_FFFF_FFFF)),
+        (-0x8000_0000_0000_0000_0000_0000_0000_0000, (-0x8000_0000_0000_0000, 0x0000_0000_0000_0000)),
+        (-0x0000_0000_0000_0000_0000_0000_0000_0001, (-0x0000_0000_0000_0001, 0xFFFF_FFFF_FFFF_FFFF)),
+    ];
+
+    #[test]
+    fn i128_from_parts() {
+        for &(n, (hi, lo)) in I128_PARTS {
+            assert_eq!(::utils::i128_from_parts(hi, lo), n);
+        }
+    }
+
+    #[test]
+    fn i128_to_parts() {
+        for &(n, (hi, lo)) in I128_PARTS {
+            assert_eq!(::utils::i128_to_parts(n), (hi, lo));
+        }
+    }
+
+
+    const U128_PARTS: &[(u128, (u64, u64))] = &[
+        (0x0000_0000_0000_0000_0000_0000_0000_0000, (0x0000_0000_0000_0000, 0x0000_0000_0000_0000)),
+        (0x0000_0000_0000_0000_FFFF_FFFF_FFFF_FFFF, (0x0000_0000_0000_0000, 0xFFFF_FFFF_FFFF_FFFF)),
+        (0x7777_7777_7777_7777_FFFF_FFFF_FFFF_FFFF, (0x7777_7777_7777_7777, 0xFFFF_FFFF_FFFF_FFFF)),
+        (0x8000_0000_0000_0000_0000_0000_0000_0000, (0x8000_0000_0000_0000, 0x0000_0000_0000_0000)),
+        (0xFFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF_FFFF, (0xFFFF_FFFF_FFFF_FFFF, 0xFFFF_FFFF_FFFF_FFFF)),
+    ];
+
+    #[test]
+    fn u128_from_parts() {
+        for &(n, (hi, lo)) in U128_PARTS {
+            assert_eq!(::utils::u128_from_parts(hi, lo), n);
+        }
+    }
+
+    #[test]
+    fn u128_to_parts() {
+        for &(n, (hi, lo)) in U128_PARTS {
+            assert_eq!(::utils::u128_to_parts(n), (hi, lo));
+        }
+    }
+
+    #[cfg(feature = "quickcheck")]
+    mod quickcheck {
+        quickcheck! {
+            // Quickcheck doesn't have an `Arbitrary` impl for `i128`/`u128`, so we need a
+            // workaround.
+            fn i128_parts_roundtrip(parts: (i64, u64)) -> bool {
+                let (hi, lo) = parts;
+                let n = ::utils::i128_from_parts(hi, lo);
+                let (hi2, lo2) = ::utils::i128_to_parts(n);
+
+                (hi, lo) == (hi2, lo2)
+            }
+
+            fn u128_parts_roundtrip(parts: (u64, u64)) -> bool {
+                let (hi, lo) = parts;
+                let n = ::utils::u128_from_parts(hi, lo);
+                let (hi2, lo2) = ::utils::u128_to_parts(n);
+
+                (hi, lo) == (hi2, lo2)
+            }
+        }
+    }
+}

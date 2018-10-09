@@ -7,7 +7,7 @@ use serde::ser::{self, Serialize};
 
 use error::{self, SerErrorKind, SerSerdeType};
 use identifiable::Identifiable;
-use utils::safe_uint_cast;
+use utils::{i128_to_parts, safe_uint_cast, u128_to_parts};
 
 
 /// A structure for serializing Rust values into MTProto binary representation.
@@ -120,10 +120,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
     #[cfg(stable_i128)]
     fn serialize_i128(self, value: i128) -> error::Result<()> {
-        #[cfg_attr(feature = "cargo-clippy", allow(clippy::cast_sign_loss, clippy::cast_possible_truncation))]
-        let lo = value as u64;
-        #[cfg_attr(feature = "cargo-clippy", allow(clippy::cast_possible_truncation))]
-        let hi = (value >> 64) as i64;
+        let (hi, lo) = i128_to_parts(value);
         WriteBytesExt::write_u64::<LittleEndian>(&mut self.writer, lo)?;
         WriteBytesExt::write_i64::<LittleEndian>(&mut self.writer, hi)?;
         debug!("Serialized i128: {:#x}", value);
@@ -137,10 +134,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
     #[cfg(stable_i128)]
     fn serialize_u128(self, value: u128) -> error::Result<()> {
-        #[cfg_attr(feature = "cargo-clippy", allow(clippy::cast_possible_truncation))]
-        let lo = value as u64;
-        #[cfg_attr(feature = "cargo-clippy", allow(clippy::cast_possible_truncation))]
-        let hi = (value >> 64) as u64;
+        let (hi, lo) = u128_to_parts(value);
         WriteBytesExt::write_u64::<LittleEndian>(&mut self.writer, lo)?;
         WriteBytesExt::write_u64::<LittleEndian>(&mut self.writer, hi)?;
         debug!("Serialized u128: {:#x}", value);

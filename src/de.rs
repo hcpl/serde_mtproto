@@ -7,7 +7,7 @@ use serde::de::{self, Deserialize, DeserializeOwned, DeserializeSeed, Visitor};
 
 use error::{self, DeErrorKind, DeSerdeType};
 use identifiable::{BOOL_FALSE_ID, BOOL_TRUE_ID};
-use utils::{safe_float_cast, safe_int_cast, safe_uint_cast};
+use utils::{i128_from_parts, safe_float_cast, safe_int_cast, safe_uint_cast, u128_from_parts};
 
 
 /// A structure that deserializes  MTProto binary representation into Rust values.
@@ -180,7 +180,7 @@ impl<'de, 'a, 'ids, R> de::Deserializer<'de> for &'a mut Deserializer<'ids, R>
     {
         let lo = self.reader.read_u64::<LittleEndian>()?;
         let hi = self.reader.read_i64::<LittleEndian>()?;
-        let value = i128::from(hi) << 64 | i128::from(lo);
+        let value = i128_from_parts(hi, lo);
         debug!("Deserialized i128: {:#x}", value);
 
         visitor.visit_i128(value)
@@ -197,7 +197,7 @@ impl<'de, 'a, 'ids, R> de::Deserializer<'de> for &'a mut Deserializer<'ids, R>
     {
         let lo = self.reader.read_u64::<LittleEndian>()?;
         let hi = self.reader.read_u64::<LittleEndian>()?;
-        let value = u128::from(hi) << 64 | u128::from(lo);
+        let value = u128_from_parts(hi, lo);
         debug!("Deserialized u128: {:#x}", value);
 
         visitor.visit_u128(value)

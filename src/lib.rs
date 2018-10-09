@@ -123,6 +123,7 @@ extern crate extprim;
 extern crate log;
 extern crate num_traits;
 #[cfg(feature = "quickcheck")]
+#[cfg_attr(all(test, stable_i128), macro_use)]
 extern crate quickcheck;
 extern crate serde;
 extern crate serde_bytes;
