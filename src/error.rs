@@ -25,13 +25,13 @@ error_chain! {
         }
 
         /// Error while casting a signed integer.
-        SignedIntegerCast(num: i64) {
+        SignedIntegerCast(num: ::utils::IntMax) {
             description("error while casting a signed integer")
             display("error while casting a signed integer: {}", num)
         }
 
         /// Error while casting an unsigned integer.
-        UnsignedIntegerCast(num: u64) {
+        UnsignedIntegerCast(num: ::utils::UIntMax) {
             description("error while casting an unsigned integer")
             display("error while casting an unsigned integer: {}", num)
         }

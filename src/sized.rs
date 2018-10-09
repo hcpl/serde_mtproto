@@ -103,14 +103,14 @@ pub trait MtProtoSized {
 
 
 macro_rules! impl_mt_proto_sized_for_primitives {
-    ($($type:ty => $size:expr,)*) => {
+    ($($type:ty => $size:expr,)+) => {
         $(
             impl MtProtoSized for $type {
                 fn size_hint(&self) -> error::Result<usize> {
                     Ok($size)
                 }
             }
-        )*
+        )+
     };
 }
 
@@ -118,16 +118,16 @@ impl_mt_proto_sized_for_primitives! {
     bool => BOOL_SIZE,
 
     // Minimum MTProto integer size is 4 bytes
-    i8    => INT_SIZE,
-    i16   => INT_SIZE,
-    i32   => INT_SIZE,
-    i64   => LONG_SIZE,
+    i8  => INT_SIZE,
+    i16 => INT_SIZE,
+    i32 => INT_SIZE,
+    i64 => LONG_SIZE,
 
     // Same here
-    u8    => INT_SIZE,
-    u16   => INT_SIZE,
-    u32   => INT_SIZE,
-    u64   => LONG_SIZE,
+    u8  => INT_SIZE,
+    u16 => INT_SIZE,
+    u32 => INT_SIZE,
+    u64 => LONG_SIZE,
 
     f32 => DOUBLE_SIZE,
     f64 => DOUBLE_SIZE,
@@ -278,13 +278,13 @@ impl MtProtoSized for ByteBuf {
 
 macro_rules! impl_mt_proto_sized_for_tuple {
     ($($ident:ident : $ty:ident ,)+) => {
-        impl<$($ty),*> MtProtoSized for ($($ty,)*)
-            where $($ty: MtProtoSized,)*
+        impl<$($ty),+> MtProtoSized for ($($ty,)+)
+            where $($ty: MtProtoSized,)+
         {
             fn size_hint(&self) -> error::Result<usize> {
                 let mut result = 0;
-                let &($(ref $ident,)*) = self;
-                $( result += $ident.size_hint()?; )*
+                let ($(ref $ident,)+) = *self;
+                $( result += $ident.size_hint()?; )+
                 Ok(result)
             }
         }
@@ -331,8 +331,8 @@ macro_rules! impl_mt_proto_sized_for_arrays {
         }
     };
 
-    ($($size:expr),*) => {
-        $( impl_mt_proto_sized_for_arrays!(__impl $size); )*
+    ($($size:expr),+) => {
+        $( impl_mt_proto_sized_for_arrays!(__impl $size); )+
     };
 }
 
