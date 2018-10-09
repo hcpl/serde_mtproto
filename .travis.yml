@@ -56,8 +56,6 @@ matrix:
       install:
         - rustup component add clippy-preview
       script:
-        - cargo test --verbose --all --benches --features "${FEATURES}" &&
-        - cargo clippy --verbose --all --features "${FEATURES}"
         - |
           for features in \
               "aggressive-rustc-lints nightly test-nightly-regressions version-sync" \
@@ -73,7 +71,7 @@ matrix:
 
     # Host documentation on <https://hcpl.github.com/serde_mtproto>
     - rust: nightly
-      env: DOC_UPLOAD  # Just a marker visible from Travis logs
+      env: DESCRIPTION="build and upload docs"
       install:
         - cargo install cargo-update || echo "cargo-update already installed"
         - cargo install cargo-travis || echo "cargo-travis already installed"
