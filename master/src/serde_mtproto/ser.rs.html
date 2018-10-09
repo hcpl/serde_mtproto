@@ -538,6 +538,8 @@
 <span id="538">538</span>
 <span id="539">539</span>
 <span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! Serialize a Rust data structure into its MTProto binary representation.</span>
 
@@ -548,7 +550,9 @@
 
 <span class="kw">use</span> <span class="ident">error</span>::{<span class="self">self</span>, <span class="ident">SerErrorKind</span>, <span class="ident">SerSerdeType</span>};
 <span class="kw">use</span> <span class="ident">identifiable</span>::<span class="ident">Identifiable</span>;
-<span class="kw">use</span> <span class="ident">utils</span>::{<span class="ident">i128_to_parts</span>, <span class="ident">safe_uint_cast</span>, <span class="ident">u128_to_parts</span>};
+<span class="kw">use</span> <span class="ident">utils</span>::<span class="ident">safe_uint_cast</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">stable_i128</span>)]</span>
+<span class="kw">use</span> <span class="ident">utils</span>::{<span class="ident">i128_to_parts</span>, <span class="ident">u128_to_parts</span>};
 
 
 <span class="doccomment">/// A structure for serializing Rust values into MTProto binary representation.</span>

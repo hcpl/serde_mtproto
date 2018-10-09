@@ -573,6 +573,8 @@
 <span id="573">573</span>
 <span id="574">574</span>
 <span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
 </pre><pre class="rust ">
 <span class="doccomment">//! Deserialize MTProto binary representation to a Rust data structure.</span>
 
@@ -583,7 +585,9 @@
 
 <span class="kw">use</span> <span class="ident">error</span>::{<span class="self">self</span>, <span class="ident">DeErrorKind</span>, <span class="ident">DeSerdeType</span>};
 <span class="kw">use</span> <span class="ident">identifiable</span>::{<span class="ident">BOOL_FALSE_ID</span>, <span class="ident">BOOL_TRUE_ID</span>};
-<span class="kw">use</span> <span class="ident">utils</span>::{<span class="ident">i128_from_parts</span>, <span class="ident">safe_float_cast</span>, <span class="ident">safe_int_cast</span>, <span class="ident">safe_uint_cast</span>, <span class="ident">u128_from_parts</span>};
+<span class="kw">use</span> <span class="ident">utils</span>::{<span class="ident">safe_float_cast</span>, <span class="ident">safe_int_cast</span>, <span class="ident">safe_uint_cast</span>};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">stable_i128</span>)]</span>
+<span class="kw">use</span> <span class="ident">utils</span>::{<span class="ident">i128_from_parts</span>, <span class="ident">u128_from_parts</span>};
 
 
 <span class="doccomment">/// A structure that deserializes  MTProto binary representation into Rust values.</span>
