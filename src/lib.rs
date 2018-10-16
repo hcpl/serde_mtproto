@@ -11,7 +11,6 @@
 // See <https://github.com/rust-lang/rust/issues/50907> for details.
 #![cfg_attr(feature = "nightly", feature(exhaustive_integer_patterns))]
 #![cfg_attr(feature = "test-nightly-regressions", feature(nll))]
-#![cfg_attr(feature = "cargo-clippy", feature(tool_lints))]
 
 
 // ========== RUSTC LINTS ========== //

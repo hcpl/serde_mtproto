@@ -54,7 +54,13 @@ matrix:
     - rust: nightly
       env: DESCRIPTION="nightly Rust, clippy"
       install:
-        - rustup component add clippy-preview
+        - |
+          if rustup component add clippy-preview; then
+              HAS_CLIPPY=true
+          else
+              echo 'Could not install clippy'
+              HAS_CLIPPY=false
+          fi
       script:
         - |
           for features in \
@@ -66,7 +72,10 @@ matrix:
               cargo test --verbose --all --lib --features "${features}"
               cargo test --verbose --all --tests --features "${features}"
               cargo test --verbose --all --benches --features "${features}"
-              cargo clippy --verbose --all --features "${features}"
+
+              if "${HAS_CLIPPY}"; then
+                  cargo clippy --verbose --all --features "${features}"
+              fi
           done
 
     # Host documentation on <https://hcpl.github.com/serde_mtproto>
