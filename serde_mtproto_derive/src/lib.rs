@@ -53,26 +53,34 @@ extern crate quote;
 extern crate syn;
 
 
-mod mt_proto_identifiable;
-mod mt_proto_sized;
+#[macro_use]
+mod macros;
+
+mod ast;
+mod identifiable;
+mod sized;
 
 
 use proc_macro::TokenStream;
 
-use mt_proto_identifiable::impl_mt_proto_identifiable;
-use mt_proto_sized::impl_mt_proto_sized;
+use identifiable::impl_mt_proto_identifiable;
+use sized::impl_mt_proto_sized;
 
 
 #[proc_macro_derive(MtProtoIdentifiable, attributes(mtproto_identifiable))]
 pub fn mt_proto_identifiable(input: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(input as syn::DeriveInput);
-    let res = impl_mt_proto_identifiable(&ast);
-    res.into()
+    let container = ast::Container::from_derive_input(ast)
+        .expect("Cannot derive `mtproto::Identifiable` for unions.");
+
+    impl_mt_proto_identifiable(container).into()
 }
 
 #[proc_macro_derive(MtProtoSized, attributes(mtproto_sized))]
 pub fn mt_proto_sized(input: TokenStream) -> TokenStream {
-    let mut ast = parse_macro_input!(input as syn::DeriveInput);
-    let res = impl_mt_proto_sized(&mut ast);
-    res.into()
+    let ast = parse_macro_input!(input as syn::DeriveInput);
+    let container = ast::Container::from_derive_input(ast)
+        .expect("Cannot derive `mtproto::MtProtoSized` for unions.");
+
+    impl_mt_proto_sized(container).into()
 }

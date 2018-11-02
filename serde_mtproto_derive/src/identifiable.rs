@@ -1,59 +1,54 @@
 use proc_macro2;
-use syn::{Attribute, AttrStyle, Data, DeriveInput, Lit, Meta, NestedMeta};
+use syn;
+
+use ast;
 
 
-macro_rules! ident {
-    ($($format_args:tt)*) => {
-        ::proc_macro2::Ident::new(&format!($($format_args)*), ::proc_macro2::Span::call_site())
-    };
-}
+pub(crate) fn impl_mt_proto_identifiable(container: ast::Container) -> proc_macro2::TokenStream {
+    let (item_impl_generics, item_ty_generics, item_where_clause) =
+        container.generics.split_for_impl();
 
-pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> proc_macro2::TokenStream {
-    let (item_impl_generics, item_ty_generics, item_where_clause) = ast.generics.split_for_impl();
-
-    let item_name = &ast.ident;
+    let item_name = &container.ident;
 
     let dummy_const = ident!("_IMPL_MT_PROTO_IDENTIFIABLE_FOR_{}", item_name);
     let all_type_ids_const = ident!("_ALL_TYPE_IDS_OF_{}", item_name);
     let all_enum_variant_names_const = ident!("_ALL_ENUM_VARIANT_NAMES_OF_{}", item_name);
 
-    let all_type_ids_value = match ast.data {
-        Data::Struct(_) => {
-            let id = get_id_from_attrs(&ast.attrs);
+    let all_type_ids_value = match container.data {
+        ast::Data::Struct(_) => {
+            let id = get_id_from_attrs(&container.attrs);
 
-            quote! { &[#id] }
+            quote!(&[#id])
         },
-        Data::Enum(ref data_enum) => {
+        ast::Data::Enum(ref data_enum) => {
             let ids = data_enum.variants
                 .iter()
                 .map(|v| get_id_from_attrs(&v.attrs));
 
-            quote! { &[#(#ids),*] }
+            quote!(&[#(#ids),*])
         },
-        Data::Union(_) => panic!("Cannot derive `mtproto::Identifiable` for unions."),
     };
 
-    let all_enum_variant_names_value = match ast.data {
-        Data::Struct(_) => {
-            quote! { None }
+    let all_enum_variant_names_value = match container.data {
+        ast::Data::Struct(_) => {
+            quote!(None)
         },
-        Data::Enum(ref data_enum) => {
+        ast::Data::Enum(ref data_enum) => {
             let names = data_enum.variants
                 .iter()
                 .map(|v| proc_macro2::Literal::string(&v.ident.to_string()));
 
-            quote! { Some(&[#(#names),*]) }
+            quote!(Some(&[#(#names),*]))
         },
-        Data::Union(_) => panic!("Cannot derive `mtproto::Identifiable` for unions."),
     };
 
-    let type_id_body = match ast.data {
-        Data::Struct(_) => {
-            let id = get_asserted_id_from_attrs(&ast.attrs);
+    let type_id_body = match container.data {
+        ast::Data::Struct(_) => {
+            let id = get_asserted_id_from_attrs(&container.attrs);
 
-            quote! { #id }
+            quote!(#id)
         },
-        Data::Enum(ref data_enum) => {
+        ast::Data::Enum(ref data_enum) => {
             let variants = data_enum.variants.iter().map(|variant| {
                 let variant_name = &variant.ident;
                 let id = get_asserted_id_from_attrs(&variant.attrs);
@@ -69,14 +64,13 @@ pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> proc_macro2::TokenStream
                 }
             }
         },
-        Data::Union(_) => panic!("Cannot derive `mtproto::Identifiable` for unions."),
     };
 
-    let enum_variant_id_body = match ast.data {
-        Data::Struct(_) => {
+    let enum_variant_id_body = match container.data {
+        ast::Data::Struct(_) => {
             quote! { None }
         },
-        Data::Enum(ref data_enum) => {
+        ast::Data::Enum(ref data_enum) => {
             let variants = data_enum.variants.iter().map(|variant| {
                 let variant_name = &variant.ident;
                 let variant_name_string = proc_macro2::Literal::string(&variant_name.to_string());
@@ -94,7 +88,6 @@ pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> proc_macro2::TokenStream
                 Some(variant_id)
             }
         },
-        Data::Union(_) => panic!("Cannot derive `mtproto::Identifiable` for unions."),
     };
 
     // TODO: Use rvalue static promotion syntax after bumping minimum supported Rust version to 1.21
@@ -130,41 +123,31 @@ pub fn impl_mt_proto_identifiable(ast: &DeriveInput) -> proc_macro2::TokenStream
 }
 
 
-fn get_asserted_id_from_attrs(attrs: &[Attribute]) -> proc_macro2::TokenStream {
+fn get_asserted_id_from_attrs(attrs: &[syn::Attribute]) -> proc_macro2::TokenStream {
     let id = get_id_from_attrs(attrs);
-    let check_expr = quote! {
-        Self::all_type_ids().contains(&#id)
-    };
+    let check_expr = quote!(Self::all_type_ids().contains(&#id));
 
     for attr in attrs {
-        if let AttrStyle::Inner(..) = attr.style {
+        if let syn::AttrStyle::Inner(..) = attr.style {
             continue;
         }
 
-        if let Some(Meta::List(list)) = attr.interpret_meta() {
+        if let Some(syn::Meta::List(list)) = attr.interpret_meta() {
             if list.ident == "mtproto_identifiable" {
                 for nested_meta in list.nested {
-                    if let NestedMeta::Meta(Meta::List(nested_list)) = nested_meta {
+                    if let syn::NestedMeta::Meta(syn::Meta::List(nested_list)) = nested_meta {
                         if nested_list.ident == "check_type_id" {
                             if nested_list.nested.len() != 1 {
                                 panic!("check_type_id must have exactly 1 argument");
                             }
 
-                            if let NestedMeta::Meta(Meta::Word(ref ident)) = nested_list.nested[0] {
+                            if let syn::NestedMeta::Meta(syn::Meta::Word(ref ident)) =
+                                nested_list.nested[0]
+                            {
                                 let res = match ident.to_string().as_ref() {
-                                    "never" => quote! { #id },
-                                    "debug_only" => quote! {
-                                        {
-                                            debug_assert!(#check_expr);
-                                            #id
-                                        }
-                                    },
-                                    "always" => quote! {
-                                        {
-                                            assert!(#check_expr);
-                                            #id
-                                        }
-                                    },
+                                    "never" => quote!(#id),
+                                    "debug_only" => quote!({ debug_assert!(#check_expr); #id }),
+                                    "always" => quote!({ assert!(#check_expr); #id }),
                                     _ => continue,
                                 };
 
@@ -177,26 +160,21 @@ fn get_asserted_id_from_attrs(attrs: &[Attribute]) -> proc_macro2::TokenStream {
         }
     }
 
-    quote! {
-        {
-            assert!(#check_expr);
-            #id
-        }
-    }
+    quote!({ assert!(#check_expr); #id })
 }
 
-fn get_id_from_attrs(attrs: &[Attribute]) -> u32 {
+fn get_id_from_attrs(attrs: &[syn::Attribute]) -> u32 {
     for attr in attrs {
-        if let AttrStyle::Inner(..) = attr.style {
+        if let syn::AttrStyle::Inner(..) = attr.style {
             continue;
         }
 
-        if let Some(Meta::List(list)) = attr.interpret_meta() {
+        if let Some(syn::Meta::List(list)) = attr.interpret_meta() {
             if list.ident == "mtproto_identifiable" {
                 for nested_meta in list.nested {
-                    if let NestedMeta::Meta(Meta::NameValue(name_value)) = nested_meta {
+                    if let syn::NestedMeta::Meta(syn::Meta::NameValue(name_value)) = nested_meta {
                         if name_value.ident == "id" {
-                            if let Lit::Str(lit_str) = name_value.lit {
+                            if let syn::Lit::Str(lit_str) = name_value.lit {
                                 // Found an identifier
                                 let str_value = lit_str.value();
 
