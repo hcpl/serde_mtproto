@@ -1,8 +1,8 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `env_logger` crate."><meta name="keywords" content="rust, rustlang, rust-lang, env_logger"><title>env_logger - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../dark.css"><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script src="../storage.js"></script><link rel="shortcut icon" href="http://www.rust-lang.org/favicon.ico"></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../env_logger/index.html'><img src='http://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png' alt='logo' width='100'></a><p class='location'>Crate env_logger</p><div class="sidebar-elems"><a id='all-types' href='all.html'><p>See all env_logger's items</p></a><div class="block items"><ul><li><a href="#reexports">Re-exports</a></li><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#constants">Constants</a></li><li><a href="#functions">Functions</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'env_logger', ty: 'mod', relpath: '../'};</script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><input class="search-input" name="search" autocomplete="off" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../src/env_logger/lib.rs.html#11-1125' title='goto source code'>[src]</a></span><span class='in-band'>Crate <a class="mod" href=''>env_logger</a></span></h1><div class='docblock'><p>A simple logger configured via environment variables which writes
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `env_logger` crate."><meta name="keywords" content="rust, rustlang, rust-lang, env_logger"><title>env_logger - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../dark.css"><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script src="../storage.js"></script><link rel="shortcut icon" href="http://www.rust-lang.org/favicon.ico"></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../env_logger/index.html'><img src='http://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png' alt='logo' width='100'></a><p class='location'>Crate env_logger</p><div class="sidebar-elems"><a id='all-types' href='all.html'><p>See all env_logger's items</p></a><div class="block items"><ul><li><a href="#reexports">Re-exports</a></li><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#constants">Constants</a></li><li><a href="#functions">Functions</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'env_logger', ty: 'mod', relpath: '../'};</script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../src/env_logger/lib.rs.html#11-1125' title='goto source code'>[src]</a></span><span class='in-band'>Crate <a class="mod" href=''>env_logger</a></span></h1><div class='docblock'><p>A simple logger configured via environment variables which writes
 to stdout or stderr, for use with the logging facade exposed by the
 <a href="https://docs.rs/log/"><code>log</code> crate</a>.</p>
 <h2 id="example" class="section-header"><a href="#example">Example</a></h2>
-<pre class="rust rust-example-rendered">
+<div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span> <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">env_logger</span>;
 
@@ -18,7 +18,7 @@ to stdout or stderr, for use with the logging facade exposed by the
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="number">3</span> <span class="op">*</span> <span class="number">4</span>; <span class="comment">// expensive computation</span>
         <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;the answer was: {}&quot;</span>, <span class="ident">x</span>);
     }
-}</pre>
+}</pre></div>
 <p>Assumes the binary is <code>main</code>:</p>
 <pre><code class="language-{.bash}">$ RUST_LOG=error ./main
 ERROR: 2017-11-09T02:12:24Z: main: this is printed by default
@@ -113,7 +113,7 @@ This includes emitting ANSI colors on Windows if the console API is unavailable.
 <p>Parts of the default format can be excluded from the log output using the <a href="struct.Builder.html"><code>Builder</code></a>.
 The following example excludes the timestamp from the log output:</p>
 
-<pre class="rust rust-example-rendered">
+<div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span> <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">env_logger</span>;
 
@@ -131,14 +131,14 @@ The following example excludes the timestamp from the log output:</p>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="number">3</span> <span class="op">*</span> <span class="number">4</span>; <span class="comment">// expensive computation</span>
         <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;the answer was: {}&quot;</span>, <span class="ident">x</span>);
     }
-}</pre>
+}</pre></div>
 <h2 id="specifying-defaults-for-environment-variables" class="section-header"><a href="#specifying-defaults-for-environment-variables">Specifying defaults for environment variables</a></h2>
 <p><code>env_logger</code> can read configuration from environment variables.
 If these variables aren't present, the default value to use can be tweaked with the <a href="struct.Env.html"><code>Env</code></a> type.
 The following example defaults to log <code>warn</code> and above if the <code>RUST_LOG</code> environment variable
 isn't set:</p>
 
-<pre class="rust rust-example-rendered">
+<div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span> <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">env_logger</span>;
 
@@ -149,7 +149,7 @@ isn't set:</p>
         .<span class="ident">filter_or</span>(<span class="ident">env_logger</span>::<span class="ident">DEFAULT_FILTER_ENV</span>, <span class="string">&quot;warn&quot;</span>);
  
     <span class="ident">env_logger</span>::<span class="ident">Builder</span>::<span class="ident">from_env</span>(<span class="ident">env</span>).<span class="ident">init</span>();
-}</pre>
+}</pre></div>
 </div><h2 id='reexports' class='section-header'><a href="#reexports">Re-exports</a></h2>
 <table><tr><td><code>pub use self::fmt::<a class="enum" href="../env_logger/fmt/enum.Target.html" title="enum env_logger::fmt::Target">Target</a>;</code></td></tr><tr><td><code>pub use self::fmt::<a class="enum" href="../env_logger/fmt/enum.WriteStyle.html" title="enum env_logger::fmt::WriteStyle">WriteStyle</a>;</code></td></tr><tr><td><code>pub use self::fmt::<a class="enum" href="../env_logger/fmt/enum.Color.html" title="enum env_logger::fmt::Color">Color</a>;</code></td></tr><tr><td><code>pub use self::fmt::<a class="struct" href="../env_logger/fmt/struct.Formatter.html" title="struct env_logger::fmt::Formatter">Formatter</a>;</code></td></tr></table><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
 <table>
