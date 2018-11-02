@@ -1,9 +1,9 @@
 use proc_macro2::{self, Span};
-use quote::TokenStreamExt;
 use syn::{
-    Attribute, AttrStyle, Data, DeriveInput, Field, Fields, GenericParam, Ident, Index,
+    AttrStyle, Data, DeriveInput, Field, Fields, GenericParam, Ident, Index,
     Meta, NestedMeta, TraitBoundModifier, TypeParamBound,
 };
+use syn::spanned::Spanned;
 
 
 pub fn impl_mt_proto_sized(ast: &mut DeriveInput) -> proc_macro2::TokenStream {
@@ -16,113 +16,107 @@ pub fn impl_mt_proto_sized(ast: &mut DeriveInput) -> proc_macro2::TokenStream {
 
     let size_hint_body = match ast.data {
         Data::Struct(ref data_struct) => {
-            let mut fields_quoted = quote! { 0 };
-
             match data_struct.fields {
-                Fields::Named(ref fields_named) => {
-                    for field_n in &fields_named.named {
-                        if is_skippable_field(field_n) {
-                            continue;
+                Fields::Named(ref fields) => {
+                    let size_hints = fields.named.iter().filter_map(|field| {
+                        if is_skippable_field(field) {
+                            return None;
                         }
 
-                        let field_name = &field_n.ident;
+                        let field_name = &field.ident;
+                        let func = quote_spanned! {field.span()=>
+                            _serde_mtproto::MtProtoSized::size_hint
+                        };
 
-                        fields_quoted.append_all(&[quote! {
-                            + _serde_mtproto::MtProtoSized::size_hint(&self.#field_name)?
-                        }]);
-                    }
+                        Some(quote!(#func(&self.#field_name)?))
+                    });
+
+                    quote!(Ok(0 #(+ #size_hints)*))
                 },
-                Fields::Unnamed(ref fields_unnamed) => {
-                    for (i, field_u) in fields_unnamed.unnamed.iter().enumerate() {
-                        if is_skippable_field(field_u) {
-                            continue;
+                Fields::Unnamed(ref fields) => {
+                    let size_hints = fields.unnamed.iter().enumerate().filter_map(|(i, field)| {
+                        if is_skippable_field(field) {
+                            return None;
                         }
-
-                        assert!(i < u32::max_value() as usize);
 
                         // Integers are rendered with type suffixes. We don't want this.
-                        let i = Index {
-                            index: i as u32,
-                            span: Span::call_site()
+                        let field_index = Index::from(i);
+                        let func = quote_spanned! {field.span()=>
+                            _serde_mtproto::MtProtoSized::size_hint
                         };
 
-                        fields_quoted.append_all(&[quote! {
-                            + _serde_mtproto::MtProtoSized::size_hint(&self.#i)?
-                        }]);
-                    }
-                },
-                Fields::Unit => (),
-            }
+                        Some(quote!(#func(&self.#field_index)?))
+                    });
 
-            quote! { Ok(#fields_quoted) }
+                    quote!(Ok(0 #(+ #size_hints)*))
+                },
+                Fields::Unit => quote! { Ok(0) },
+            }
         },
         Data::Enum(ref data_enum) => {
-            let mut variants_quoted = proc_macro2::TokenStream::new();
-
-            for variant in &data_enum.variants {
+            let variants_quoted = data_enum.variants.iter().map(|variant| {
                 let variant_name = &variant.ident;
 
-                let pattern_match_quoted;
-                let mut fields_quoted = quote! { 0 };
-
                 match variant.fields {
-                    Fields::Named(ref fields_named) => {
-                        let mut pattern_matches = Vec::new();
-
-                        for field_n in &fields_named.named {
-                            if is_skippable_field(field_n) {
-                                continue;
+                    Fields::Named(ref fields) => {
+                        let (patterns, size_hints) = fields.named.iter().filter_map(|field| {
+                            if is_skippable_field(field) {
+                                return None;
                             }
 
-                            let field_name = &field_n.ident;
+                            let field_name = &field.ident;
+                            let func = quote_spanned! {field.span()=>
+                                _serde_mtproto::MtProtoSized::size_hint
+                            };
 
-                            pattern_matches.push(quote! { ref #field_name });
+                            let pattern = quote!(ref #field_name);
+                            let size_hint = quote!(#func(#field_name)?);
 
-                            fields_quoted.append_all(&[quote! {
-                                + _serde_mtproto::MtProtoSized::size_hint(#field_name)?
-                            }]);
+                            Some((pattern, size_hint))
+                        }).unzip::<_, _, Vec<_>, Vec<_>>();
+
+                        quote! {
+                            #item_name::#variant_name { #(#patterns),* } => {
+                                Ok(0 #(+ #size_hints)*)
+                            }
                         }
-
-                        pattern_match_quoted = quote! {
-                            { #(#pattern_matches),* }
-                        };
                     },
-                    Fields::Unnamed(ref fields_unnamed) => {
-                        let mut pattern_matches = Vec::new();
-
-                        for (i, field_u) in fields_unnamed.unnamed.iter().enumerate() {
-                            if is_skippable_field(field_u) {
-                                continue;
+                    Fields::Unnamed(ref fields) => {
+                        let (patterns, size_hints) = fields.unnamed.iter().enumerate()
+                            .filter_map(|(i, field)|
+                        {
+                            if is_skippable_field(field) {
+                                return None;
                             }
 
                             let field_name = Ident::new(&format!("__field_{}", i), Span::call_site());
+                            let func = quote_spanned! {field.span()=>
+                                _serde_mtproto::MtProtoSized::size_hint
+                            };
 
-                            pattern_matches.push(quote! { ref #field_name });
+                            let pattern = quote!(ref #field_name);
+                            let size_hint = quote!(#func(#field_name)?);
 
-                            fields_quoted.append_all(&[quote! {
-                                + _serde_mtproto::MtProtoSized::size_hint(#field_name)?
-                            }]);
+                            Some((pattern, size_hint))
+                        }).unzip::<_, _, Vec<_>, Vec<_>>();
+
+                        quote! {
+                            #item_name::#variant_name(#(#patterns),*) => {
+                                Ok(0 #(+ #size_hints)*)
+                            }
                         }
-
-                        pattern_match_quoted = quote! {
-                            (#(#pattern_matches),*)
-                        };
                     },
                     Fields::Unit => {
-                        pattern_match_quoted = quote! {};
+                        quote! {
+                            #item_name::#variant_name => Ok(0),
+                        }
                     },
                 }
-
-                variants_quoted.append_all(&[quote! {
-                    #item_name::#variant_name #pattern_match_quoted => {
-                        Ok(#fields_quoted)
-                    }
-                }]);
-            }
+            });
 
             quote! {
                 match *self {
-                    #variants_quoted
+                    #(#variants_quoted)*
                 }
             }
         },
@@ -178,19 +172,16 @@ fn add_mt_proto_sized_trait_bound_if_missing(ast: &mut DeriveInput) {
 
 fn is_skippable_field(field: &Field) -> bool {
     for attr in &field.attrs {
-        if let Attribute {
-            style: AttrStyle::Outer,
-            ..
-        } = *attr {
-            if let Some(Meta::List(ref list)) = attr.interpret_meta() {
-                if list.ident == "mtproto_sized" {
-                    for nested_meta in &list.nested {
-                        if let NestedMeta::Meta(ref meta) = *nested_meta {
-                            if let Meta::Word(ref ident) = *meta {
-                                if ident == "skip" {
-                                    return true;
-                                }
-                            }
+        if let AttrStyle::Inner(..) = attr.style {
+            continue;
+        }
+
+        if let Some(Meta::List(list)) = attr.interpret_meta() {
+            if list.ident == "mtproto_sized" {
+                for nested_meta in list.nested {
+                    if let NestedMeta::Meta(Meta::Word(ident)) = nested_meta {
+                        if ident == "skip" {
+                            return true;
                         }
                     }
                 }
