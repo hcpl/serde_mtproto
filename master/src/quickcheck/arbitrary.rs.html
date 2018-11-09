@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-1ecc6299db9ec823/quickcheck-0.6.2/src/arbitrary.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>arbitrary.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-1ecc6299db9ec823/quickcheck-0.7.2/src/arbitrary.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>arbitrary.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1251,6 +1251,44 @@
 <span id="1251">1251</span>
 <span id="1252">1252</span>
 <span id="1253">1253</span>
+<span id="1254">1254</span>
+<span id="1255">1255</span>
+<span id="1256">1256</span>
+<span id="1257">1257</span>
+<span id="1258">1258</span>
+<span id="1259">1259</span>
+<span id="1260">1260</span>
+<span id="1261">1261</span>
+<span id="1262">1262</span>
+<span id="1263">1263</span>
+<span id="1264">1264</span>
+<span id="1265">1265</span>
+<span id="1266">1266</span>
+<span id="1267">1267</span>
+<span id="1268">1268</span>
+<span id="1269">1269</span>
+<span id="1270">1270</span>
+<span id="1271">1271</span>
+<span id="1272">1272</span>
+<span id="1273">1273</span>
+<span id="1274">1274</span>
+<span id="1275">1275</span>
+<span id="1276">1276</span>
+<span id="1277">1277</span>
+<span id="1278">1278</span>
+<span id="1279">1279</span>
+<span id="1280">1280</span>
+<span id="1281">1281</span>
+<span id="1282">1282</span>
+<span id="1283">1283</span>
+<span id="1284">1284</span>
+<span id="1285">1285</span>
+<span id="1286">1286</span>
+<span id="1287">1287</span>
+<span id="1288">1288</span>
+<span id="1289">1289</span>
+<span id="1290">1290</span>
+<span id="1291">1291</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">char</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{
@@ -1273,14 +1311,14 @@
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">time</span>::<span class="ident">Duration</span>;
 
-<span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
+<span class="kw">use</span> <span class="ident">rand</span>::{<span class="self">self</span>, <span class="ident">Rng</span>, <span class="ident">RngCore</span>};
 
-<span class="doccomment">/// `Gen` wraps a `rand::Rng` with parameters to control the distribution of</span>
+<span class="doccomment">/// `Gen` wraps a `rand::RngCore` with parameters to control the distribution of</span>
 <span class="doccomment">/// random values.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// A value with type satisfying the `Gen` trait can be constructed with the</span>
 <span class="doccomment">/// `gen` function in this crate.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Gen</span> : <span class="ident">Rng</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Gen</span> : <span class="ident">RngCore</span> {
     <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">usize</span>;
 }
 
@@ -1293,29 +1331,66 @@
     <span class="ident">size</span>: <span class="ident">usize</span>,
 }
 
-<span class="doccomment">/// Returns a `StdGen` with the given configuration using any random number</span>
-<span class="doccomment">/// generator.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The `size` parameter controls the size of random values generated.</span>
-<span class="doccomment">/// For example, it specifies the maximum length of a randomly generated vector</span>
-<span class="doccomment">/// and also will specify the maximum magnitude of a randomly generated number.</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span> <span class="ident">StdGen</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">RngCore</span><span class="op">&gt;</span> <span class="ident">StdGen</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Returns a `StdGen` with the given configuration using any random number</span>
+    <span class="doccomment">/// generator.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The `size` parameter controls the size of random values generated. For</span>
+    <span class="doccomment">/// example, it specifies the maximum length of a randomly generated vector</span>
+    <span class="doccomment">/// and also will specify the maximum magnitude of a randomly generated</span>
+    <span class="doccomment">/// number.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">rng</span>: <span class="ident">R</span>, <span class="ident">size</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">StdGen</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
         <span class="ident">StdGen</span> { <span class="ident">rng</span>: <span class="ident">rng</span>, <span class="ident">size</span>: <span class="ident">size</span> }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span> <span class="ident">Rng</span> <span class="kw">for</span> <span class="ident">StdGen</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">RngCore</span><span class="op">&gt;</span> <span class="ident">RngCore</span> <span class="kw">for</span> <span class="ident">StdGen</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">next_u32</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u32</span> { <span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">next_u32</span>() }
 
     <span class="comment">// some RNGs implement these more efficiently than the default, so</span>
     <span class="comment">// we might as well defer to them.</span>
     <span class="kw">fn</span> <span class="ident">next_u64</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u64</span> { <span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">next_u64</span>() }
     <span class="kw">fn</span> <span class="ident">fill_bytes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) { <span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">fill_bytes</span>(<span class="ident">dest</span>) }
+    <span class="kw">fn</span> <span class="ident">try_fill_bytes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">rand</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">try_fill_bytes</span>(<span class="ident">dest</span>)
+    }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span> <span class="ident">Gen</span> <span class="kw">for</span> <span class="ident">StdGen</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">RngCore</span><span class="op">&gt;</span> <span class="ident">Gen</span> <span class="kw">for</span> <span class="ident">StdGen</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> { <span class="self">self</span>.<span class="ident">size</span> }
+}
+
+<span class="doccomment">/// StdThreadGen is an RNG in thread-local memory.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This is the default RNG used by quickcheck.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">StdThreadGen</span>(<span class="ident">StdGen</span><span class="op">&lt;</span><span class="ident">rand</span>::<span class="ident">rngs</span>::<span class="ident">ThreadRng</span><span class="op">&gt;</span>);
+
+<span class="kw">impl</span> <span class="ident">StdThreadGen</span> {
+    <span class="doccomment">/// Returns a new thread-local RNG.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The `size` parameter controls the size of random values generated. For</span>
+    <span class="doccomment">/// example, it specifies the maximum length of a randomly generated vector</span>
+    <span class="doccomment">/// and also will specify the maximum magnitude of a randomly generated</span>
+    <span class="doccomment">/// number.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">size</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">StdThreadGen</span> {
+        <span class="ident">StdThreadGen</span>(<span class="ident">StdGen</span> { <span class="ident">rng</span>: <span class="ident">rand</span>::<span class="ident">thread_rng</span>(), <span class="ident">size</span>: <span class="ident">size</span> })
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">RngCore</span> <span class="kw">for</span> <span class="ident">StdThreadGen</span> {
+    <span class="kw">fn</span> <span class="ident">next_u32</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u32</span> { <span class="self">self</span>.<span class="number">0</span>.<span class="ident">next_u32</span>() }
+
+    <span class="comment">// some RNGs implement these more efficiently than the default, so</span>
+    <span class="comment">// we might as well defer to them.</span>
+    <span class="kw">fn</span> <span class="ident">next_u64</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u64</span> { <span class="self">self</span>.<span class="number">0</span>.<span class="ident">next_u64</span>() }
+    <span class="kw">fn</span> <span class="ident">fill_bytes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) { <span class="self">self</span>.<span class="number">0</span>.<span class="ident">fill_bytes</span>(<span class="ident">dest</span>) }
+    <span class="kw">fn</span> <span class="ident">try_fill_bytes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">rand</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">try_fill_bytes</span>(<span class="ident">dest</span>)
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Gen</span> <span class="kw">for</span> <span class="ident">StdThreadGen</span> {
+    <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> { <span class="self">self</span>.<span class="number">0</span>.<span class="ident">size</span> }
 }
 
 <span class="doccomment">/// Creates a shrinker with zero elements.</span>
@@ -1760,6 +1835,7 @@
         <span class="kw">let</span> <span class="ident">here</span> <span class="op">=</span> <span class="ident">env</span>::<span class="ident">current_dir</span>()
             .<span class="ident">unwrap_or</span>(<span class="ident">PathBuf</span>::<span class="ident">from</span>(<span class="string">&quot;/test/directory&quot;</span>));
         <span class="kw">let</span> <span class="ident">temp</span> <span class="op">=</span> <span class="ident">env</span>::<span class="ident">temp_dir</span>();
+        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">deprecated</span>)]</span>
         <span class="kw">let</span> <span class="ident">home</span> <span class="op">=</span> <span class="ident">env</span>::<span class="ident">home_dir</span>()
             .<span class="ident">unwrap_or</span>(<span class="ident">PathBuf</span>::<span class="ident">from</span>(<span class="string">&quot;/home/user&quot;</span>));
         <span class="kw">let</span> <span class="ident">choices</span> <span class="op">=</span> <span class="kw-2">&amp;</span>[

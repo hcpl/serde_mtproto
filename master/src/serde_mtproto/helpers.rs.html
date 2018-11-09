@@ -156,13 +156,11 @@
 <span id="156">156</span>
 <span id="157">157</span>
 <span id="158">158</span>
-<span id="159">159</span>
-<span id="160">160</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Helper types for assisting in some [de]serialization scenarios.</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
-<span class="comment">//use std::mem;</span>
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
 
 <span class="kw">use</span> <span class="ident">byteorder</span>::{<span class="ident">ByteOrder</span>, <span class="ident">LittleEndian</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">de</span>::{<span class="self">self</span>, <span class="ident">Deserializer</span>, <span class="ident">DeserializeSeed</span>, <span class="ident">Error</span> <span class="kw">as</span> <span class="ident">DeError</span>, <span class="ident">Visitor</span>};
@@ -173,9 +171,7 @@
 <span class="kw">use</span> ::<span class="ident">utils</span>::<span class="ident">safe_uint_cast</span>;
 
 
-<span class="comment">// TODO: use `mem::size_of` const fn after bumping minimal Rust version to 1.22</span>
-<span class="comment">//const CHUNK_SIZE: usize = mem::size_of::&lt;u32&gt;() / mem::size_of::&lt;u8&gt;();</span>
-<span class="kw">const</span> <span class="ident">CHUNK_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">4</span>;
+<span class="kw">const</span> <span class="ident">CHUNK_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>() <span class="op">/</span> <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>();
 
 
 <span class="doccomment">/// A byte buffer which doesn&#39;t write its length when serialized.</span>

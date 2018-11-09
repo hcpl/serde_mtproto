@@ -201,12 +201,6 @@
 <span id="201">201</span>
 <span id="202">202</span>
 <span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">proc_macro2</span>;
 <span class="kw">use</span> <span class="ident">syn</span>;
@@ -221,8 +215,6 @@
     <span class="kw">let</span> <span class="ident">item_name</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">container</span>.<span class="ident">ident</span>;
 
     <span class="kw">let</span> <span class="ident">dummy_const</span> <span class="op">=</span> <span class="macro">ident</span><span class="macro">!</span>(<span class="string">&quot;_IMPL_MT_PROTO_IDENTIFIABLE_FOR_{}&quot;</span>, <span class="ident">item_name</span>);
-    <span class="kw">let</span> <span class="ident">all_type_ids_const</span> <span class="op">=</span> <span class="macro">ident</span><span class="macro">!</span>(<span class="string">&quot;_ALL_TYPE_IDS_OF_{}&quot;</span>, <span class="ident">item_name</span>);
-    <span class="kw">let</span> <span class="ident">all_enum_variant_names_const</span> <span class="op">=</span> <span class="macro">ident</span><span class="macro">!</span>(<span class="string">&quot;_ALL_ENUM_VARIANT_NAMES_OF_{}&quot;</span>, <span class="ident">item_name</span>);
 
     <span class="kw">let</span> <span class="ident">all_type_ids_value</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">container</span>.<span class="ident">data</span> {
         <span class="ident">ast</span>::<span class="ident">Data</span>::<span class="ident">Struct</span>(<span class="kw">_</span>) <span class="op">=&gt;</span> {
@@ -300,24 +292,20 @@
         },
     };
 
-    <span class="comment">// TODO: Use rvalue static promotion syntax after bumping minimum supported Rust version to 1.21</span>
     <span class="macro">quote</span><span class="macro">!</span> {
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_upper_case_globals</span>)]</span>
         <span class="kw">const</span> #<span class="ident">dummy_const</span>: () <span class="op">=</span> {
             <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">serde_mtproto</span> <span class="kw">as</span> <span class="ident">_serde_mtproto</span>;
 
-            <span class="kw">const</span> #<span class="ident">all_type_ids_const</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">u32</span>] <span class="op">=</span> #<span class="ident">all_type_ids_value</span>;
-            <span class="kw">const</span> #<span class="ident">all_enum_variant_names_const</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>]<span class="op">&gt;</span> <span class="op">=</span> #<span class="ident">all_enum_variant_names_value</span>;
-
             <span class="kw">impl</span> #<span class="ident">item_impl_generics</span> <span class="ident">_serde_mtproto</span>::<span class="ident">Identifiable</span> <span class="kw">for</span> #<span class="ident">item_name</span> #<span class="ident">item_ty_generics</span>
                 #<span class="ident">item_where_clause</span>
             {
                 <span class="kw">fn</span> <span class="ident">all_type_ids</span>() <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="ident">u32</span>] {
-                    #<span class="ident">all_type_ids_const</span>
+                    #<span class="ident">all_type_ids_value</span>
                 }
 
                 <span class="kw">fn</span> <span class="ident">all_enum_variant_names</span>() <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> [<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>]<span class="op">&gt;</span> {
-                    #<span class="ident">all_enum_variant_names_const</span>
+                    #<span class="ident">all_enum_variant_names_value</span>
                 }
 
                 <span class="kw">fn</span> <span class="ident">type_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u32</span> {
