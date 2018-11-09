@@ -139,12 +139,6 @@ impl_mt_proto_sized_for_primitives! {
     u128 => INT128_SIZE,
 }
 
-#[cfg(feature = "extprim")]
-impl_mt_proto_sized_for_primitives! {
-    ::extprim::i128::i128 => INT128_SIZE,
-    ::extprim::u128::u128 => INT128_SIZE,
-}
-
 
 /// Helper function for everything naturally representable as a byte sequence.
 ///

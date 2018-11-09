@@ -19,35 +19,30 @@ members = ["serde_mtproto_derive"]
 [dependencies]
 byteorder = "1.0"
 error-chain = "0.12"
-extprim = { version = "1.0", optional = true, default-features = false, features = ["use-std", "serde"] }
 log = "0.4"
 num-traits = "0.2"
-quickcheck = { version = "0.6", optional = true }
+quickcheck = { version = "0.7", optional = true }
 serde = "1.0"
 serde_bytes = "0.10"
 serde_derive = "1.0"
-# WARNING: The Cargo feature created here is not intended for public usage!
-# `version-sync` is in [dependencies] and not [dev-dependencies] because
-# dev-dependencies are not allowed to be optional
-version-sync = { version = "0.5", optional = true }
 
 [build-dependencies]
 version_check = "0.1"
 
 [dev-dependencies]
-derivative = "1.0"
-extprim = "1.0"  # To enable "rand" feature for tests
-lazy_static = "1.0"
+derivative = "1.0.2"
+lazy_static = "~1.2"
 lipsum = "0.5"
 maplit = "1.0"
 pretty_assertions = "0.5"
-#quickcheck_derive = "0.1"
-quickcheck_derive = { git = "https://github.com/hcpl/quickcheck_derive", branch = "further-development" }
-rand = "0.4"
+#quickcheck_derive = "0.2"
+quickcheck_derive = { git = "https://github.com/hcpl/quickcheck_derive", branch = "minimum-supported-rustc" }
+rand = "0.5"
 serde_json = "1.0"
 serde_mtproto_derive = { path = "serde_mtproto_derive", version = "=0.3.1" }  # Update in lockstep
-serde_yaml = "0.7"
+serde_yaml = "0.8"
 toml = "0.4"
+version-sync = "0.5"
 
 [features]
 default = []
@@ -69,7 +64,6 @@ name = "serde_interop"
 
 [[test]]
 name = "version_numbers"
-required-features = ["version-sync"]
 
 [[test]]
 name = "with_quickcheck"
@@ -77,4 +71,4 @@ required-features = ["quickcheck"]
 
 
 [package.metadata.docs.rs]
-features = ["extprim", "quickcheck"]
+features = ["quickcheck"]

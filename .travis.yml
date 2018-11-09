@@ -9,7 +9,7 @@ env:
 
 matrix:
   include:
-    - rust: 1.20.0
+    - rust: 1.24.1
       env: DESCRIPTION="minimum supported Rust"
       script:
         - |

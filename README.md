@@ -5,15 +5,18 @@
 ![Supported Rust Versions]
 ![License]
 [![Travis Build Status]][travis]
+[![Dependency Status]][deps]
 
 [Latest Version]: https://img.shields.io/crates/v/serde\_mtproto.svg
 [crates.io]: https://crates.io/crates/serde\_mtproto
 [Latest Docs]: https://docs.rs/serde_mtproto/badge.svg
 [docs.rs]: https://docs.rs/serde\_mtproto
-[Supported Rust Versions]: https://img.shields.io/badge/rustc-1.20+-red.svg
+[Supported Rust Versions]: https://img.shields.io/badge/rustc-1.24+-red.svg
 [License]: https://img.shields.io/crates/l/serde\_mtproto.svg
 [Travis Build Status]: https://api.travis-ci.org/hcpl/serde\_mtproto.svg?branch=master
 [travis]: https://travis-ci.org/hcpl/serde\_mtproto
+[Dependency Status]: https://deps.rs/repo/github/hcpl/serde\_mtproto/status.svg
+[deps]: https://deps.rs/repo/github/hcpl/serde\_mtproto
 
 [MTProto](https://core.telegram.org/mtproto) [de]serialization for Rust which
 utilizes [Serde](https://serde.rs) framework.
@@ -31,18 +34,15 @@ You may be looking for:
 - [Detailed documentation about Serde](https://serde.rs/)
 - [Setting up `#[derive(Serialize, Deserialize)]`](https://serde.rs/codegen.html)
 
-Supports Rust 1.20 and newer.
+Supports Rust 1.24 and newer.
 Older versions may work, but are not guaranteed to.
 
 ### Optional Cargo features
 
-- **`extprim`** — `MtProtoSized` implementations for `extprim::i128::i128` and
-  `extprim::u128::u128`.
-  Works on Rust 1.20+.
 - **`quickcheck`** — `quickcheck::Arbitrary` implmentations for several types
   defined in `serde_mtproto`.
   For now, those only include wrapper types `Boxed`, `WithSize`.
-  Works on Rust 1.20+.
+  Works on Rust 1.24+.
 
 ## Changelog
 

@@ -21,6 +21,7 @@
     deprecated,
     illegal_floating_point_literal_pattern,
     improper_ctypes,
+    late_bound_lifetime_arguments,
     non_camel_case_types,
     non_shorthand_field_patterns,
     non_snake_case,
@@ -30,6 +31,8 @@
     patterns_in_fns_without_body,
     private_in_public,
     renamed_and_removed_lints,
+    safe_packed_borrows,
+    tyvar_behind_raw_pointer,
     unconditional_recursion,
     unions_with_drop_fields,
     unknown_lints,
@@ -49,17 +52,6 @@
     unused_import_braces,
     unused_results,
 )]
-
-#![cfg_attr(lints_1_21, deny(
-    // Deny some warn-level lints available from Rust 1.21
-    late_bound_lifetime_arguments,
-))]
-
-#![cfg_attr(lints_1_24, deny(
-    // Deny some warn-level lints available from Rust 1.24
-    safe_packed_borrows,
-    tyvar_behind_raw_pointer,
-))]
 
 #![cfg_attr(all(lints_1_26, not(lints_1_27)), deny(
     // Deny some warn-level lints available from Rust 1.26 that are renamed in
@@ -126,8 +118,6 @@
 extern crate byteorder;
 #[macro_use]
 extern crate error_chain;
-#[cfg(feature = "extprim")]
-extern crate extprim;
 #[macro_use]
 extern crate log;
 extern crate num_traits;

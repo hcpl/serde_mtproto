@@ -1,8 +1,6 @@
 #![feature(test)]
 
 
-#[cfg(feature = "extprim")]
-extern crate extprim;
 extern crate rand;
 extern crate test;
 extern crate serde_mtproto;
@@ -81,24 +79,11 @@ bench_primitive! {
 }
 
 
-// Uncomment after switching to `rand` >=0.5 because `i128` support in 0.4
-// doesn't work for Rust 1.26+.
-//#[cfg(stable_i128)]
-//bench_primitive! {
-//    i128, i128_serialize => [u8; 16], i128_deserialize;
-//    u128, u128_serialize => [u8; 16], u128_deserialize;
-//
-//    (i128, i128), two_i128_tuple_serialize => [u8; 32], two_i128_tuple_deserialize;
-//    (u128, u128), two_u128_tuple_serialize => [u8; 32], two_u128_tuple_deserialize;
-//}
-
-#[cfg(feature = "extprim")]
+#[cfg(stable_i128)]
 bench_primitive! {
-    ::extprim::i128::i128, extprim_i128_serialize => [u8; 16], extprim_i128_deserialize;
-    ::extprim::u128::u128, extprim_u128_serialize => [u8; 16], extprim_u128_deserialize;
+    i128, i128_serialize => [u8; 16], i128_deserialize;
+    u128, u128_serialize => [u8; 16], u128_deserialize;
 
-    (::extprim::i128::i128, ::extprim::i128::i128),
-        two_extprim_i128_tuple_serialize => [u8; 32], two_extprim_i128_tuple_deserialize;
-    (::extprim::u128::u128, ::extprim::u128::u128),
-        two_extprim_u128_tuple_serialize => [u8; 32], two_extprim_u128_tuple_deserialize;
+    (i128, i128), two_i128_tuple_serialize => [u8; 32], two_i128_tuple_deserialize;
+    (u128, u128), two_u128_tuple_serialize => [u8; 32], two_u128_tuple_deserialize;
 }

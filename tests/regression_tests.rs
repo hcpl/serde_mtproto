@@ -2,8 +2,6 @@
 
 #[macro_use]
 extern crate derivative;
-#[cfg(feature = "extprim")]
-extern crate extprim;
 #[macro_use]
 extern crate lazy_static;
 #[macro_use]
@@ -20,11 +18,7 @@ extern crate serde_mtproto_derive;
 
 
 use std::collections::BTreeMap;
-#[cfg(feature = "extprim")]
-use std::str::FromStr;
 
-#[cfg(feature = "extprim")]
-use extprim::i128;
 use serde::de::{Deserializer, DeserializeSeed, Error as DeError};
 use serde_bytes::ByteBuf;
 use serde_mtproto_other_name::{Boxed, MtProtoSized, UnsizedByteBuf, UnsizedByteBufSeed,
@@ -102,8 +96,8 @@ enum Cafebabe<T> {
         position: (u64, u32),
         #[serde(bound = "T: ::serde_mtproto_other_name::Identifiable")]
         data: Boxed<T>,
-        #[cfg(feature = "extprim")]
-        bignum: i128::i128,
+        #[cfg(stable_i128)]
+        bignum: i128,
         ratio: f32,
     },
     #[mtproto_identifiable(id = "0xbaaaaaad")]
@@ -223,8 +217,8 @@ lazy_static! {
         byte_id: -20,
         position: (350, 142_857),
         data: Boxed::new(4096),
-        #[cfg(feature = "extprim")]
-        bignum: i128::i128::from_str("100000000000000000000000000000000000000").unwrap(),
+        #[cfg(stable_i128)]
+        bignum: 100000000000000000000000000000000000000,
         ratio: ::std::f32::consts::E,
     };
 
@@ -232,7 +226,7 @@ lazy_static! {
         // This is a hack to properly apply conditional compilation since `lazy_static` only
         // applies provided attributes to generated structs but not the generated static variable
         // declarations.
-        #[cfg(not(feature = "extprim"))]
+        #[cfg(not(stable_i128))]
         {
             vec![
                 0x0d, 0xf0, 0xad, 0x0b,          // id of Cafebabe::Bar in little-endian
@@ -246,7 +240,7 @@ lazy_static! {
             ]
         }
 
-        #[cfg(feature = "extprim")]
+        #[cfg(stable_i128)]
         {
             vec![
                 0x0d, 0xf0, 0xad, 0x0b,                // id of Cafebabe::Bar in little-endian

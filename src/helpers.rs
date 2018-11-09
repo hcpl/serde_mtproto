@@ -1,7 +1,7 @@
 //! Helper types for assisting in some [de]serialization scenarios.
 
 use std::fmt;
-//use std::mem;
+use std::mem;
 
 use byteorder::{ByteOrder, LittleEndian};
 use serde::de::{self, Deserializer, DeserializeSeed, Error as DeError, Visitor};
@@ -12,9 +12,7 @@ use ::sized::MtProtoSized;
 use ::utils::safe_uint_cast;
 
 
-// TODO: use `mem::size_of` const fn after bumping minimal Rust version to 1.22
-//const CHUNK_SIZE: usize = mem::size_of::<u32>() / mem::size_of::<u8>();
-const CHUNK_SIZE: usize = 4;
+const CHUNK_SIZE: usize = mem::size_of::<u32>() / mem::size_of::<u8>();
 
 
 /// A byte buffer which doesn't write its length when serialized.

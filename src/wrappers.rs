@@ -143,9 +143,7 @@ impl<'de, T> Deserialize<'de> for Boxed<T>
             Ok(Boxed::new(value))
         }
 
-        // TODO: Use rvalue static promotion after bumping minimal Rust version to 1.21
-        const FIELDS: &[&str] = &["id", "inner"];
-        deserializer.deserialize_struct("Boxed", FIELDS, BoxedVisitor(PhantomData))
+        deserializer.deserialize_struct("Boxed", &["id", "inner"], BoxedVisitor(PhantomData))
     }
 }
 

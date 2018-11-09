@@ -2,6 +2,7 @@
 extern crate quickcheck;
 #[macro_use]
 extern crate quickcheck_derive;
+extern crate rand;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
@@ -13,6 +14,7 @@ extern crate serde_mtproto_derive;
 use std::collections::BTreeMap;
 
 use quickcheck::TestResult;
+use rand::Rng;
 //use serde_mtproto::ByteBuf;
 use serde_mtproto::{Boxed, Identifiable, WithSize};
 
