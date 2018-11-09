@@ -13,12 +13,7 @@ matrix:
       env: DESCRIPTION="minimum supported Rust"
       script:
         - |
-          for features in \
-              "" \
-              "extprim" \
-              "quickcheck" \
-              "extprim quickcheck"
-          do
+          for features in "" "quickcheck"; do
               cargo test --verbose --all --lib --features "${features}"
               cargo test --verbose --all --tests --features "${features}"
           done
@@ -27,12 +22,7 @@ matrix:
       env: DESCRIPTION="stable Rust"
       script:
         - |
-          for features in \
-              "version-sync" \
-              "extprim version-sync" \
-              "quickcheck version-sync" \
-              "extprim quickcheck version-sync"
-          do
+          for features in "" "quickcheck"; do
               cargo test --verbose --all --lib --features "${features}"
               cargo test --verbose --all --tests --features "${features}"
           done
@@ -41,12 +31,7 @@ matrix:
       env: DESCRIPTION="beta Rust"
       script:
         - |
-          for features in \
-              "version-sync" \
-              "extprim version-sync" \
-              "quickcheck version-sync" \
-              "extprim quickcheck version-sync"
-          do
+          for features in "" "quickcheck"; do
               cargo test --verbose --all --lib --features "${features}"
               cargo test --verbose --all --tests --features "${features}"
           done
@@ -54,28 +39,17 @@ matrix:
     - rust: nightly
       env: DESCRIPTION="nightly Rust, clippy"
       install:
-        - |
-          if rustup component add clippy-preview; then
-              HAS_CLIPPY=true
-          else
-              echo 'Could not install clippy'
-              HAS_CLIPPY=false
-          fi
+        - rustup component add clippy-preview || echo "Could not install clippy"
       script:
         - |
           for features in \
-              "nightly test-nightly-regressions version-sync" \
-              "extprim nightly test-nightly-regressions version-sync" \
-              "nightly quickcheck test-nightly-regressions version-sync" \
-              "extprim nightly quickcheck test-nightly-regressions version-sync"
+              "nightly test-nightly-regressions" \
+              "nightly quickcheck test-nightly-regressions"
           do
               cargo test --verbose --all --lib --features "${features}"
               cargo test --verbose --all --tests --features "${features}"
               cargo test --verbose --all --benches --features "${features}"
-
-              if "${HAS_CLIPPY}"; then
-                  cargo clippy --verbose --all --features "${features}"
-              fi
+              which cargo-clippy && cargo clippy --verbose --all --features "${features}"
           done
 
     # Host documentation on <https://hcpl.github.com/serde_mtproto>
@@ -86,7 +60,7 @@ matrix:
         - cargo install cargo-travis || echo "cargo-travis already installed"
         - cargo install-update cargo-travis
       script:
-        - cargo doc --manifest-path Cargo.toml --features "extprim quickcheck"
+        - cargo doc --manifest-path Cargo.toml --features "quickcheck"
         - cargo doc --manifest-path serde_mtproto_derive/Cargo.toml
         - git clone --depth=1 --branch gh-pages "https://github.com/${TRAVIS_REPO_SLUG}" target/gh-pages
         - |
