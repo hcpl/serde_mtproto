@@ -52,6 +52,10 @@ matrix:
               which cargo-clippy && cargo clippy --verbose --all --features "${features}"
           done
 
+        - cargo update -Z minimal-versions
+        - cargo build --verbose --manifest-path serde_mtproto_derive/Cargo.toml --lib
+        - which cargo-clippy && cargo clippy --verbose --manifest-path serde_mtproto_derive/Cargo.toml
+
     # Host documentation on <https://hcpl.github.com/serde_mtproto>
     - rust: nightly
       env: DESCRIPTION="build and upload docs"
