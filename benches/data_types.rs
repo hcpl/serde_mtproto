@@ -11,12 +11,13 @@ extern crate serde_mtproto_derive;
 extern crate test;
 
 
-use rand::{Rand, Rng};
+use rand::Rng;
+use rand::distributions::{Distribution, Standard};
 use serde_mtproto::{MtProtoSized, to_bytes, to_writer, from_bytes};
 use test::Bencher;
 
 
-fn random_string<R: Rng>(rng: &mut R, words_count: (usize, usize)) -> String {
+fn random_string<R: Rng + ?Sized>(rng: &mut R, words_count: (usize, usize)) -> String {
     let lipsum_words_count: usize = rng.gen_range(words_count.0, words_count.1);
 
     lipsum::lipsum(lipsum_words_count)
@@ -31,8 +32,8 @@ struct Struct {
     group: (i16, u64, i8),
 }
 
-impl Rand for Struct {
-    fn rand<R: Rng>(rng: &mut R) -> Struct {
+impl Distribution<Struct> for Standard {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Struct {
         Struct {
             bar: rng.gen(),
             // Generate moderately long strings for reference
@@ -96,8 +97,8 @@ fn random_struct_deserialize(b: &mut Bencher) {
 #[mtproto_identifiable(id = "0x200c5e59")]
 struct Nothing;
 
-impl Rand for Nothing {
-    fn rand<R: Rng>(_rng: &mut R) -> Nothing {
+impl Distribution<Nothing> for Standard {
+    fn sample<R: Rng + ?Sized>(&self, _rng: &mut R) -> Nothing {
         Nothing
     }
 }

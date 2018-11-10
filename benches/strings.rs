@@ -50,9 +50,8 @@ bench_string! {
 
 // RANDOM STRINGS
 
-fn random_string<R: Rng>(rng: &mut R, words_count: (usize, usize)) -> String {
-    let lipsum_words_count: usize = rng.gen_range(words_count.0, words_count.1);
-
+fn random_string<R: Rng + ?Sized>(rng: &mut R, words_count: (usize, usize)) -> String {
+    let lipsum_words_count = rng.gen_range(words_count.0, words_count.1);
     lipsum::lipsum(lipsum_words_count)
 }
 

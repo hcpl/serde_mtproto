@@ -12,45 +12,44 @@ matrix:
     - rust: 1.24.1
       env: DESCRIPTION="minimum supported Rust"
       script:
-        - |
-          for features in "" "quickcheck"; do
-              cargo test --verbose --all --lib --features "${features}"
-              cargo test --verbose --all --tests --features "${features}"
-          done
+        - cargo test --verbose --all --lib
+        - cargo test --verbose --all --tests
+
+        - cargo test --verbose --all --lib --features "quickcheck"
+        - cargo test --verbose --all --tests --features "quickcheck"
 
     - rust: stable
       env: DESCRIPTION="stable Rust"
       script:
-        - |
-          for features in "" "quickcheck"; do
-              cargo test --verbose --all --lib --features "${features}"
-              cargo test --verbose --all --tests --features "${features}"
-          done
+        - cargo test --verbose --all --lib
+        - cargo test --verbose --all --tests
+
+        - cargo test --verbose --all --lib --features "quickcheck"
+        - cargo test --verbose --all --tests --features "quickcheck"
 
     - rust: beta
       env: DESCRIPTION="beta Rust"
       script:
-        - |
-          for features in "" "quickcheck"; do
-              cargo test --verbose --all --lib --features "${features}"
-              cargo test --verbose --all --tests --features "${features}"
-          done
+        - cargo test --verbose --all --lib
+        - cargo test --verbose --all --tests
+
+        - cargo test --verbose --all --lib --features "quickcheck"
+        - cargo test --verbose --all --tests --features "quickcheck"
 
     - rust: nightly
       env: DESCRIPTION="nightly Rust, clippy"
       install:
         - rustup component add clippy-preview || echo "Could not install clippy"
       script:
-        - |
-          for features in \
-              "nightly test-nightly-regressions" \
-              "nightly quickcheck test-nightly-regressions"
-          do
-              cargo test --verbose --all --lib --features "${features}"
-              cargo test --verbose --all --tests --features "${features}"
-              cargo test --verbose --all --benches --features "${features}"
-              which cargo-clippy && cargo clippy --verbose --all --features "${features}"
-          done
+        - cargo test --verbose --all --lib --features "nightly test-nightly-regressions"
+        - cargo test --verbose --all --tests --features "nightly test-nightly-regressions"
+        - cargo test --verbose --all --benches --features "nightly test-nightly-regressions"
+        - which cargo-clippy && cargo clippy --verbose --all --features "nightly test-nightly-regressions"
+
+        - cargo test --verbose --all --lib --features "nightly quickcheck test-nightly-regressions"
+        - cargo test --verbose --all --tests --features "nightly quickcheck test-nightly-regressions"
+        - cargo test --verbose --all --benches --features "nightly quickcheck test-nightly-regressions"
+        - which cargo-clippy && cargo clippy --verbose --all --features "nightly quickcheck test-nightly-regressions"
 
         - cargo update -Z minimal-versions
         - cargo build --verbose --manifest-path serde_mtproto_derive/Cargo.toml --lib
