@@ -1,6 +1,5 @@
 use proc_macro2;
 use syn;
-use syn::spanned::Spanned;
 
 use ast;
 
@@ -23,8 +22,7 @@ pub(crate) fn impl_mt_proto_sized(mut container: ast::Container) -> proc_macro2:
                         }
 
                         let field_name = &field.ident;
-                        let span = ast::FieldNoAttrs::from_field(field).span();
-                        let func = quote_spanned! {span=>
+                        let func = quote_spanned_by! {field=>
                             _serde_mtproto::MtProtoSized::size_hint
                         };
 
@@ -41,8 +39,7 @@ pub(crate) fn impl_mt_proto_sized(mut container: ast::Container) -> proc_macro2:
 
                         // Integers are rendered with type suffixes. We don't want this.
                         let field_index = syn::Index::from(i);
-                        let span = ast::FieldNoAttrs::from_field(field).span();
-                        let func = quote_spanned! {span=>
+                        let func = quote_spanned_by! {field=>
                             _serde_mtproto::MtProtoSized::size_hint
                         };
 
@@ -66,8 +63,7 @@ pub(crate) fn impl_mt_proto_sized(mut container: ast::Container) -> proc_macro2:
                             }
 
                             let field_name = &field.ident;
-                            let span = ast::FieldNoAttrs::from_field(field).span();
-                            let func = quote_spanned! {span=>
+                            let func = quote_spanned_by! {field=>
                                 _serde_mtproto::MtProtoSized::size_hint
                             };
 
@@ -92,8 +88,7 @@ pub(crate) fn impl_mt_proto_sized(mut container: ast::Container) -> proc_macro2:
                             }
 
                             let field_name = ident!("__field_{}", i);
-                            let span = ast::FieldNoAttrs::from_field(field).span();
-                            let func = quote_spanned! {span=>
+                            let func = quote_spanned_by! {field=>
                                 _serde_mtproto::MtProtoSized::size_hint
                             };
 
