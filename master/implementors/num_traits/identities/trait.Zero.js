@@ -1,5 +1,4 @@
 (function() {var implementors = {};
-implementors["extprim"] = [{text:"impl <a class=\"trait\" href=\"num_traits/identities/trait.Zero.html\" title=\"trait num_traits::identities::Zero\">Zero</a> for <a class=\"struct\" href=\"extprim/u128/struct.u128.html\" title=\"struct extprim::u128::u128\">u128</a>",synthetic:false,types:["extprim::u128::u128"]},{text:"impl <a class=\"trait\" href=\"num_traits/identities/trait.Zero.html\" title=\"trait num_traits::identities::Zero\">Zero</a> for <a class=\"struct\" href=\"extprim/i128/struct.i128.html\" title=\"struct extprim::i128::i128\">i128</a>",synthetic:false,types:["extprim::i128::i128"]},];
 implementors["num_traits"] = [];
 
             if (window.register_implementors) {
