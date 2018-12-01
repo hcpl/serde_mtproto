@@ -42,7 +42,11 @@
 //! ```
 
 // For `quote!` used at the end of `impl_mt_proto_identifiable`
-#![recursion_limit = "87"]
+#![recursion_limit = "66"]
+
+#![cfg_attr(feature = "cargo-clippy", deny(clippy::all))]
+// This lint is not compatible with defensive programming, let's disable it
+#![cfg_attr(feature = "cargo-clippy", allow(clippy::unneeded_field_pattern))]
 
 extern crate proc_macro;
 
@@ -57,6 +61,7 @@ extern crate syn;
 mod macros;
 
 mod ast;
+mod ext;
 mod identifiable;
 mod sized;
 
@@ -70,17 +75,21 @@ use sized::impl_mt_proto_sized;
 #[proc_macro_derive(MtProtoIdentifiable, attributes(mtproto_identifiable))]
 pub fn mt_proto_identifiable(input: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(input as syn::DeriveInput);
-    let container = ast::Container::from_derive_input(ast)
-        .expect("Cannot derive `mtproto::Identifiable` for unions.");
+    let tokens = match ast::Container::from_derive_input(ast, "mtproto::Identifiable") {
+        Ok(container) => impl_mt_proto_identifiable(container),
+        Err(e) => e.to_compile_error(),
+    };
 
-    impl_mt_proto_identifiable(container).into()
+    tokens.into()
 }
 
 #[proc_macro_derive(MtProtoSized, attributes(mtproto_sized))]
 pub fn mt_proto_sized(input: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(input as syn::DeriveInput);
-    let container = ast::Container::from_derive_input(ast)
-        .expect("Cannot derive `mtproto::MtProtoSized` for unions.");
+    let tokens = match ast::Container::from_derive_input(ast, "mtproto::MtProtoSized") {
+        Ok(container) => impl_mt_proto_sized(container),
+        Err(e) => e.to_compile_error(),
+    };
 
-    impl_mt_proto_sized(container).into()
+    tokens.into()
 }

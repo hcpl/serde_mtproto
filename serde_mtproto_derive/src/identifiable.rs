@@ -1,10 +1,21 @@
 use proc_macro2;
+use quote::ToTokens;
 use syn;
 
 use ast;
+use ext::IteratorResultExt;
 
 
 pub(crate) fn impl_mt_proto_identifiable(container: ast::Container) -> proc_macro2::TokenStream {
+    match impl_mt_proto_identifiable_or_error(container) {
+        Ok(tokens) => tokens,
+        Err(e) => e.iter().map(syn::Error::to_compile_error).collect(),
+    }
+}
+
+fn impl_mt_proto_identifiable_or_error(
+    container: ast::Container,
+) -> Result<proc_macro2::TokenStream, Vec<syn::Error>> {
     let (item_impl_generics, item_ty_generics, item_where_clause) =
         container.generics.split_for_impl();
 
@@ -14,14 +25,16 @@ pub(crate) fn impl_mt_proto_identifiable(container: ast::Container) -> proc_macr
 
     let all_type_ids_value = match container.data {
         ast::Data::Struct(_) => {
-            let id = get_id_from_attrs(&container.attrs);
+            let id = get_id_from_attrs(&container.attrs, (&container).into_token_stream())
+                .map_err(|e| vec![e])?;
 
             quote!(&[#id])
         },
         ast::Data::Enum(ref data_enum) => {
             let ids = data_enum.variants
                 .iter()
-                .map(|v| get_id_from_attrs(&v.attrs));
+                .map(|v| get_id_from_attrs(&v.attrs, v.into_token_stream()))
+                .collect_results()?;
 
             quote!(&[#(#ids),*])
         },
@@ -42,19 +55,20 @@ pub(crate) fn impl_mt_proto_identifiable(container: ast::Container) -> proc_macr
 
     let type_id_body = match container.data {
         ast::Data::Struct(_) => {
-            let id = get_asserted_id_from_attrs(&container.attrs);
+            let id = get_asserted_id_from_attrs(&container.attrs, (&container).into_token_stream())
+                .map_err(|e| vec![e])?;
 
             quote!(#id)
         },
         ast::Data::Enum(ref data_enum) => {
             let variants = data_enum.variants.iter().map(|variant| {
                 let variant_name = &variant.ident;
-                let id = get_asserted_id_from_attrs(&variant.attrs);
+                let id = get_asserted_id_from_attrs(&variant.attrs, variant.into_token_stream())?;
 
-                quote! {
+                Ok(quote! {
                     #item_name::#variant_name { .. } => #id,
-                }
-            });
+                })
+            }).collect_results()?;
 
             quote! {
                 match *self {
@@ -88,7 +102,7 @@ pub(crate) fn impl_mt_proto_identifiable(container: ast::Container) -> proc_macr
         },
     };
 
-    quote! {
+    Ok(quote! {
         #[allow(non_upper_case_globals)]
         const #dummy_const: () = {
             extern crate serde_mtproto as _serde_mtproto;
@@ -113,12 +127,15 @@ pub(crate) fn impl_mt_proto_identifiable(container: ast::Container) -> proc_macr
                 }
             }
         };
-    }
+    })
 }
 
 
-fn get_asserted_id_from_attrs(attrs: &[syn::Attribute]) -> proc_macro2::TokenStream {
-    let id = get_id_from_attrs(attrs);
+fn get_asserted_id_from_attrs(
+    attrs: &[syn::Attribute],
+    input_tokens: proc_macro2::TokenStream,
+) -> syn::Result<proc_macro2::TokenStream> {
+    let id = get_id_from_attrs(attrs, input_tokens)?;
     let check_expr = quote!(Self::all_type_ids().contains(&#id));
 
     for attr in attrs {
@@ -145,7 +162,7 @@ fn get_asserted_id_from_attrs(attrs: &[syn::Attribute]) -> proc_macro2::TokenStr
                                     _ => continue,
                                 };
 
-                                return res;
+                                return Ok(res);
                             }
                         }
                     }
@@ -154,10 +171,13 @@ fn get_asserted_id_from_attrs(attrs: &[syn::Attribute]) -> proc_macro2::TokenStr
         }
     }
 
-    quote!({ assert!(#check_expr); #id })
+    Ok(quote!({ assert!(#check_expr); #id }))
 }
 
-fn get_id_from_attrs(attrs: &[syn::Attribute]) -> u32 {
+fn get_id_from_attrs(
+    attrs: &[syn::Attribute],
+    input_tokens: proc_macro2::TokenStream,
+) -> syn::Result<u32> {
     for attr in attrs {
         if let syn::AttrStyle::Inner(..) = attr.style {
             continue;
@@ -174,14 +194,14 @@ fn get_id_from_attrs(attrs: &[syn::Attribute]) -> u32 {
 
                                 if str_value.len() >= 2 {
                                     match str_value.split_at(2) {
-                                        ("0x", hex) => return u32::from_str_radix(hex, 16).unwrap(),
-                                        ("0b", bin) => return u32::from_str_radix(bin, 2).unwrap(),
-                                        ("0o", oct) => return u32::from_str_radix(oct, 8).unwrap(),
+                                        ("0x", hex) => return Ok(u32::from_str_radix(hex, 16).unwrap()),
+                                        ("0b", bin) => return Ok(u32::from_str_radix(bin, 2).unwrap()),
+                                        ("0o", oct) => return Ok(u32::from_str_radix(oct, 8).unwrap()),
                                         _ => (),
                                     }
                                 }
 
-                                return u32::from_str_radix(&str_value, 10).unwrap();
+                                return Ok(u32::from_str_radix(&str_value, 10).unwrap());
                             } else {
                                 panic!("`id` attribute must have a `str` value.");
                             }
@@ -192,12 +212,13 @@ fn get_id_from_attrs(attrs: &[syn::Attribute]) -> u32 {
         }
     }
 
-    panic!("#[derive(MtProtoIdentifiable)] requires an #[mtproto_identifiable(id = \"...\")] attribute:\n    \
-            - on top of struct for structs;\n    \
-            - or on top of each enum variant for enums.\n\
-            id can can be either:\n    \
-            - hexadecimal with 0x prefix,\n    \
-            - binary with 0b,\n    \
-            - octal with 0o\n    \
-            - or decimal with no prefix.");
+    const ERROR_MESSAGE: &str = "\
+        #[derive(MtProtoIdentifiable)] requires an #[mtproto_identifiable(id = \"...\")] attribute\n    \
+        where id can can be either:\n    \
+        - hexadecimal with 0x prefix,\n    \
+        - binary with 0b,\n    \
+        - octal with 0o\n    \
+        - or decimal with no prefix.";
+
+    Err(syn::Error::new_spanned(input_tokens, ERROR_MESSAGE))
 }
