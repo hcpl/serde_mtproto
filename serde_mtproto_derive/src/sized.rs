@@ -168,21 +168,16 @@ fn add_mt_proto_sized_trait_bound_if_missing(container: &mut ast::Container) {
 }
 
 fn is_skippable_field(field: &syn::Field) -> bool {
-    for attr in &field.attrs {
-        if let syn::AttrStyle::Inner(..) = attr.style {
-            continue;
-        }
-
-        if let Some(syn::Meta::List(list)) = attr.interpret_meta() {
-            if list.ident == "mtproto_sized" {
-                for nested_meta in list.nested {
-                    if let syn::NestedMeta::Meta(syn::Meta::Word(ident)) = nested_meta {
-                        if ident == "skip" {
-                            return true;
-                        }
-                    }
-                }
-            }
+    control_flow_chain! {
+        for attr in &field.attrs;
+        if let syn::AttrStyle::Outer = attr.style;
+        if let Ok(syn::Meta::List(list)) = attr.parse_meta();
+        if list.ident == "mtproto_sized";
+        for nested_meta in list.nested;
+        if let syn::NestedMeta::Meta(syn::Meta::Word(ident)) = nested_meta;
+        if ident == "skip";
+        then {
+            return true;
         }
     }
 

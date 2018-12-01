@@ -138,35 +138,27 @@ fn get_asserted_id_from_attrs(
     let id = get_id_from_attrs(attrs, input_tokens)?;
     let check_expr = quote!(Self::all_type_ids().contains(&#id));
 
-    for attr in attrs {
-        if let syn::AttrStyle::Inner(..) = attr.style {
-            continue;
-        }
+    control_flow_chain! {
+        for attr in attrs;
+        if let syn::AttrStyle::Outer = attr.style;
+        if let Ok(syn::Meta::List(list)) = attr.parse_meta();
+        if list.ident == "mtproto_identifiable";
+        for nested_meta in list.nested;
+        if let syn::NestedMeta::Meta(syn::Meta::List(nested_list)) = nested_meta;
+        then {
+            if nested_list.nested.len() != 1 {
+                panic!("check_type_id must have exactly 1 argument");
+            }
 
-        if let Some(syn::Meta::List(list)) = attr.interpret_meta() {
-            if list.ident == "mtproto_identifiable" {
-                for nested_meta in list.nested {
-                    if let syn::NestedMeta::Meta(syn::Meta::List(nested_list)) = nested_meta {
-                        if nested_list.ident == "check_type_id" {
-                            if nested_list.nested.len() != 1 {
-                                panic!("check_type_id must have exactly 1 argument");
-                            }
+            if let syn::NestedMeta::Meta(syn::Meta::Word(ref ident)) = nested_list.nested[0] {
+                let res = match ident.to_string().as_ref() {
+                    "never" => quote!(#id),
+                    "debug_only" => quote!({ debug_assert!(#check_expr); #id }),
+                    "always" => quote!({ assert!(#check_expr); #id }),
+                    _ => continue,
+                };
 
-                            if let syn::NestedMeta::Meta(syn::Meta::Word(ref ident)) =
-                                nested_list.nested[0]
-                            {
-                                let res = match ident.to_string().as_ref() {
-                                    "never" => quote!(#id),
-                                    "debug_only" => quote!({ debug_assert!(#check_expr); #id }),
-                                    "always" => quote!({ assert!(#check_expr); #id }),
-                                    _ => continue,
-                                };
-
-                                return Ok(res);
-                            }
-                        }
-                    }
-                }
+                return Ok(res);
             }
         }
     }
@@ -178,36 +170,31 @@ fn get_id_from_attrs(
     attrs: &[syn::Attribute],
     input_tokens: proc_macro2::TokenStream,
 ) -> syn::Result<u32> {
-    for attr in attrs {
-        if let syn::AttrStyle::Inner(..) = attr.style {
-            continue;
-        }
+    control_flow_chain! {
+        for attr in attrs;
+        if let syn::AttrStyle::Outer = attr.style;
+        if let Ok(syn::Meta::List(list)) = attr.parse_meta();
+        if list.ident == "mtproto_identifiable";
+        for nested_meta in list.nested;
+        if let syn::NestedMeta::Meta(syn::Meta::NameValue(name_value)) = nested_meta;
+        if name_value.ident == "id";
+        then {
+            if let syn::Lit::Str(lit_str) = name_value.lit {
+                // Found an identifier
+                let str_value = lit_str.value();
 
-        if let Some(syn::Meta::List(list)) = attr.interpret_meta() {
-            if list.ident == "mtproto_identifiable" {
-                for nested_meta in list.nested {
-                    if let syn::NestedMeta::Meta(syn::Meta::NameValue(name_value)) = nested_meta {
-                        if name_value.ident == "id" {
-                            if let syn::Lit::Str(lit_str) = name_value.lit {
-                                // Found an identifier
-                                let str_value = lit_str.value();
-
-                                if str_value.len() >= 2 {
-                                    match str_value.split_at(2) {
-                                        ("0x", hex) => return Ok(u32::from_str_radix(hex, 16).unwrap()),
-                                        ("0b", bin) => return Ok(u32::from_str_radix(bin, 2).unwrap()),
-                                        ("0o", oct) => return Ok(u32::from_str_radix(oct, 8).unwrap()),
-                                        _ => (),
-                                    }
-                                }
-
-                                return Ok(u32::from_str_radix(&str_value, 10).unwrap());
-                            } else {
-                                panic!("`id` attribute must have a `str` value.");
-                            }
-                        }
+                if str_value.len() >= 2 {
+                    match str_value.split_at(2) {
+                        ("0x", hex) => return Ok(u32::from_str_radix(hex, 16).unwrap()),
+                        ("0b", bin) => return Ok(u32::from_str_radix(bin, 2).unwrap()),
+                        ("0o", oct) => return Ok(u32::from_str_radix(oct, 8).unwrap()),
+                        _ => (),
                     }
                 }
+
+                return Ok(u32::from_str_radix(&str_value, 10).unwrap());
+            } else {
+                panic!("`id` attribute must have a `str` value.");
             }
         }
     }

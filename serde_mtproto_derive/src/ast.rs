@@ -86,37 +86,3 @@ where
         }
     }
 }
-
-
-// A helper to exclude attributes from field spans
-pub(crate) struct FieldNoAttrs<'a> {
-    pub(crate) vis: &'a syn::Visibility,
-    pub(crate) ident: &'a Option<proc_macro2::Ident>,
-    pub(crate) colon_token: &'a Option<Token![:]>,
-    pub(crate) ty: &'a syn::Type,
-}
-
-impl<'a> FieldNoAttrs<'a> {
-    pub(crate) fn from_field(field: &'a syn::Field) -> Self {
-        Self {
-            vis: &field.vis,
-            ident: &field.ident,
-            colon_token: &field.colon_token,
-            ty: &field.ty,
-        }
-    }
-}
-
-impl<'a> quote::ToTokens for FieldNoAttrs<'a> {
-    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
-        self.vis.to_tokens(tokens);
-        if let Some(ref ident) = *self.ident {
-            ident.to_tokens(tokens);
-            match *self.colon_token {
-                Some(ref colon_token) => colon_token.to_tokens(tokens),
-                None => <Token![:]>::default().to_tokens(tokens),
-            }
-        }
-        self.ty.to_tokens(tokens);
-    }
-}

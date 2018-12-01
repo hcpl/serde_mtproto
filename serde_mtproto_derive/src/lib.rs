@@ -41,8 +41,8 @@
 //! # fn main() {}
 //! ```
 
-// For `quote!` used at the end of `impl_mt_proto_identifiable`
-#![recursion_limit = "66"]
+// For `quote!` and `control_flow_chain!` macros
+#![recursion_limit = "71"]
 
 #![cfg_attr(feature = "cargo-clippy", deny(clippy::all))]
 // This lint is not compatible with defensive programming, let's disable it
