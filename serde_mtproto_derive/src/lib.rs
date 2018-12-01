@@ -42,7 +42,7 @@
 //! ```
 
 // For `quote!` and `control_flow_chain!` macros
-#![recursion_limit = "71"]
+#![recursion_limit = "79"]
 
 #![cfg_attr(feature = "cargo-clippy", deny(clippy::all))]
 // This lint is not compatible with defensive programming, let's disable it

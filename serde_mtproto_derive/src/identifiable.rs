@@ -145,9 +145,13 @@ fn get_asserted_id_from_attrs(
         if list.ident == "mtproto_identifiable";
         for nested_meta in list.nested;
         if let syn::NestedMeta::Meta(syn::Meta::List(nested_list)) = nested_meta;
+        if nested_list.ident == "check_type_id";
         then {
             if nested_list.nested.len() != 1 {
-                panic!("check_type_id must have exactly 1 argument");
+                return Err(syn::Error::new_spanned(
+                    nested_list,
+                    "`check_type_id(...)` must have exactly 1 parameter",
+                ));
             }
 
             if let syn::NestedMeta::Meta(syn::Meta::Word(ref ident)) = nested_list.nested[0] {
@@ -194,7 +198,10 @@ fn get_id_from_attrs(
 
                 return Ok(u32::from_str_radix(&str_value, 10).unwrap());
             } else {
-                panic!("`id` attribute must have a `str` value.");
+                return Err(syn::Error::new_spanned(
+                    name_value.lit,
+                    "expected mtproto id attribute to be a string: `id = \"...\"`",
+                ));
             }
         }
     }
