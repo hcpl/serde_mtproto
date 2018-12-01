@@ -188,15 +188,9 @@
 <span id="188">188</span>
 <span id="189">189</span>
 <span id="190">190</span>
-<span id="191">191</span>
-<span id="192">192</span>
-<span id="193">193</span>
-<span id="194">194</span>
-<span id="195">195</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">proc_macro2</span>;
 <span class="kw">use</span> <span class="ident">syn</span>;
-<span class="kw">use</span> <span class="ident">syn</span>::<span class="ident">spanned</span>::<span class="ident">Spanned</span>;
 
 <span class="kw">use</span> <span class="ident">ast</span>;
 
@@ -219,8 +213,7 @@
                         }
 
                         <span class="kw">let</span> <span class="ident">field_name</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">ident</span>;
-                        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">ast</span>::<span class="ident">FieldNoAttrs</span>::<span class="ident">from_field</span>(<span class="ident">field</span>).<span class="ident">span</span>();
-                        <span class="kw">let</span> <span class="ident">func</span> <span class="op">=</span> <span class="macro">quote_spanned</span><span class="macro">!</span> {<span class="ident">span</span><span class="op">=&gt;</span>
+                        <span class="kw">let</span> <span class="ident">func</span> <span class="op">=</span> <span class="macro">quote_spanned_by</span><span class="macro">!</span> {<span class="ident">field</span><span class="op">=&gt;</span>
                             <span class="ident">_serde_mtproto</span>::<span class="ident">MtProtoSized</span>::<span class="ident">size_hint</span>
                         };
 
@@ -237,8 +230,7 @@
 
                         <span class="comment">// Integers are rendered with type suffixes. We don&#39;t want this.</span>
                         <span class="kw">let</span> <span class="ident">field_index</span> <span class="op">=</span> <span class="ident">syn</span>::<span class="ident">Index</span>::<span class="ident">from</span>(<span class="ident">i</span>);
-                        <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">ast</span>::<span class="ident">FieldNoAttrs</span>::<span class="ident">from_field</span>(<span class="ident">field</span>).<span class="ident">span</span>();
-                        <span class="kw">let</span> <span class="ident">func</span> <span class="op">=</span> <span class="macro">quote_spanned</span><span class="macro">!</span> {<span class="ident">span</span><span class="op">=&gt;</span>
+                        <span class="kw">let</span> <span class="ident">func</span> <span class="op">=</span> <span class="macro">quote_spanned_by</span><span class="macro">!</span> {<span class="ident">field</span><span class="op">=&gt;</span>
                             <span class="ident">_serde_mtproto</span>::<span class="ident">MtProtoSized</span>::<span class="ident">size_hint</span>
                         };
 
@@ -262,8 +254,7 @@
                             }
 
                             <span class="kw">let</span> <span class="ident">field_name</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">field</span>.<span class="ident">ident</span>;
-                            <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">ast</span>::<span class="ident">FieldNoAttrs</span>::<span class="ident">from_field</span>(<span class="ident">field</span>).<span class="ident">span</span>();
-                            <span class="kw">let</span> <span class="ident">func</span> <span class="op">=</span> <span class="macro">quote_spanned</span><span class="macro">!</span> {<span class="ident">span</span><span class="op">=&gt;</span>
+                            <span class="kw">let</span> <span class="ident">func</span> <span class="op">=</span> <span class="macro">quote_spanned_by</span><span class="macro">!</span> {<span class="ident">field</span><span class="op">=&gt;</span>
                                 <span class="ident">_serde_mtproto</span>::<span class="ident">MtProtoSized</span>::<span class="ident">size_hint</span>
                             };
 
@@ -288,8 +279,7 @@
                             }
 
                             <span class="kw">let</span> <span class="ident">field_name</span> <span class="op">=</span> <span class="macro">ident</span><span class="macro">!</span>(<span class="string">&quot;__field_{}&quot;</span>, <span class="ident">i</span>);
-                            <span class="kw">let</span> <span class="ident">span</span> <span class="op">=</span> <span class="ident">ast</span>::<span class="ident">FieldNoAttrs</span>::<span class="ident">from_field</span>(<span class="ident">field</span>).<span class="ident">span</span>();
-                            <span class="kw">let</span> <span class="ident">func</span> <span class="op">=</span> <span class="macro">quote_spanned</span><span class="macro">!</span> {<span class="ident">span</span><span class="op">=&gt;</span>
+                            <span class="kw">let</span> <span class="ident">func</span> <span class="op">=</span> <span class="macro">quote_spanned_by</span><span class="macro">!</span> {<span class="ident">field</span><span class="op">=&gt;</span>
                                 <span class="ident">_serde_mtproto</span>::<span class="ident">MtProtoSized</span>::<span class="ident">size_hint</span>
                             };
 
