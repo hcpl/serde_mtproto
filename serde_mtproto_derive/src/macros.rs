@@ -65,10 +65,24 @@ macro_rules! __control_flow_chain {
             $pat1 | $($pat)|+ => __control_flow_chain! { @expand { $($other)* } $($tt)+ }
         }
     };
+    // `if let` with single pattern
+    (@expand {} if let $pat:pat = $expr:expr; $($tt:tt)+) => {
+        if let $pat = $expr {
+            __control_flow_chain! { @expand {} $($tt)+ }
+        }
+    };
+    // `if let` with single pattern and a fallback
+    (@expand { $($other:tt)+ } if let $pat:pat = $expr:expr; $($tt:tt)+) => {
+        if let $pat = $expr {
+            __control_flow_chain! { @expand { $($other)+ } $($tt)+ }
+        } else {
+            $($other)+
+        }
+    };
     // `if let` with multiple matterns and a fallback (if present)
-    (@expand { $($other:tt)* } if let $($pat:pat)|+ = $expr:expr; $($tt:tt)+) => {
+    (@expand { $($other:tt)* } if let $pat1:pat | $($pat:pat)|+ = $expr:expr; $($tt:tt)+) => {
         match $expr {
-            $($pat)|+ => { __control_flow_chain! { @expand { $($other)* } $($tt)+ } },
+            $pat1 | $($pat)|+ => { __control_flow_chain! { @expand { $($other)* } $($tt)+ } },
             _ => { $($other)* }
         }
     };
