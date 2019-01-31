@@ -7,9 +7,7 @@ use serde::ser::{self, Serialize};
 
 use error::{self, SerErrorKind, SerSerdeType};
 use identifiable::Identifiable;
-use utils::safe_uint_cast;
-#[cfg(stable_i128)]
-use utils::{i128_to_parts, u128_to_parts};
+use utils::{i128_to_parts, safe_uint_cast, u128_to_parts};
 
 
 /// A structure for serializing Rust values into MTProto binary representation.
@@ -120,7 +118,6 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     impl_serialize_big_int!(i32, serialize_i32, WriteBytesExt::write_i32<LittleEndian>);
     impl_serialize_big_int!(i64, serialize_i64, WriteBytesExt::write_i64<LittleEndian>);
 
-    #[cfg(stable_i128)]
     fn serialize_i128(self, value: i128) -> error::Result<()> {
         let (hi, lo) = i128_to_parts(value);
         WriteBytesExt::write_u64::<LittleEndian>(&mut self.writer, lo)?;
@@ -134,7 +131,6 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
     impl_serialize_big_int!(u32, serialize_u32, WriteBytesExt::write_u32<LittleEndian>);
     impl_serialize_big_int!(u64, serialize_u64, WriteBytesExt::write_u64<LittleEndian>);
 
-    #[cfg(stable_i128)]
     fn serialize_u128(self, value: u128) -> error::Result<()> {
         let (hi, lo) = u128_to_parts(value);
         WriteBytesExt::write_u64::<LittleEndian>(&mut self.writer, lo)?;

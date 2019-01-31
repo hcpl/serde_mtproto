@@ -7,9 +7,7 @@ use serde::de::{self, Deserialize, DeserializeOwned, DeserializeSeed, Visitor};
 
 use error::{self, DeErrorKind, DeSerdeType};
 use identifiable::{BOOL_FALSE_ID, BOOL_TRUE_ID};
-use utils::{safe_float_cast, safe_int_cast, safe_uint_cast};
-#[cfg(stable_i128)]
-use utils::{i128_from_parts, u128_from_parts};
+use utils::{i128_from_parts, safe_float_cast, safe_int_cast, safe_uint_cast, u128_from_parts};
 
 
 /// A structure that deserializes  MTProto binary representation into Rust values.
@@ -176,7 +174,6 @@ impl<'de, 'a, 'ids, R> de::Deserializer<'de> for &'a mut Deserializer<'ids, R>
     impl_deserialize_big_int!(i32, deserialize_i32, read_i32::<LittleEndian>, visit_i32);
     impl_deserialize_big_int!(i64, deserialize_i64, read_i64::<LittleEndian>, visit_i64);
 
-    #[cfg(stable_i128)]
     fn deserialize_i128<V>(self, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {
@@ -193,7 +190,6 @@ impl<'de, 'a, 'ids, R> de::Deserializer<'de> for &'a mut Deserializer<'ids, R>
     impl_deserialize_big_int!(u32, deserialize_u32, read_u32::<LittleEndian>, visit_u32);
     impl_deserialize_big_int!(u64, deserialize_u64, read_u64::<LittleEndian>, visit_u64);
 
-    #[cfg(stable_i128)]
     fn deserialize_u128<V>(self, visitor: V) -> error::Result<V::Value>
         where V: Visitor<'de>
     {

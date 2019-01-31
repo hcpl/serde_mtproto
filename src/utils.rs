@@ -6,11 +6,8 @@ use num_traits::sign::{Signed, Unsigned};
 use error::{self, ErrorKind, ResultExt};
 
 
-#[cfg(not(stable_i128))] pub(crate) type IntMax = i64;
-#[cfg(stable_i128)]      pub(crate) type IntMax = i128;
-
-#[cfg(not(stable_i128))] pub(crate) type UIntMax = u64;
-#[cfg(stable_i128)]      pub(crate) type UIntMax = u128;
+pub(crate) type IntMax = i128;
+pub(crate) type UIntMax = u128;
 
 
 pub(crate) fn safe_int_cast<T, U>(n: T) -> error::Result<U>
@@ -62,17 +59,14 @@ pub(crate) fn safe_uint_eq<T, U>(x: T, y: U) -> bool
 }
 
 
-#[cfg(stable_i128)]
 pub(crate) fn i128_from_parts(hi: i64, lo: u64) -> i128 {
     i128::from(hi) << 64 | i128::from(lo)
 }
 
-#[cfg(stable_i128)]
 pub(crate) fn u128_from_parts(hi: u64, lo: u64) -> u128 {
     u128::from(hi) << 64 | u128::from(lo)
 }
 
-#[cfg(stable_i128)]
 pub(crate) fn i128_to_parts(n: i128) -> (i64, u64) {
     #[cfg_attr(feature = "cargo-clippy", allow(clippy::cast_sign_loss, clippy::cast_possible_truncation))]
     let lo = n as u64;
@@ -82,7 +76,6 @@ pub(crate) fn i128_to_parts(n: i128) -> (i64, u64) {
     (hi, lo)
 }
 
-#[cfg(stable_i128)]
 pub(crate) fn u128_to_parts(n: u128) -> (u64, u64) {
     #[cfg_attr(feature = "cargo-clippy", allow(clippy::cast_possible_truncation))]
     let lo = n as u64;
@@ -93,7 +86,7 @@ pub(crate) fn u128_to_parts(n: u128) -> (u64, u64) {
 }
 
 
-#[cfg(all(test, stable_i128))]
+#[cfg(test)]
 mod tests {
     const I128_PARTS: &[(i128, (i64, u64))] = &[
         ( 0x0000_0000_0000_0000_0000_0000_0000_0000, ( 0x0000_0000_0000_0000, 0x0000_0000_0000_0000)),

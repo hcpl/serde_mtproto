@@ -49,22 +49,10 @@
     missing_docs,
     trivial_casts,
     trivial_numeric_casts,
+    unstable_name_collisions,
     unused_import_braces,
     unused_results,
 )]
-
-#![cfg_attr(all(lints_1_26, not(lints_1_27)), deny(
-    // Deny some warn-level lints available from Rust 1.26 that are renamed in
-    // 1.27 (relevant PR: https://github.com/rust-lang/rust/pull/50879).
-    unstable_name_collision,
-))]
-
-#![cfg_attr(lints_1_27, deny(
-    // Deny some warn-level lints available from previous Rust versions that are
-    // renamed in 1.27
-    // (relevant PR: https://github.com/rust-lang/rust/pull/50879).
-    unstable_name_collisions,
-))]
 
 
 // ========== CLIPPY LINTS ========== //
@@ -122,7 +110,7 @@ extern crate error_chain;
 extern crate log;
 extern crate num_traits;
 #[cfg(feature = "quickcheck")]
-#[cfg_attr(all(test, stable_i128), macro_use)]
+#[cfg_attr(test, macro_use)]
 extern crate quickcheck;
 extern crate serde;
 extern crate serde_bytes;

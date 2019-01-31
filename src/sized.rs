@@ -122,21 +122,17 @@ impl_mt_proto_sized_for_primitives! {
     i16 => INT_SIZE,
     i32 => INT_SIZE,
     i64 => LONG_SIZE,
+    i128 => INT128_SIZE,
 
     // Same here
     u8  => INT_SIZE,
     u16 => INT_SIZE,
     u32 => INT_SIZE,
     u64 => LONG_SIZE,
+    u128 => INT128_SIZE,
 
     f32 => DOUBLE_SIZE,
     f64 => DOUBLE_SIZE,
-}
-
-#[cfg(stable_i128)]
-impl_mt_proto_sized_for_primitives! {
-    i128 => INT128_SIZE,
-    u128 => INT128_SIZE,
 }
 
 
