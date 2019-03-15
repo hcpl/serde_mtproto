@@ -13,40 +13,14 @@
 
 // ========== RUSTC LINTS ========== //
 
-#![deny(
-    // Deny some warn-level lints
-    const_err,
-    deprecated,
-    illegal_floating_point_literal_pattern,
-    improper_ctypes,
-    late_bound_lifetime_arguments,
-    non_camel_case_types,
-    non_shorthand_field_patterns,
-    non_snake_case,
-    non_upper_case_globals,
-    overflowing_literals,
-    path_statements,
-    patterns_in_fns_without_body,
-    private_in_public,
-    renamed_and_removed_lints,
-    safe_packed_borrows,
-    tyvar_behind_raw_pointer,
-    unconditional_recursion,
-    unions_with_drop_fields,
-    unknown_lints,
-    unreachable_code,
-    unreachable_patterns,
-    unused_allocation,
-    unused_features,
-    unused_unsafe,
-    while_true,
-
-    // Deny some allow-level lints
+#![warn(
+    // Warn some allow-level lints
     anonymous_parameters,
     missing_debug_implementations,
     missing_docs,
     trivial_casts,
     trivial_numeric_casts,
+    unsafe_code,
     unstable_name_collisions,
     unused_import_braces,
     unused_results,
@@ -57,10 +31,21 @@
 
 #![cfg_attr(feature = "cargo-clippy", warn(
     // Restrict our code to ease reviewing and auditing in some cases
+    clippy::clone_on_ref_ptr,
     clippy::decimal_literal_representation,
     clippy::float_arithmetic,
+    clippy::indexing_slicing,
+    clippy::mem_forget,
+    clippy::print_stdout,
+    clippy::result_unwrap_used,
+    clippy::shadow_unrelated,
+    clippy::wrong_pub_self_convention,
 
     // Additional pedantic warns about numeric casts
+    clippy::cast_possible_truncation,
+    clippy::cast_possible_wrap,
+    clippy::cast_precision_loss,
+    clippy::cast_sign_loss,
     clippy::invalid_upcast_comparisons,
 
     // Other pedantic lints we consider useful to use as warns in this crate
@@ -77,27 +62,6 @@
     clippy::string_add_assign,
     clippy::unseparated_literal_suffix,
     clippy::used_underscore_binding,
-))]
-
-#![cfg_attr(feature = "cargo-clippy", deny(
-    // Turn all warn-level lints that have no false positives (according to `clippy` README) to
-    // denies (because it should be safe to do so)
-    clippy::all,
-
-    // Restrict our code to ease reviewing and auditing in some cases
-    clippy::clone_on_ref_ptr,
-    clippy::indexing_slicing,
-    clippy::mem_forget,
-    clippy::print_stdout,
-    clippy::result_unwrap_used,
-    clippy::shadow_unrelated,
-    clippy::wrong_pub_self_convention,
-
-    // Additional pedantic denies about numeric casts
-    clippy::cast_possible_truncation,
-    clippy::cast_possible_wrap,
-    clippy::cast_precision_loss,
-    clippy::cast_sign_loss,
 ))]
 
 

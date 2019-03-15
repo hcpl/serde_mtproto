@@ -44,7 +44,6 @@
 // For `quote!` and `control_flow_chain!` macros
 #![recursion_limit = "79"]
 
-#![cfg_attr(feature = "cargo-clippy", deny(clippy::all))]
 // This lint is not compatible with defensive programming, let's disable it
 #![cfg_attr(feature = "cargo-clippy", allow(clippy::unneeded_field_pattern))]
 

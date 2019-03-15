@@ -18,22 +18,30 @@ matrix:
         - cargo test --verbose --all --tests --features "quickcheck"
 
     - rust: stable
-      env: DESCRIPTION="stable Rust"
+      env: DESCRIPTION="stable Rust, clippy"
+      install:
+        - rustup component add clippy-preview || echo "Could not install clippy"
       script:
         - cargo test --verbose --all --lib
         - cargo test --verbose --all --tests
+        - which cargo-clippy && cargo clippy --verbose --all
 
         - cargo test --verbose --all --lib --features "quickcheck"
         - cargo test --verbose --all --tests --features "quickcheck"
+        - which cargo-clippy && cargo clippy --verbose --all --features "quickcheck"
 
     - rust: beta
-      env: DESCRIPTION="beta Rust"
+      env: DESCRIPTION="beta Rust, clippy"
+      install:
+        - rustup component add clippy-preview || echo "Could not install clippy"
       script:
         - cargo test --verbose --all --lib
         - cargo test --verbose --all --tests
+        - which cargo-clippy && cargo clippy --verbose --all
 
         - cargo test --verbose --all --lib --features "quickcheck"
         - cargo test --verbose --all --tests --features "quickcheck"
+        - which cargo-clippy && cargo clippy --verbose --all --features "quickcheck"
 
     - rust: nightly
       env: DESCRIPTION="nightly Rust, clippy"
