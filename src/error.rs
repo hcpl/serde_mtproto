@@ -1,5 +1,9 @@
 //! When serializing or deserializing MTProto goes wrong.
 
+// Temporary fix for `std::error::Error::cause()` usage in `error_chain!`-generated code
+// Should be resolved upstream in <https://github.com/rust-lang-nursery/error-chain/pull/255>
+#![allow(deprecated)]
+
 use std::fmt;
 
 use serde::{ser, de};

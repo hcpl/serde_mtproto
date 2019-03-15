@@ -8,8 +8,6 @@
 // For `error_chain!` macro used in `error` module
 #![recursion_limit = "66"]
 
-// See <https://github.com/rust-lang/rust/issues/50907> for details.
-#![cfg_attr(feature = "nightly", feature(exhaustive_integer_patterns))]
 #![cfg_attr(feature = "test-nightly-regressions", feature(nll))]
 
 

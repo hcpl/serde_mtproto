@@ -62,10 +62,7 @@ impl<'ids, R: io::Read> Deserializer<'ids, R> {
                     de::Unexpected::Unsigned(255),
                     &"a byte in [0..254] range"));
             },
-            // Currently exhaustive integer matches only work on nightly.
-            //
-            // See <https://github.com/rust-lang/rust/issues/50907> for details.
-            #[cfg(not(feature = "nightly"))]
+            #[cfg(not(stable_exhaustive_integer_patterns))]
             _ => unreachable!("other match arms should have exhaustively covered every value"),
         }
 

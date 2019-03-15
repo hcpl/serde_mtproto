@@ -17,6 +17,9 @@ travis-ci = { repository = "hcpl/serde_mtproto" }
 [workspace]
 members = ["serde_mtproto_derive"]
 
+[build-dependencies]
+version_check = "0.1.5"
+
 [dependencies]
 byteorder = "1.0"
 error-chain = "0.12"
