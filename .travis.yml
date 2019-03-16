@@ -46,15 +46,16 @@ matrix:
     - rust: nightly
       env: DESCRIPTION="nightly Rust, clippy"
       install:
-        - rustup component add clippy-preview || echo "Could not install clippy"
+        # `which cargo-clippy` always succeeds, resort to setting a boolean
+        - rustup component add clippy-preview && HAS_CLIPPY=true || { HAS_CLIPPY=false; echo "Could not install clippy"; }
       script:
         - cargo test --verbose --all --lib --features "nightly test-nightly-regressions"
         - cargo test --verbose --all --tests --features "nightly test-nightly-regressions"
-        - which cargo-clippy && cargo clippy --verbose --all --features "nightly test-nightly-regressions"
+        - "${HAS_CLIPPY}" && cargo clippy --verbose --all --features "nightly test-nightly-regressions"
 
         - cargo test --verbose --all --lib --features "nightly quickcheck test-nightly-regressions"
         - cargo test --verbose --all --tests --features "nightly quickcheck test-nightly-regressions"
-        - which cargo-clippy && cargo clippy --verbose --all --features "nightly quickcheck test-nightly-regressions"
+        - "${HAS_CLIPPY}" && cargo clippy --verbose --all --features "nightly quickcheck test-nightly-regressions"
 
         - cargo test --verbose --manifest-path bench-suite/Cargo.toml --all --benches
 
