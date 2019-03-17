@@ -47,21 +47,21 @@ matrix:
       env: DESCRIPTION="nightly Rust, clippy"
       install:
         # `which cargo-clippy` always succeeds, resort to setting a boolean
-        - rustup component add clippy-preview && HAS_CLIPPY=true || { HAS_CLIPPY=false; echo "Could not install clippy"; }
+        - if rustup component add clippy-preview; then HAS_CLIPPY=true; else HAS_CLIPPY=false; echo "Could not install clippy"; fi
       script:
         - cargo test --verbose --all --lib --features "nightly test-nightly-regressions"
         - cargo test --verbose --all --tests --features "nightly test-nightly-regressions"
-        - "${HAS_CLIPPY}" && cargo clippy --verbose --all --features "nightly test-nightly-regressions"
+        - if "${HAS_CLIPPY}"; then cargo clippy --verbose --all --features "nightly test-nightly-regressions"; fi
 
         - cargo test --verbose --all --lib --features "nightly quickcheck test-nightly-regressions"
         - cargo test --verbose --all --tests --features "nightly quickcheck test-nightly-regressions"
-        - "${HAS_CLIPPY}" && cargo clippy --verbose --all --features "nightly quickcheck test-nightly-regressions"
+        - if "${HAS_CLIPPY}"; then cargo clippy --verbose --all --features "nightly quickcheck test-nightly-regressions"; fi
 
         - cargo test --verbose --manifest-path bench-suite/Cargo.toml --all --benches
 
         - cargo update -Z minimal-versions
         - cargo build --verbose --manifest-path serde_mtproto_derive/Cargo.toml --lib
-        - which cargo-clippy && cargo clippy --verbose --manifest-path serde_mtproto_derive/Cargo.toml
+        - if "${HAS_CLIPPY}"; then cargo clippy --verbose --manifest-path serde_mtproto_derive/Cargo.toml; fi
 
     # Host documentation on <https://hcpl.github.com/serde_mtproto>
     - rust: nightly
