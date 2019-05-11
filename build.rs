@@ -1,5 +1,3 @@
-extern crate version_check;
-
 fn query_rustc_print_cfg(requested_min_version: &str, cfgs: &[&str]) {
     match version_check::is_min_version(requested_min_version) {
         Some((true, actual_version)) => {

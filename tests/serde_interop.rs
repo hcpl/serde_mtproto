@@ -1,18 +1,7 @@
-#[macro_use]
-extern crate lazy_static;
-extern crate serde;
-extern crate serde_bytes;
-#[macro_use]
-extern crate serde_derive;
-extern crate serde_json;
-extern crate serde_mtproto;
-#[macro_use]
-extern crate serde_mtproto_derive;
-extern crate serde_yaml;
-extern crate toml;
-
-
+use lazy_static::lazy_static;
 use serde_bytes::ByteBuf;
+use serde_derive::{Serialize, Deserialize};
+use serde_mtproto_derive::{MtProtoIdentifiable, MtProtoSized};
 
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]

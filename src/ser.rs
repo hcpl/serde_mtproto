@@ -3,11 +3,13 @@
 use std::io;
 
 use byteorder::{WriteBytesExt, LittleEndian};
+use error_chain::bail;
+use log::debug;
 use serde::ser::{self, Serialize};
 
-use error::{self, SerErrorKind, SerSerdeType};
-use identifiable::Identifiable;
-use utils::{i128_to_parts, safe_uint_cast, u128_to_parts};
+use crate::error::{self, SerErrorKind, SerSerdeType};
+use crate::identifiable::Identifiable;
+use crate::utils::{i128_to_parts, safe_uint_cast, u128_to_parts};
 
 
 /// A structure for serializing Rust values into MTProto binary representation.
@@ -277,7 +279,7 @@ impl<'a, W> ser::Serializer for &'a mut Serializer<W>
 
 /// Helper structure for serializing fixed-length sequences.
 #[derive(Debug)]
-pub struct SerializeFixedLengthSeq<'a, W: 'a + io::Write> {
+pub struct SerializeFixedLengthSeq<'a, W: io::Write> {
     ser: &'a mut Serializer<W>,
     len: u32,
     next_index: u32,
@@ -438,7 +440,7 @@ impl<'a, W> ser::SerializeStructVariant for SerializeFixedLengthSeq<'a, W>
 
 /// Helper structure for serializing maps.
 #[derive(Debug)]
-pub struct SerializeFixedLengthMap<'a, W: 'a + io::Write> {
+pub struct SerializeFixedLengthMap<'a, W: io::Write> {
     ser: &'a mut Serializer<W>,
     len: u32,
     next_index: u32,

@@ -7,9 +7,9 @@ use byteorder::{ByteOrder, LittleEndian};
 use serde::de::{self, Deserializer, DeserializeSeed, Error as DeError, Visitor};
 use serde::ser::{Serialize, Serializer, SerializeTupleStruct};
 
-use ::error::{self, DeErrorKind};
-use ::sized::MtProtoSized;
-use ::utils::safe_uint_cast;
+use crate::error::{self, DeErrorKind};
+use crate::sized::MtProtoSized;
+use crate::utils::safe_uint_cast;
 
 
 const CHUNK_SIZE: usize = mem::size_of::<u32>() / mem::size_of::<u8>();
@@ -114,7 +114,7 @@ impl<'de> DeserializeSeed<'de> for UnsizedByteBufSeed {
         impl<'de> Visitor<'de> for UnsizedByteBufVisitor {
             type Value = UnsizedByteBuf;
 
-            fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                 f.write_str("a stream of bytes without prepended length and with a EOF")
             }
 

@@ -3,11 +3,13 @@
 use std::io;
 
 use byteorder::{ReadBytesExt, LittleEndian};
+use error_chain::bail;
+use log::debug;
 use serde::de::{self, Deserialize, DeserializeOwned, DeserializeSeed, Visitor};
 
-use error::{self, DeErrorKind, DeSerdeType};
-use identifiable::{BOOL_FALSE_ID, BOOL_TRUE_ID};
-use utils::{i128_from_parts, safe_float_cast, safe_int_cast, safe_uint_cast, u128_from_parts};
+use crate::error::{self, DeErrorKind, DeSerdeType};
+use crate::identifiable::{BOOL_FALSE_ID, BOOL_TRUE_ID};
+use crate::utils::{i128_from_parts, safe_float_cast, safe_int_cast, safe_uint_cast, u128_from_parts};
 
 
 /// A structure that deserializes  MTProto binary representation into Rust values.
@@ -44,7 +46,7 @@ impl<'ids, R: io::Read> Deserializer<'ids, R> {
         let rem;
 
         match first_byte {
-            0 ... 253 => {
+            0 ..= 253 => {
                 len = usize::from(first_byte);
                 rem = (len + 1) % 4;
             },
@@ -351,7 +353,7 @@ impl<'de, 'a, 'ids, R> de::Deserializer<'de> for &'a mut Deserializer<'ids, R>
 
 
 #[derive(Debug)]
-struct SeqAccess<'a, 'ids: 'a, R: 'a + io::Read> {
+struct SeqAccess<'a, 'ids: 'a, R: io::Read> {
     de: &'a mut Deserializer<'ids, R>,
     len: u32,
     next_index: u32,
@@ -389,7 +391,7 @@ impl<'de, 'a, 'ids, R> de::SeqAccess<'de> for SeqAccess<'a, 'ids, R>
 
 
 #[derive(Debug)]
-struct MapAccess<'a, 'ids: 'a, R: 'a + io::Read> {
+struct MapAccess<'a, 'ids: 'a, R: io::Read> {
     de: &'a mut Deserializer<'ids, R>,
     len: u32,
     next_index: u32,
@@ -434,7 +436,7 @@ impl<'de, 'a, 'ids, R> de::MapAccess<'de> for MapAccess<'a, 'ids, R>
 
 
 #[derive(Debug)]
-struct EnumVariantAccess<'a, 'ids: 'a, R: 'a + io::Read> {
+struct EnumVariantAccess<'a, 'ids: 'a, R: io::Read> {
     de: &'a mut Deserializer<'ids, R>,
 }
 

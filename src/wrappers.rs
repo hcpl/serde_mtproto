@@ -36,16 +36,18 @@
 use std::fmt;
 use std::marker::PhantomData;
 
+use error_chain::bail;
 #[cfg(feature = "quickcheck")]
 use quickcheck::{Arbitrary, Gen};
 use serde::de::{Deserialize, DeserializeSeed, Deserializer,
                 Error as DeError, MapAccess, SeqAccess, Visitor};
 use serde::ser::{Error as SerError, Serialize, Serializer, SerializeStruct};
+use serde_derive::Deserialize;
 
-use error::{self, DeErrorKind};
-use identifiable::Identifiable;
-use sized::MtProtoSized;
-use utils::{safe_uint_cast, safe_uint_eq};
+use crate::error::{self, DeErrorKind};
+use crate::identifiable::Identifiable;
+use crate::sized::MtProtoSized;
+use crate::utils::{safe_uint_cast, safe_uint_eq};
 
 
 /// A struct that wraps an [`Identifiable`] type value to serialize and
@@ -101,8 +103,6 @@ impl<'de, T> Deserialize<'de> for Boxed<T>
     fn deserialize<D>(deserializer: D) -> Result<Boxed<T>, D::Error>
         where D: Deserializer<'de>
     {
-        use identifiable::Identifiable;
-
         struct BoxedVisitor<T>(PhantomData<T>);
 
         impl<'de, T> Visitor<'de> for BoxedVisitor<T>
@@ -110,7 +110,7 @@ impl<'de, T> Deserialize<'de> for Boxed<T>
         {
             type Value = Boxed<T>;
 
-            fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                 f.write_str("type id and an `Identifiable` value")
             }
 
@@ -183,7 +183,7 @@ impl<T> Arbitrary for Boxed<T>
         Boxed::new(T::arbitrary(g))
     }
 
-    fn shrink(&self) -> Box<Iterator<Item=Boxed<T>>> {
+    fn shrink(&self) -> Box<dyn Iterator<Item=Boxed<T>>> {
         Box::new(self.inner.shrink().map(Boxed::new))
     }
 }
@@ -308,7 +308,7 @@ impl<T> Arbitrary for WithSize<T>
             .expect("failed to wrap a generated random value using `WithSize`")
     }
 
-    fn shrink(&self) -> Box<Iterator<Item=WithSize<T>>> {
+    fn shrink(&self) -> Box<dyn Iterator<Item=WithSize<T>>> {
         Box::new(self.inner.shrink().map(|x| WithSize::new(x)
             .expect("failed to wrap a shrinked value using `WithSize`")))
     }

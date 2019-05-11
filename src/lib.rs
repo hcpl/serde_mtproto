@@ -65,19 +65,9 @@
 ))]
 
 
-extern crate byteorder;
-#[macro_use]
-extern crate error_chain;
-#[macro_use]
-extern crate log;
-extern crate num_traits;
-#[cfg(feature = "quickcheck")]
-#[cfg_attr(test, macro_use)]
-extern crate quickcheck;
+// Workaround for <https://github.com/rust-lang/rust/issues/55779>
+#[allow(unused_extern_crates)]
 extern crate serde;
-extern crate serde_bytes;
-#[macro_use]
-extern crate serde_derive;
 
 
 mod utils;
@@ -100,14 +90,14 @@ macro_rules! doc_inline {
 
 doc_inline! {
     // Serde essential re-exports
-    pub use ser::{
+    pub use crate::ser::{
         Serializer,
         to_bytes,
         to_writer,
         unsized_bytes_pad_to_bytes,
         unsized_bytes_pad_to_writer,
     };
-    pub use de::{
+    pub use crate::de::{
         Deserializer,
         from_bytes,
         from_bytes_reuse,
@@ -118,11 +108,11 @@ doc_inline! {
     };
 
     // Error types and typedefs
-    pub use error::{Error, ErrorKind, Result, ResultExt};
+    pub use crate::error::{Error, ErrorKind, Result, ResultExt};
 
     // Other items generally useful for MTProto [de]serialization
-    pub use helpers::{UnsizedByteBuf, UnsizedByteBufSeed};
-    pub use identifiable::Identifiable;
-    pub use sized::{MtProtoSized, size_hint_from_byte_seq_len};
-    pub use wrappers::{Boxed, WithId, WithSize};
+    pub use crate::helpers::{UnsizedByteBuf, UnsizedByteBufSeed};
+    pub use crate::identifiable::Identifiable;
+    pub use crate::sized::{MtProtoSized, size_hint_from_byte_seq_len};
+    pub use crate::wrappers::{Boxed, WithId, WithSize};
 }

@@ -1,22 +1,12 @@
-#[macro_use]
-extern crate quickcheck;
-#[macro_use]
-extern crate quickcheck_derive;
-extern crate rand;
-extern crate serde;
-#[macro_use]
-extern crate serde_derive;
-extern crate serde_mtproto;
-#[macro_use]
-extern crate serde_mtproto_derive;
-
-
 use std::collections::BTreeMap;
 
-use quickcheck::TestResult;
+use quickcheck::{TestResult, quickcheck};
+use quickcheck_derive::Arbitrary;
 use rand::Rng;
+use serde_derive::{Serialize, Deserialize};
 //use serde_mtproto::ByteBuf;
 use serde_mtproto::{Boxed, Identifiable, WithSize};
+use serde_mtproto_derive::{MtProtoIdentifiable, MtProtoSized};
 
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Arbitrary, MtProtoIdentifiable, MtProtoSized)]

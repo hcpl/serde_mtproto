@@ -3,7 +3,7 @@ use num_traits::float::Float;
 use num_traits::int::PrimInt;
 use num_traits::sign::{Signed, Unsigned};
 
-use error::{self, ErrorKind, ResultExt};
+use crate::error::{self, ErrorKind, ResultExt};
 
 
 pub(crate) type IntMax = i128;
@@ -99,14 +99,14 @@ mod tests {
     #[test]
     fn i128_from_parts() {
         for &(n, (hi, lo)) in I128_PARTS {
-            assert_eq!(::utils::i128_from_parts(hi, lo), n);
+            assert_eq!(crate::utils::i128_from_parts(hi, lo), n);
         }
     }
 
     #[test]
     fn i128_to_parts() {
         for &(n, (hi, lo)) in I128_PARTS {
-            assert_eq!(::utils::i128_to_parts(n), (hi, lo));
+            assert_eq!(crate::utils::i128_to_parts(n), (hi, lo));
         }
     }
 
@@ -122,34 +122,36 @@ mod tests {
     #[test]
     fn u128_from_parts() {
         for &(n, (hi, lo)) in U128_PARTS {
-            assert_eq!(::utils::u128_from_parts(hi, lo), n);
+            assert_eq!(crate::utils::u128_from_parts(hi, lo), n);
         }
     }
 
     #[test]
     fn u128_to_parts() {
         for &(n, (hi, lo)) in U128_PARTS {
-            assert_eq!(::utils::u128_to_parts(n), (hi, lo));
+            assert_eq!(crate::utils::u128_to_parts(n), (hi, lo));
         }
     }
 
     #[cfg(feature = "quickcheck")]
     mod quickcheck {
+        use quickcheck::quickcheck;
+
         quickcheck! {
             // Quickcheck doesn't have an `Arbitrary` impl for `i128`/`u128`, so we need a
             // workaround.
             fn i128_parts_roundtrip(parts: (i64, u64)) -> bool {
                 let (hi, lo) = parts;
-                let n = ::utils::i128_from_parts(hi, lo);
-                let (hi2, lo2) = ::utils::i128_to_parts(n);
+                let n = crate::utils::i128_from_parts(hi, lo);
+                let (hi2, lo2) = crate::utils::i128_to_parts(n);
 
                 (hi, lo) == (hi2, lo2)
             }
 
             fn u128_parts_roundtrip(parts: (u64, u64)) -> bool {
                 let (hi, lo) = parts;
-                let n = ::utils::u128_from_parts(hi, lo);
-                let (hi2, lo2) = ::utils::u128_to_parts(n);
+                let n = crate::utils::u128_from_parts(hi, lo);
+                let (hi2, lo2) = crate::utils::u128_to_parts(n);
 
                 (hi, lo) == (hi2, lo2)
             }

@@ -1,11 +1,7 @@
 //! Testing inputs obtained from fuzzers.
 
-extern crate serde;
-#[macro_use]
-extern crate serde_derive;
-extern crate serde_mtproto;
-#[macro_use]
-extern crate serde_mtproto_derive;
+use serde_derive::{Serialize, Deserialize};
+use serde_mtproto_derive::{MtProtoIdentifiable, MtProtoSized};
 
 // Tests under `success` should successfully make a roundtrip for a prefix of
 // `DATA` while those under `fail` should fail to parse and return `Err`. Tests

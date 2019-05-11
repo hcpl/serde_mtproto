@@ -9,6 +9,7 @@ homepage = "https://github.com/hcpl/serde_mtproto"
 documentation = "https://docs.rs/serde_mtproto"
 repository = "https://github.com/hcpl/serde_mtproto"
 keywords = ["serde", "serialization", "telegram"]
+edition = "2018"
 include = ["Cargo.toml", "LICENSE-APACHE", "LICENSE-MIT", "README.md", "src/**/*"]
 
 [badges]
@@ -22,7 +23,7 @@ version_check = "0.1.5"
 
 [dependencies]
 byteorder = "1.0"
-error-chain = "0.12"
+error-chain = "0.12.1"
 log = "0.4"
 num-traits = "0.2"
 quickcheck = { version = "0.8", optional = true }

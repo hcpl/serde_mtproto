@@ -6,6 +6,7 @@
 
 use std::fmt;
 
+use error_chain::error_chain;
 use serde::{ser, de};
 
 
@@ -29,13 +30,13 @@ error_chain! {
         }
 
         /// Error while casting a signed integer.
-        SignedIntegerCast(num: ::utils::IntMax) {
+        SignedIntegerCast(num: crate::utils::IntMax) {
             description("error while casting a signed integer")
             display("error while casting a signed integer: {}", num)
         }
 
         /// Error while casting an unsigned integer.
-        UnsignedIntegerCast(num: ::utils::UIntMax) {
+        UnsignedIntegerCast(num: crate::utils::UIntMax) {
             description("error while casting an unsigned integer")
             display("error while casting an unsigned integer: {}", num)
         }
@@ -87,7 +88,7 @@ pub enum SerErrorKind {
 }
 
 impl fmt::Display for SerErrorKind {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
             SerErrorKind::Msg(ref string) => {
                 write!(f, "custom string: {}", string)
@@ -128,7 +129,7 @@ pub enum SerSerdeType {
 }
 
 impl fmt::Display for SerSerdeType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let repr = match *self {
             SerSerdeType::Char => "char",
             SerSerdeType::None => "none",
@@ -173,7 +174,7 @@ pub enum DeErrorKind {
 }
 
 impl fmt::Display for DeErrorKind {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
             DeErrorKind::Msg(ref string) => {
                 write!(f, "custom string: {}", string)
@@ -227,7 +228,7 @@ pub enum DeSerdeType {
 }
 
 impl fmt::Display for DeSerdeType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let repr = match *self {
             DeSerdeType::Any => "any",
             DeSerdeType::Char => "char",

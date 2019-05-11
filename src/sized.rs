@@ -72,10 +72,11 @@
 use std::collections::{HashMap, BTreeMap};
 use std::hash::{BuildHasher, Hash};
 
+use error_chain::bail;
 use serde_bytes::{ByteBuf, Bytes};
 
-use error::{self, ErrorKind};
-use utils::check_seq_len;
+use crate::error::{self, ErrorKind};
+use crate::utils::check_seq_len;
 
 
 /// Size of a bool MtProto value.

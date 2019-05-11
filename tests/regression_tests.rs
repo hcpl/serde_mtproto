@@ -1,28 +1,20 @@
 //! Integration & regression tests.
 
-#[macro_use]
-extern crate derivative;
-#[macro_use]
-extern crate lazy_static;
-#[macro_use]
-extern crate maplit;
-#[macro_use]
-extern crate pretty_assertions;
-extern crate serde;
-extern crate serde_bytes;
-#[macro_use]
-extern crate serde_derive;
-extern crate serde_mtproto as serde_mtproto_other_name;    // Tests `serde_mtproto_derive`
-#[macro_use]
-extern crate serde_mtproto_derive;
-
 
 use std::collections::BTreeMap;
 
+use derivative::Derivative;
+use lazy_static::lazy_static;
+use maplit::btreemap;
+use pretty_assertions::assert_eq;
 use serde::de::{Deserializer, DeserializeSeed, Error as DeError};
+use serde_derive::{Serialize, Deserialize};
+use serde_mtproto_derive::{MtProtoIdentifiable, MtProtoSized};
 use serde_bytes::ByteBuf;
-use serde_mtproto_other_name::{Boxed, MtProtoSized, UnsizedByteBuf, UnsizedByteBufSeed,
-                               to_bytes, to_writer, from_bytes, from_reader};
+use serde_mtproto::{
+    Boxed, MtProtoSized, UnsizedByteBuf, UnsizedByteBufSeed,
+    to_bytes, to_writer, from_bytes, from_reader,
+};
 
 
 #[derive(Debug, Derivative, Serialize, Deserialize, MtProtoIdentifiable, MtProtoSized)]
@@ -94,7 +86,7 @@ enum Cafebabe<T> {
     Bar {
         byte_id: i8,
         position: (u64, u32),
-        #[serde(bound = "T: ::serde_mtproto_other_name::Identifiable")]
+        #[serde(bound = "T: serde_mtproto::Identifiable")]
         data: Boxed<T>,
         bignum: i128,
         ratio: f32,
