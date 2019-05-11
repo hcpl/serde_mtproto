@@ -8,6 +8,7 @@ homepage = "https://github.com/hcpl/serde_mtproto"
 documentation = "https://docs.rs/serde_mtproto_derive"
 repository = "https://github.com/hcpl/serde_mtproto"
 keywords = ["serde", "serialization", "telegram"]
+edition = "2018"
 
 [badges]
 travis-ci = { repository = "hcpl/serde_mtproto" }

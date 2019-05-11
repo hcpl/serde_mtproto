@@ -1,10 +1,9 @@
-use proc_macro2;
-use syn;
+use quote::quote;
 
-use ast;
+use crate::ast;
 
 
-pub(crate) fn impl_mt_proto_sized(mut container: ast::Container) -> proc_macro2::TokenStream {
+pub(crate) fn impl_derive(mut container: ast::Container) -> proc_macro2::TokenStream {
     add_mt_proto_sized_trait_bound_if_missing(&mut container);
     let (item_impl_generics, item_ty_generics, item_where_clause) =
         container.generics.split_for_impl();
@@ -162,7 +161,7 @@ fn add_mt_proto_sized_trait_bound_if_missing(container: &mut ast::Container) {
                 }
             }
 
-            type_param.bounds.push(parse_quote!(_serde_mtproto::MtProtoSized));
+            type_param.bounds.push(syn::parse_quote!(_serde_mtproto::MtProtoSized));
         }
     }
 }

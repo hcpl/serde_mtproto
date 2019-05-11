@@ -1,19 +1,17 @@
-use proc_macro2;
-use quote::ToTokens;
-use syn;
+use quote::{ToTokens, quote};
 
-use ast;
-use ext::IteratorResultExt;
+use crate::ast;
+use crate::ext::IteratorResultExt;
 
 
-pub(crate) fn impl_mt_proto_identifiable(container: ast::Container) -> proc_macro2::TokenStream {
-    match impl_mt_proto_identifiable_or_error(container) {
+pub(crate) fn impl_derive(container: ast::Container) -> proc_macro2::TokenStream {
+    match impl_derive_or_error(container) {
         Ok(tokens) => tokens,
         Err(e) => e.iter().map(syn::Error::to_compile_error).collect(),
     }
 }
 
-fn impl_mt_proto_identifiable_or_error(
+fn impl_derive_or_error(
     container: ast::Container,
 ) -> Result<proc_macro2::TokenStream, Vec<syn::Error>> {
     let (item_impl_generics, item_ty_generics, item_where_clause) =

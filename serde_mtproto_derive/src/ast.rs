@@ -1,8 +1,3 @@
-use proc_macro2;
-use quote;
-use syn;
-
-
 pub(crate) struct Container {
     pub(crate) attrs: Vec<syn::Attribute>,
     pub(crate) vis: syn::Visibility,
@@ -73,7 +68,7 @@ impl quote::ToTokens for Container {
 }
 
 
-pub(crate) struct TokensOrDefault<'a, T: 'a>(pub(crate) &'a Option<T>);
+pub(crate) struct TokensOrDefault<'a, T>(pub(crate) &'a Option<T>);
 
 impl<'a, T> quote::ToTokens for TokensOrDefault<'a, T>
 where

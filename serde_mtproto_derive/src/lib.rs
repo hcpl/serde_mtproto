@@ -49,12 +49,6 @@
 
 extern crate proc_macro;
 
-extern crate proc_macro2;
-#[macro_use]
-extern crate quote;
-#[macro_use]
-extern crate syn;
-
 
 #[macro_use]
 mod macros;
@@ -67,15 +61,12 @@ mod sized;
 
 use proc_macro::TokenStream;
 
-use identifiable::impl_mt_proto_identifiable;
-use sized::impl_mt_proto_sized;
-
 
 #[proc_macro_derive(MtProtoIdentifiable, attributes(mtproto_identifiable))]
 pub fn mt_proto_identifiable(input: TokenStream) -> TokenStream {
-    let ast = parse_macro_input!(input as syn::DeriveInput);
+    let ast = syn::parse_macro_input!(input as syn::DeriveInput);
     let tokens = match ast::Container::from_derive_input(ast, "mtproto::Identifiable") {
-        Ok(container) => impl_mt_proto_identifiable(container),
+        Ok(container) => crate::identifiable::impl_derive(container),
         Err(e) => e.to_compile_error(),
     };
 
@@ -84,9 +75,9 @@ pub fn mt_proto_identifiable(input: TokenStream) -> TokenStream {
 
 #[proc_macro_derive(MtProtoSized, attributes(mtproto_sized))]
 pub fn mt_proto_sized(input: TokenStream) -> TokenStream {
-    let ast = parse_macro_input!(input as syn::DeriveInput);
+    let ast = syn::parse_macro_input!(input as syn::DeriveInput);
     let tokens = match ast::Container::from_derive_input(ast, "mtproto::MtProtoSized") {
-        Ok(container) => impl_mt_proto_sized(container),
+        Ok(container) => crate::sized::impl_derive(container),
         Err(e) => e.to_compile_error(),
     };
 
