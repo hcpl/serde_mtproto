@@ -255,7 +255,7 @@ impl MtProtoSized for () {
     }
 }
 
-impl<'a> MtProtoSized for Bytes<'a> {
+impl<'a> MtProtoSized for &'a Bytes {
     fn size_hint(&self) -> error::Result<usize> {
         size_hint_from_byte_seq_len(self.len())
     }

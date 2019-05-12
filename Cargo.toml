@@ -28,22 +28,22 @@ log = "0.4"
 num-traits = "0.2"
 quickcheck = { version = "0.8", optional = true }
 serde = "1.0"
-serde_bytes = "0.10"
+serde_bytes = "0.11"
 serde_derive = "1.0"
 
 [dev-dependencies]
 derivative = "1.0.2"
 lazy_static = "1.2"
 maplit = "1.0"
-pretty_assertions = "0.5"
+pretty_assertions = "0.6"
 #quickcheck_derive = "0.2"
 quickcheck_derive = { git = "https://github.com/hcpl/quickcheck_derive", branch = "minimum-supported-rustc" }
 rand = "0.6"
 serde_json = "1.0"
 serde_mtproto_derive = { path = "serde_mtproto_derive", version = "=0.3.1" }  # Update in lockstep
 serde_yaml = "0.8"
-toml = "0.4"
-version-sync = "0.7"
+toml = "0.5"
+version-sync = "0.8"
 
 [features]
 default = []
