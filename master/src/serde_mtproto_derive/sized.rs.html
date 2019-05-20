@@ -182,15 +182,13 @@
 <span id="182">182</span>
 <span id="183">183</span>
 <span id="184">184</span>
-<span id="185">185</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">proc_macro2</span>;
-<span class="kw">use</span> <span class="ident">syn</span>;
+<span class="kw">use</span> <span class="ident">quote</span>::<span class="ident">quote</span>;
 
-<span class="kw">use</span> <span class="ident">ast</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">ast</span>;
 
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">impl_mt_proto_sized</span>(<span class="kw-2">mut</span> <span class="ident">container</span>: <span class="ident">ast</span>::<span class="ident">Container</span>) <span class="op">-&gt;</span> <span class="ident">proc_macro2</span>::<span class="ident">TokenStream</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">impl_derive</span>(<span class="kw-2">mut</span> <span class="ident">container</span>: <span class="ident">ast</span>::<span class="ident">Container</span>) <span class="op">-&gt;</span> <span class="ident">proc_macro2</span>::<span class="ident">TokenStream</span> {
     <span class="ident">add_mt_proto_sized_trait_bound_if_missing</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">container</span>);
     <span class="kw">let</span> (<span class="ident">item_impl_generics</span>, <span class="ident">item_ty_generics</span>, <span class="ident">item_where_clause</span>) <span class="op">=</span>
         <span class="ident">container</span>.<span class="ident">generics</span>.<span class="ident">split_for_impl</span>();
@@ -348,7 +346,7 @@
                 }
             }
 
-            <span class="ident">type_param</span>.<span class="ident">bounds</span>.<span class="ident">push</span>(<span class="macro">parse_quote</span><span class="macro">!</span>(<span class="ident">_serde_mtproto</span>::<span class="ident">MtProtoSized</span>));
+            <span class="ident">type_param</span>.<span class="ident">bounds</span>.<span class="ident">push</span>(<span class="ident">syn</span>::<span class="macro">parse_quote</span><span class="macro">!</span>(<span class="ident">_serde_mtproto</span>::<span class="ident">MtProtoSized</span>));
         }
     }
 }

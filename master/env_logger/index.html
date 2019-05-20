@@ -138,10 +138,10 @@ The following example excludes the timestamp from the log output:</p>
     .<span class="ident">default_format_timestamp</span>(<span class="bool-val">false</span>)
     .<span class="ident">init</span>();</pre></div>
 <h3 id="stability-of-the-default-format" class="section-header"><a href="#stability-of-the-default-format">Stability of the default format</a></h3>
-<p>The default format won't optimise for long-term stability, and explicitly makes no
-guarantees about the stability of its output across major, minor or patch version
+<p>The default format won't optimise for long-term stability, and explicitly makes no 
+guarantees about the stability of its output across major, minor or patch version 
 bumps during <code>0.x</code>.</p>
-<p>If you want to capture or interpret the output of <code>env_logger</code> programmatically
+<p>If you want to capture or interpret the output of <code>env_logger</code> programmatically 
 then you should use a custom format.</p>
 <h3 id="using-a-custom-format" class="section-header"><a href="#using-a-custom-format">Using a custom format</a></h3>
 <p>Custom formats can be provided as closures to the <a href="struct.Builder.html"><code>Builder</code></a>.

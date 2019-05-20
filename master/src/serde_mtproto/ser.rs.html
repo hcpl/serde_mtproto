@@ -536,17 +536,21 @@
 <span id="536">536</span>
 <span id="537">537</span>
 <span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Serialize a Rust data structure into its MTProto binary representation.</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>;
 
 <span class="kw">use</span> <span class="ident">byteorder</span>::{<span class="ident">WriteBytesExt</span>, <span class="ident">LittleEndian</span>};
+<span class="kw">use</span> <span class="ident">error_chain</span>::<span class="ident">bail</span>;
+<span class="kw">use</span> <span class="ident">log</span>::<span class="ident">debug</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">ser</span>::{<span class="self">self</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">error</span>::{<span class="self">self</span>, <span class="ident">SerErrorKind</span>, <span class="ident">SerSerdeType</span>};
-<span class="kw">use</span> <span class="ident">identifiable</span>::<span class="ident">Identifiable</span>;
-<span class="kw">use</span> <span class="ident">utils</span>::{<span class="ident">i128_to_parts</span>, <span class="ident">safe_uint_cast</span>, <span class="ident">u128_to_parts</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::{<span class="self">self</span>, <span class="ident">SerErrorKind</span>, <span class="ident">SerSerdeType</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">identifiable</span>::<span class="ident">Identifiable</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">utils</span>::{<span class="ident">i128_to_parts</span>, <span class="ident">safe_uint_cast</span>, <span class="ident">u128_to_parts</span>};
 
 
 <span class="doccomment">/// A structure for serializing Rust values into MTProto binary representation.</span>
@@ -816,7 +820,7 @@
 
 <span class="doccomment">/// Helper structure for serializing fixed-length sequences.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SerializeFixedLengthSeq</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">io</span>::<span class="ident">Write</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SerializeFixedLengthSeq</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span><span class="op">&gt;</span> {
     <span class="ident">ser</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">Serializer</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>,
     <span class="ident">len</span>: <span class="ident">u32</span>,
     <span class="ident">next_index</span>: <span class="ident">u32</span>,
@@ -977,7 +981,7 @@
 
 <span class="doccomment">/// Helper structure for serializing maps.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SerializeFixedLengthMap</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">io</span>::<span class="ident">Write</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SerializeFixedLengthMap</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">W</span>: <span class="ident">io</span>::<span class="ident">Write</span><span class="op">&gt;</span> {
     <span class="ident">ser</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">Serializer</span><span class="op">&lt;</span><span class="ident">W</span><span class="op">&gt;</span>,
     <span class="ident">len</span>: <span class="ident">u32</span>,
     <span class="ident">next_index</span>: <span class="ident">u32</span>,

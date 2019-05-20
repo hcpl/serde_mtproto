@@ -568,17 +568,21 @@
 <span id="568">568</span>
 <span id="569">569</span>
 <span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Deserialize MTProto binary representation to a Rust data structure.</span>
 
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>;
 
 <span class="kw">use</span> <span class="ident">byteorder</span>::{<span class="ident">ReadBytesExt</span>, <span class="ident">LittleEndian</span>};
+<span class="kw">use</span> <span class="ident">error_chain</span>::<span class="ident">bail</span>;
+<span class="kw">use</span> <span class="ident">log</span>::<span class="ident">debug</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">de</span>::{<span class="self">self</span>, <span class="ident">Deserialize</span>, <span class="ident">DeserializeOwned</span>, <span class="ident">DeserializeSeed</span>, <span class="ident">Visitor</span>};
 
-<span class="kw">use</span> <span class="ident">error</span>::{<span class="self">self</span>, <span class="ident">DeErrorKind</span>, <span class="ident">DeSerdeType</span>};
-<span class="kw">use</span> <span class="ident">identifiable</span>::{<span class="ident">BOOL_FALSE_ID</span>, <span class="ident">BOOL_TRUE_ID</span>};
-<span class="kw">use</span> <span class="ident">utils</span>::{<span class="ident">i128_from_parts</span>, <span class="ident">safe_float_cast</span>, <span class="ident">safe_int_cast</span>, <span class="ident">safe_uint_cast</span>, <span class="ident">u128_from_parts</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">error</span>::{<span class="self">self</span>, <span class="ident">DeErrorKind</span>, <span class="ident">DeSerdeType</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">identifiable</span>::{<span class="ident">BOOL_FALSE_ID</span>, <span class="ident">BOOL_TRUE_ID</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">utils</span>::{<span class="ident">i128_from_parts</span>, <span class="ident">safe_float_cast</span>, <span class="ident">safe_int_cast</span>, <span class="ident">safe_uint_cast</span>, <span class="ident">u128_from_parts</span>};
 
 
 <span class="doccomment">/// A structure that deserializes  MTProto binary representation into Rust values.</span>
@@ -615,7 +619,7 @@
         <span class="kw">let</span> <span class="ident">rem</span>;
 
         <span class="kw">match</span> <span class="ident">first_byte</span> {
-            <span class="number">0</span> ... <span class="number">253</span> <span class="op">=&gt;</span> {
+            <span class="number">0</span> ..= <span class="number">253</span> <span class="op">=&gt;</span> {
                 <span class="ident">len</span> <span class="op">=</span> <span class="ident">usize</span>::<span class="ident">from</span>(<span class="ident">first_byte</span>);
                 <span class="ident">rem</span> <span class="op">=</span> (<span class="ident">len</span> <span class="op">+</span> <span class="number">1</span>) <span class="op">%</span> <span class="number">4</span>;
             },
@@ -922,7 +926,7 @@
 
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">struct</span> <span class="ident">SeqAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;ids</span>: <span class="lifetime">&#39;a</span>, <span class="ident">R</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">io</span>::<span class="ident">Read</span><span class="op">&gt;</span> {
+<span class="kw">struct</span> <span class="ident">SeqAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;ids</span>: <span class="lifetime">&#39;a</span>, <span class="ident">R</span>: <span class="ident">io</span>::<span class="ident">Read</span><span class="op">&gt;</span> {
     <span class="ident">de</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;ids</span>, <span class="ident">R</span><span class="op">&gt;</span>,
     <span class="ident">len</span>: <span class="ident">u32</span>,
     <span class="ident">next_index</span>: <span class="ident">u32</span>,
@@ -960,7 +964,7 @@
 
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">struct</span> <span class="ident">MapAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;ids</span>: <span class="lifetime">&#39;a</span>, <span class="ident">R</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">io</span>::<span class="ident">Read</span><span class="op">&gt;</span> {
+<span class="kw">struct</span> <span class="ident">MapAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;ids</span>: <span class="lifetime">&#39;a</span>, <span class="ident">R</span>: <span class="ident">io</span>::<span class="ident">Read</span><span class="op">&gt;</span> {
     <span class="ident">de</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;ids</span>, <span class="ident">R</span><span class="op">&gt;</span>,
     <span class="ident">len</span>: <span class="ident">u32</span>,
     <span class="ident">next_index</span>: <span class="ident">u32</span>,
@@ -1005,7 +1009,7 @@
 
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">struct</span> <span class="ident">EnumVariantAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;ids</span>: <span class="lifetime">&#39;a</span>, <span class="ident">R</span>: <span class="lifetime">&#39;a</span> <span class="op">+</span> <span class="ident">io</span>::<span class="ident">Read</span><span class="op">&gt;</span> {
+<span class="kw">struct</span> <span class="ident">EnumVariantAccess</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;ids</span>: <span class="lifetime">&#39;a</span>, <span class="ident">R</span>: <span class="ident">io</span>::<span class="ident">Read</span><span class="op">&gt;</span> {
     <span class="ident">de</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;ids</span>, <span class="ident">R</span><span class="op">&gt;</span>,
 }
 
